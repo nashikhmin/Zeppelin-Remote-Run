@@ -1,0 +1,35 @@
+<idea-plugin>
+    <id>com.your.company.unique.plugin.id</id>
+    <name>Zeppelin Remote Run</name>
+    <version>0.1</version>
+    <vendor email="veoring@gmail.com" url="https://github.com/veor12">Nikita Ashikhmin</vendor>
+
+    <description><![CDATA[
+      It is an Spring Jetbrains Internship 2018 project.<br>
+      It was started in snow Lappenranta.
+      <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Started.
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
