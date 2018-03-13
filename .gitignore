@@ -5,8 +5,6 @@
 .idea/modules/
 .idea/.name
 .idea/*.xml
-!.idea/uiDesigner.xml
-/target
 /*.bat
 *.class
 !scala/scala-impl/testdata/decompiler/**/*.class
