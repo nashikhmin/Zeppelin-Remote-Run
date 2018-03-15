@@ -8,7 +8,9 @@ import spray.json._
 import scalaj.http.HttpResponse
 
 
-case class Credentials(principal: String, ticket: String, roles: String)
+case class Credentials(principal: String, ticket: String, roles: String) {
+
+}
 
 
 object CredentialsJsonProtocol extends DefaultJsonProtocol {
@@ -27,7 +29,6 @@ class ZeppelinApi(val restApi: RestAPI) {
   def createNotebook(name: String): Notebook = {
     val data = Map("name" -> name)
     val result: HttpResponse[String] = restApi.performPostData("/notebook", data, sessionToken)
-
     if (result.code != 201)
       throw RestApiException(s"Cannot create a notebook.\n Error code: ${result.code}.\nBody:${result.body}")
 
