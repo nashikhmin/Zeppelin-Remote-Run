@@ -1,29 +1,14 @@
-package jetbrains.zeppelin.api
+package jetbrains.zeppelin.api.rest
 
 import java.net.HttpCookie
 
-import spray.json.DefaultJsonProtocol._
+import jetbrains.zeppelin.api.ZeppelinAPIProtocol._
+import jetbrains.zeppelin.api.{Credentials, Notebook, Paragraph}
+import scalaj.http.HttpResponse
 import spray.json._
 
-import scalaj.http.HttpResponse
 
-
-case class Credentials(principal: String, ticket: String, roles: String) {
-
-}
-
-
-object CredentialsJsonProtocol extends DefaultJsonProtocol {
-  implicit val CredentialsFormat: RootJsonFormat[Credentials] = jsonFormat3(Credentials)
-}
-
-case class Notebook(id: String) {}
-
-case class Paragraph(notebookId: String, paragraphId: String) {}
-
-
-class ZeppelinApi(val restApi: RestAPI) {
-
+class ZeppelinRestApi(val restApi: RestAPI) {
   var sessionToken: Option[HttpCookie] = None
 
   def createNotebook(name: String): Notebook = {
@@ -45,15 +30,13 @@ class ZeppelinApi(val restApi: RestAPI) {
       throw RestApiException(s"Cannot create a paragraph.\n Error code: ${response.code}.\nBody:${response.body}")
 
     val paragraphId = response.body.parseJson.convertTo[Map[String, String]].getOrElse("body", "")
-    Paragraph(noteId, paragraphId)
+    Paragraph(paragraphId)
   }
 
   def login(userName: String, password: String): Credentials = {
     val result: HttpResponse[String] = restApi.performPostForm("/login", Map("userName" -> userName, "password" -> password))
     if (result.code != 200)
       throw RestApiException(s"Cannot login.\n Error code: ${result.code}.\nBody:${result.body}")
-
-    import CredentialsJsonProtocol._
     val json = result.body.parseJson.asJsObject.fields.getOrElse("body", JsObject())
     sessionToken = result.cookies.reverseIterator.find(_.getName == "JSESSIONID")
     json.convertTo[Credentials]

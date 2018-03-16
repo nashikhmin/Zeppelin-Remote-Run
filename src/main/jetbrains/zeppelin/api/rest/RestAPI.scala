@@ -1,11 +1,10 @@
-package jetbrains.zeppelin.api
+package jetbrains.zeppelin.api.rest
 
 import java.net.HttpCookie
 
+import scalaj.http.{Http, HttpOptions, HttpResponse}
 import spray.json.DefaultJsonProtocol._
 import spray.json._
-
-import scalaj.http.{Http, HttpOptions, HttpResponse}
 
 
 final case class RestApiException(private val message: String = "",
@@ -25,8 +24,6 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
     if (cookie.isDefined) {
       request = request.cookie(cookie.get)
     }
-    //cookie.fold(request)(cookie => request.header("Cookie", s"${cookie.getName}=${cookie.getValue}"))
-
     val result = request.asString
     result
   }

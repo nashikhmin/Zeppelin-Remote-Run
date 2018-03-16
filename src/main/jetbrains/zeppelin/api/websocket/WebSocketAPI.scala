@@ -1,8 +1,9 @@
-package jetbrains.zeppelin.api
+package jetbrains.zeppelin.api.websocket
 
 import java.net.URI
 
 import com.typesafe.scalalogging.LazyLogging
+import jetbrains.zeppelin.api._
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.annotations.{OnWebSocketClose, OnWebSocketConnect, OnWebSocketMessage, WebSocket}
 import org.eclipse.jetty.websocket.client.{ClientUpgradeRequest, WebSocketClient}
@@ -117,13 +118,6 @@ class WebSocketAPI(uri: String) extends LazyLogging {
     client.stop()
   }
 
-  def getNote(credentials: Credentials, noteId: String): JsObject = {
-    val data = Map("id" -> noteId)
-    val opRequest = "GET_NOTE"
-    val opResponse = "NOTE"
-    val requestMessage = RequestMessage(opRequest, data, credentials)
-    sendDataAndGetResponseData(opResponse, requestMessage)
-  }
 
   def sendDataAndGetResponseData(responseCode: String, requestMessage: RequestMessage): JsObject = {
     if (!isConnected) throw SessionIsClosedException()
