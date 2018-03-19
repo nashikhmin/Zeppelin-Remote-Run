@@ -3,7 +3,6 @@ package jetbrains.zeppelin.api.rest
 import java.net.HttpCookie
 
 import scalaj.http.{Http, HttpOptions, HttpResponse}
-import spray.json.DefaultJsonProtocol._
 import spray.json._
 
 
@@ -15,8 +14,8 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
   private val apiUrl = s"$protocol://$host:$port/api"
 
 
-  def performPostData(uri: String, data: Map[String, String] = Map(), cookie: Option[HttpCookie]): HttpResponse[String] = {
-    var request = Http(apiUrl + uri).postData(data.toJson.toString())
+  def performPostData(uri: String, data: JsValue = JsObject(), cookie: Option[HttpCookie]): HttpResponse[String] = {
+    var request = Http(apiUrl + uri).postData(data.compactPrint)
       .header("Content-Type", "application/json")
       .header("Charset", "UTF-8")
       .option(HttpOptions.readTimeout(10000))

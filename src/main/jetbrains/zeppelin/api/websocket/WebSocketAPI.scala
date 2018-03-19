@@ -2,12 +2,10 @@ package jetbrains.zeppelin.api.websocket
 
 import java.net.URI
 
-import com.typesafe.scalalogging.LazyLogging
 import jetbrains.zeppelin.api._
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.annotations.{OnWebSocketClose, OnWebSocketConnect, OnWebSocketMessage, WebSocket}
 import org.eclipse.jetty.websocket.client.{ClientUpgradeRequest, WebSocketClient}
-import spray.json.DefaultJsonProtocol._
 import spray.json.{JsObject, _}
 
 import scala.collection.mutable
@@ -15,8 +13,13 @@ import scala.collection.mutable
 
 case class SessionIsClosedException() extends Exception()
 
+
+case class RequestMessage(op: String, data: JsValue, credentials: Credentials)
+
+case class ResponseMessage(op: String, data: JsObject)
+
 trait MessageHandler {
-  def handle(result: JsObject)
+  def handle(result: ResponseMessage)
 }
 
 object WebSocketApiProtocol extends DefaultJsonProtocol {
@@ -24,7 +27,8 @@ object WebSocketApiProtocol extends DefaultJsonProtocol {
   implicit object RequestMessageFormat extends RootJsonFormat[RequestMessage] {
     def write(r: RequestMessage): JsObject = {
       JsObject(
-        "op" -> JsString(r.op), "data" -> r.data.toJson,
+        "op" -> JsString(r.op),
+        "data" -> r.data,
         "ticket" -> JsString(r.credentials.ticket),
         "principal" -> JsString(r.credentials.principal),
         "roles" -> JsString(r.credentials.roles)
@@ -43,8 +47,8 @@ object WebSocketApiProtocol extends DefaultJsonProtocol {
     }
 
     def read(value: JsValue): ResponseMessage = {
-      value.asJsObject.getFields("data") match {
-        case Seq(data) => ResponseMessage(data.asJsObject())
+      value.asJsObject.getFields("op", "data") match {
+        case Seq(JsString(op), data) => ResponseMessage(op, data.asJsObject())
         case _ => throw DeserializationException("Response message expected")
       }
     }
@@ -53,30 +57,25 @@ object WebSocketApiProtocol extends DefaultJsonProtocol {
 }
 
 
-case class RequestMessage(op: String, data: Map[String, String], credentials: Credentials)
-
-case class ResponseMessage(data: JsObject)
+import jetbrains.zeppelin.api.websocket.WebSocketApiProtocol._
 
 @WebSocket(maxTextMessageSize = 64 * 1024)
-class WebSocketAPI(uri: String) extends LazyLogging {
+class WebSocketAPI(uri: String) {
 
   private val handlersMap: mutable.Map[String, MessageHandler] = mutable.Map()
   private val monitor = AnyRef
-  var defaultHandler: MessageHandler = (result: JsObject) => {
-    println("Can't handle " + result.toString())
+  var defaultHandler: MessageHandler = (result: ResponseMessage) => {
+    println("Default Handler is called")
   }
   private var session: Session = _
   private var isConnected = false
   private var client: WebSocketClient = _
 
   @OnWebSocketClose
-  def onClose(statusCode: Int, reason: String) {
-    logger.info(s"Connection closed: $statusCode - $reason")
-  }
+  def onClose(statusCode: Int, reason: String) {}
 
   @OnWebSocketConnect
   def onConnect(session: Session) {
-    logger.info(s"Got connect: $session")
     this.session = session
     monitor.synchronized {
       isConnected = true
@@ -87,8 +86,9 @@ class WebSocketAPI(uri: String) extends LazyLogging {
   @OnWebSocketMessage
   def onMessage(msg: String) {
     val json = msg.parseJson.asJsObject
-    val operationCode = json.fields.getOrElse("op", "").toString.parseJson.convertTo[String]
-    handlersMap.getOrElse(operationCode, defaultHandler).handle(json)
+    val response = json.convertTo[ResponseMessage]
+    val operationCode = response.op
+    handlersMap.getOrElse(operationCode, defaultHandler).handle(response)
   }
 
   def connect() {
@@ -119,14 +119,14 @@ class WebSocketAPI(uri: String) extends LazyLogging {
   }
 
 
-  def sendDataAndGetResponseData(responseCode: String, requestMessage: RequestMessage): JsObject = {
+  def doRequestSync(requestMessage: RequestMessage, responseCode: String): JsObject = {
     if (!isConnected) throw SessionIsClosedException()
 
 
     var gotResponse = false
-    var response: JsObject = null
+    var response: ResponseMessage = null
 
-    registerHandler(responseCode, (result: JsObject) => {
+    registerHandler(responseCode, (result: ResponseMessage) => {
       monitor.synchronized {
         response = result
         gotResponse = true
@@ -143,8 +143,19 @@ class WebSocketAPI(uri: String) extends LazyLogging {
         monitor.wait()
       }
     }
-    response.convertTo[ResponseMessage].data
+    response.data
   }
+
+  def doRequestAsync(requestMessage: RequestMessage, handlersMap: mutable.Map[String, MessageHandler]) {
+    if (!isConnected) throw SessionIsClosedException()
+
+    for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)
+
+    import WebSocketApiProtocol._
+    val msg = requestMessage.toJson.toString()
+    session.getRemote.sendString(msg)
+  }
+
 
   def registerHandler(op: String, handler: MessageHandler) {
     handlersMap += (op -> handler)

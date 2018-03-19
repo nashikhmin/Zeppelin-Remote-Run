@@ -3,7 +3,7 @@ package jetbrains.zeppelin.api.rest
 import java.net.HttpCookie
 
 import jetbrains.zeppelin.api.ZeppelinAPIProtocol._
-import jetbrains.zeppelin.api.{Credentials, Notebook, Paragraph}
+import jetbrains.zeppelin.api._
 import scalaj.http.HttpResponse
 import spray.json._
 
@@ -11,9 +11,8 @@ import spray.json._
 class ZeppelinRestApi(val restApi: RestAPI) {
   var sessionToken: Option[HttpCookie] = None
 
-  def createNotebook(name: String): Notebook = {
-    val data = Map("name" -> name)
-    val result: HttpResponse[String] = restApi.performPostData("/notebook", data, sessionToken)
+  def createNotebook(newNotebook: NewNotebook): Notebook = {
+    val result: HttpResponse[String] = restApi.performPostData("/notebook", newNotebook.toJson, sessionToken)
     if (result.code != 201)
       throw RestApiException(s"Cannot create a notebook.\n Error code: ${result.code}.\nBody:${result.body}")
 
@@ -23,7 +22,7 @@ class ZeppelinRestApi(val restApi: RestAPI) {
 
 
   def createParagraph(noteId: String): Paragraph = {
-    val data = Map("title" -> "", "text" -> "%spark\nprintln(\"Paragraph insert revised\")")
+    val data = Map("title" -> "", "text" -> "%spark\nprintln(\"Paragraph insert revised\")").toJson
     val response: HttpResponse[String] = restApi.performPostData(s"/notebook/$noteId/paragraph", data, sessionToken)
 
     if (response.code != 201)
