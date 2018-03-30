@@ -1,7 +1,7 @@
 package jetbrains.zeppelin.actions
 
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, PlatformDataKeys}
-import com.intellij.openapi.ui.Messages
+import com.intellij.notification.{Notification, NotificationType, Notifications}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import jetbrains.zeppelin.api.rest.{RestAPI, ZeppelinRestApi}
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult, WebSocketAPI, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.api.{NewNotebook, NewParagraph, Notebook}
@@ -10,9 +10,6 @@ import scala.util.Random
 
 class TextBoxes extends AnAction {
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val project = event.getData(PlatformDataKeys.PROJECT_CONTEXT)
-
-
     val restAPI = new RestAPI("localhost", 8080)
     val zeppelinAPI = new ZeppelinRestApi(restAPI)
     val credentials = zeppelinAPI.login("user1", "password2")
@@ -25,44 +22,31 @@ class TextBoxes extends AnAction {
     val zeppelinWebSocketAPI: ZeppelinWebSocketAPI = new ZeppelinWebSocketAPI(webSocketAPI)
     val notebookWS: Notebook = zeppelinWebSocketAPI.getNote(credentials, notebookRest.id)
 
-    val monitor = AnyRef
-    var waitResult = true
-    var result = "none"
-    var output = ""
+
     val handler = new OutputHandler {
       override def onError(): Unit = {
-        monitor.synchronized {
-          result = "error"
-          waitResult = false
-          monitor.notifyAll()
-        }
+        Notifications.Bus
+          .notify(new Notification("Zeppelin Remote Run", " Zeppelin Remote Run:", "Paragraph Run Error", NotificationType
+            .ERROR))
       }
 
       override def handle(result: OutputResult, isAppend: Boolean): Unit = {
-        output = output + result.data
+        if (result.data.isEmpty)
+          return
+
+        Notifications.Bus
+          .notify(new Notification("Zeppelin Remote Run", " Zeppelin Remote Run:", result.data, NotificationType
+            .INFORMATION))
       }
 
       override def onSuccess(): Unit = {
-        monitor.synchronized {
-          result = "success"
-          waitResult = false
-          monitor.notifyAll()
-        }
+        Notifications.Bus
+          .notify(new Notification("Zeppelin Remote Run", " Zeppelin Remote Run:", "Paragraph Run Completed", NotificationType
+            .INFORMATION))
       }
     }
 
     zeppelinWebSocketAPI.runParagraph(notebookWS.paragraphs.head, handler, credentials)
-    monitor.synchronized {
-      while (waitResult) {
-        monitor.wait()
-      }
-    }
-    if (result == "success") {
-      Messages.showMessageDialog(project, s"Output: $output", "Success", Messages.getInformationIcon)
-    }
-    else {
-      Messages.showMessageDialog(project, s"Problem during executing", "Error", Messages.getErrorIcon)
-    }
   }
 
   private def getNewNote = {
