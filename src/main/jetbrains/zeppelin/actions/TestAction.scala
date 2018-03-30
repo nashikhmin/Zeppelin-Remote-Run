@@ -2,13 +2,14 @@ package jetbrains.zeppelin.actions
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
+import jetbrains.zeppelin.api.idea.IdeaEditorApi
 import jetbrains.zeppelin.api.rest.{RestAPI, ZeppelinRestApi}
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult, WebSocketAPI, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.api.{NewNotebook, NewParagraph, Notebook}
 
 import scala.util.Random
 
-class TextBoxes extends AnAction {
+class TestAction extends AnAction with IdeaEditorApi {
   override def actionPerformed(event: AnActionEvent): Unit = {
     val restAPI = new RestAPI("localhost", 8080)
     val zeppelinAPI = new ZeppelinRestApi(restAPI)
