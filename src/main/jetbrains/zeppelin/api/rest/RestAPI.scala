@@ -14,6 +14,17 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
   private val apiUrl = s"$protocol://$host:$port/api"
 
 
+  def performGetRequest(uri: String, cookie: Option[HttpCookie]): HttpResponse[String] = {
+    var request = Http(apiUrl + uri)
+      .header("Charset", "UTF-8")
+      .option(HttpOptions.readTimeout(10000))
+
+    if (cookie.isDefined) {
+      request = request.cookie(cookie.get)
+    }
+    request.asString
+  }
+
   def performPostData(uri: String, data: JsValue = JsObject(), cookie: Option[HttpCookie]): HttpResponse[String] = {
     var request = Http(apiUrl + uri).postData(data.compactPrint)
       .header("Content-Type", "application/json")

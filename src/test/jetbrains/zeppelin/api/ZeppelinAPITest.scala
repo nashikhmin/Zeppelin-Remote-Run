@@ -1,27 +1,24 @@
 package jetbrains.zeppelin.api
 
-import jetbrains.zeppelin.api.rest.{RestAPI, ZeppelinRestApi}
-import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult, WebSocketAPI, ZeppelinWebSocketAPI}
+import jetbrains.zeppelin.api.rest.ZeppelinRestApi
+import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
+import jetbrains.zeppelin.service.ZeppelinService
 import org.scalatest.{FunSuite, Matchers}
-
-import scala.util.Random
 
 class ZeppelinAPITest extends FunSuite with Matchers {
   private val monitor = AnyRef
-  test("Zeppelin.createNotebookAndRunParagraph") {
-    val restAPI = new RestAPI("localhost", 8080)
-    val zeppelinAPI = new ZeppelinRestApi(restAPI)
-    val credentials = zeppelinAPI.login("user1", "password2")
+  private val login = "user1"
+  private val password = "password2"
+  private val url = "localhost"
+  private val port = 8080
+  private val folder = "TestRemoteNotebooks/"
 
-    val notebookRest = zeppelinAPI.createNotebook(getNewNote)
-    assert(notebookRest.id.length == 9)
+  test("Zeppelin.CreateNotebookAndRunParagraph") {
+    val notebookName = s"${folder}goldenCase"
+    val zeppelinService = new ZeppelinService(url, port, notebookName)
+    zeppelinService.login(login, password)
 
-    val webSocketAPI = new WebSocketAPI("ws://localhost:8080/ws")
-    webSocketAPI.connect()
-    val zeppelinWebSocketAPI: ZeppelinWebSocketAPI = new ZeppelinWebSocketAPI(webSocketAPI)
-    val notebookWS: Notebook = zeppelinWebSocketAPI.getNote(credentials, notebookRest.id)
-
-
+    val code = "println(\"hello world\")"
     var waitResult = true
     var result = "none"
     val handler = new OutputHandler {
@@ -46,20 +43,21 @@ class ZeppelinAPITest extends FunSuite with Matchers {
       }
     }
 
-    zeppelinWebSocketAPI.runParagraph(notebookWS.paragraphs.head, handler, credentials)
+    zeppelinService.runCode(code, handler)
     monitor.synchronized {
       while (waitResult) {
         monitor.wait(20 * 1000)
       }
     }
-
     assert(result == "success")
   }
 
-  private def getNewNote = {
-    val runCode = "println(\"hello world\")"
-    val notebookName = s"RemoteNotebooks/${Random.alphanumeric.take(10).mkString}"
-    val newParagraph = NewParagraph("runCode", runCode)
-    NewNotebook(notebookName, List(newParagraph))
+  test("Zeppelin.GetNotebooks") {
+    val zeppelinRestApi = new ZeppelinRestApi(url, port)
+    zeppelinRestApi.login(login, password)
+    val notes = zeppelinRestApi.getNotes(folder)
+    zeppelinRestApi.createNotebook(NewNotebook(s"${folder}testAdd"))
+    val notesAfterAdd = zeppelinRestApi.getNotes(folder)
+    assert(notesAfterAdd.length - notes.length == 1)
   }
 }

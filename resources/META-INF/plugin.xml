@@ -31,10 +31,6 @@
     <actions>
         <group id="Zeppelin.SampleMenu" text="_Sample Menu" description="Sample menu">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action id="Zeppelin.Textboxes" class="jetbrains.zeppelin.actions.TestAction" text="Text _Boxes"
-                    description="A test menu item"/>
-
-
             <action id="zeppelin.SelectedText" class="jetbrains.zeppelin.actions.SelectTextAction"
                     text="Test Selected Text" description="Temp">
                 <keyboard-shortcut first-keystroke="control alt shift ENTER" keymap="$default"/>

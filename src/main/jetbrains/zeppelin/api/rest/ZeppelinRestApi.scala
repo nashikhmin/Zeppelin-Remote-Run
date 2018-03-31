@@ -9,6 +9,10 @@ import spray.json._
 
 
 class ZeppelinRestApi(val restApi: RestAPI) {
+  def this(host: String, port: Int) {
+    this(new RestAPI(host, port))
+  }
+
   var sessionToken: Option[HttpCookie] = None
 
   def createNotebook(newNotebook: NewNotebook): Notebook = {
@@ -20,9 +24,21 @@ class ZeppelinRestApi(val restApi: RestAPI) {
     Notebook(id)
   }
 
+  def getNotes(prefix: String = ""): List[Notebook] = {
+    val result = restApi.performGetRequest("/notebook", sessionToken)
+    if (result.code != 200)
+      throw RestApiException(s"Cannot get list of notebooks.\n Error code: ${result.code}.\nBody:${result.body}")
 
-  def createParagraph(noteId: String): Paragraph = {
-    val data = Map("title" -> "", "text" -> "%spark\nprintln(\"Paragraph insert revised\")").toJson
+    val arrayList = result.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
+    val list = arrayList.convertTo[List[Map[String, String]]]
+      .map((it) => Notebook(it.getOrElse("id", ""), it.getOrElse("name", "")))
+      .filter(it => !it.name.startsWith("~Trash") && it.name.startsWith(prefix))
+    list
+  }
+
+
+  def createParagraph(noteId: String, paragraphText: String): Paragraph = {
+    val data = Map("title" -> "", "text" -> paragraphText).toJson
     val response: HttpResponse[String] = restApi.performPostData(s"/notebook/$noteId/paragraph", data, sessionToken)
 
     if (response.code != 201)
@@ -33,7 +49,8 @@ class ZeppelinRestApi(val restApi: RestAPI) {
   }
 
   def login(userName: String, password: String): Credentials = {
-    val result: HttpResponse[String] = restApi.performPostForm("/login", Map("userName" -> userName, "password" -> password))
+    val result: HttpResponse[String] = restApi
+      .performPostForm("/login", Map("userName" -> userName, "password" -> password))
     if (result.code != 200)
       throw RestApiException(s"Cannot login.\n Error code: ${result.code}.\nBody:${result.body}")
     val json = result.body.parseJson.asJsObject.fields.getOrElse("body", JsObject())
