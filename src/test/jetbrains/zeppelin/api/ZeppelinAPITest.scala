@@ -16,7 +16,7 @@ class ZeppelinAPITest extends FunSuite with Matchers {
   test("Zeppelin.CreateNotebookAndRunParagraph") {
     val notebookName = s"${folder}goldenCase"
     val zeppelinService = new ZeppelinService(url, port, notebookName)
-    zeppelinService.login(login, password)
+    zeppelinService.connect(login, password)
 
     val code = "println(\"hello world\")"
     var waitResult = true

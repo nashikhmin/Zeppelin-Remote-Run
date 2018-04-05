@@ -35,9 +35,11 @@ import jetbrains.zeppelin.api.ZeppelinAPIProtocol._
 class ZeppelinWebSocketAPI(webSocketAPI: WebSocketAPI) {
   def this(address: String, port: Int) {
     this(new WebSocketAPI(s"ws://$address:$port/ws"))
-    webSocketAPI.connect()
   }
 
+  def close(): Unit = webSocketAPI.close()
+
+  def connect(): Unit = webSocketAPI.connect()
   def getNote(noteId: String, credentials: Credentials): Notebook = {
     val data = Map("id" -> noteId)
     val opRequest = "GET_NOTE"

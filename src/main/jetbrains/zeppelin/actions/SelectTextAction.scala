@@ -4,13 +4,12 @@ import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import jetbrains.zeppelin.api.idea.IdeaEditorApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
-import jetbrains.zeppelin.service.ZeppelinService
+import jetbrains.zeppelin.components.ZeppelinConnection
 
 class SelectTextAction extends AnAction with IdeaEditorApi {
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val notebookName = s"RemoteNotebooks/${event.getProject.getName}"
-    val zeppelinService = new ZeppelinService("localhost", 8080, notebookName)
-    zeppelinService.login("user1", "password2")
+
+    val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
     val editor = currentEditor(event)
     val selectedText = currentSelectedText(editor)
 

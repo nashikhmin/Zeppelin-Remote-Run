@@ -28,6 +28,13 @@
         <!-- Add your extensions here -->
     </extensions>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable groupId="language" instance="jetbrains.zeppelin.configuration.ConfigurationForm"
+                             id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
+                             nonDefaultProject="true"/>
+    </extensions>
+
+
     <actions>
         <group id="Zeppelin.SampleMenu" text="_Sample Menu" description="Sample menu">
             <add-to-group group-id="MainMenu" anchor="last"/>
@@ -37,5 +44,9 @@
             </action>
         </group>
     </actions>
-
+    <project-components>
+        <component>
+            <implementation-class>jetbrains.zeppelin.components.ZeppelinConnection</implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>

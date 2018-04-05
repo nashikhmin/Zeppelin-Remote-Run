@@ -14,7 +14,8 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     this(new ZeppelinWebSocketAPI(address, port), new ZeppelinRestApi(address, port), notebookName)
   }
 
-  def login(login: String, password: String): Unit = {
+  def connect(login: String, password: String): Unit = {
+    zeppelinWebSocketAPI.connect()
     credentials = zeppelinRestApi.login(login, password)
   }
 
@@ -28,5 +29,9 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
     val paragraph = notebookWS.paragraphs.find(_.id == paragraphId).get
     zeppelinWebSocketAPI.runParagraph(paragraph, handler, credentials)
+  }
+
+  def close(): Unit = {
+    zeppelinWebSocketAPI.close()
   }
 }
