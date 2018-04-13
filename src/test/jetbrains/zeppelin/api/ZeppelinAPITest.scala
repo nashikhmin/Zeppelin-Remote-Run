@@ -60,4 +60,12 @@ class ZeppelinAPITest extends FunSuite with Matchers {
     val notesAfterAdd = zeppelinRestApi.getNotes(folder)
     assert(notesAfterAdd.length - notes.length == 1)
   }
+
+  test("Zeppelin.GetInterpreters") {
+    val zeppelinRestApi = new ZeppelinRestApi(url, port)
+    zeppelinRestApi.login(login, password)
+    val interpreter = zeppelinRestApi.getInterpreters.head
+    zeppelinRestApi
+      .uploadJar(interpreter, "/home/nashikhmin/git/zeppelin-remote/target/scala-2.12/zeppelin-remote_2.12-0.1.jar")
+  }
 }

@@ -44,4 +44,17 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
       .option(HttpOptions.readTimeout(10000)).asString
     result
   }
+
+  def performPutData(uri: String, data: JsValue = JsObject(), cookie: Option[HttpCookie]): HttpResponse[String] = {
+    var request = Http(apiUrl + uri).put(data.compactPrint)
+      .header("Content-Type", "application/json")
+      .header("Charset", "UTF-8")
+      .option(HttpOptions.readTimeout(10000))
+
+    if (cookie.isDefined) {
+      request = request.cookie(cookie.get)
+    }
+    val result = request.asString
+    result
+  }
 }

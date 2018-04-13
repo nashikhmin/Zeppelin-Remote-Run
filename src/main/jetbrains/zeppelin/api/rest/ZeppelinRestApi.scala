@@ -48,6 +48,15 @@ class ZeppelinRestApi(val restApi: RestAPI) {
     Paragraph(paragraphId)
   }
 
+  def uploadJar(interpreter: Interpreter, filePath: String): Unit = {
+    interpreter.dependencies.head.groupArtifactVersion = filePath
+    val response: HttpResponse[String] = restApi
+      .performPutData(s"/interpreter/setting/${interpreter.id} ", interpreter.toJson, sessionToken)
+
+    if (response.code != 200)
+      throw RestApiException(s"Cannot upload a jar file.\n Error code: ${response.code}.\nBody:${response.body}")
+  }
+
   def login(userName: String, password: String): Credentials = {
     val result: HttpResponse[String] = restApi
       .performPostForm("/login", Map("userName" -> userName, "password" -> password))
@@ -57,4 +66,15 @@ class ZeppelinRestApi(val restApi: RestAPI) {
     sessionToken = result.cookies.reverseIterator.find(_.getName == "JSESSIONID")
     json.convertTo[Credentials]
   }
+
+  def getInterpreters: List[Interpreter] = {
+    val result = restApi.performGetRequest("/interpreter/setting", sessionToken)
+    if (result.code != 200)
+      throw RestApiException(s"Cannot get list of notebooks.\n Error code: ${result.code}.\nBody:${result.body}")
+
+    val arrayList = result.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
+    arrayList.convertTo[List[Interpreter]]
+  }
 }
+
+
