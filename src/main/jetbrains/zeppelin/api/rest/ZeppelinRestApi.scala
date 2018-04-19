@@ -48,13 +48,12 @@ class ZeppelinRestApi(val restApi: RestAPI) {
     Paragraph(paragraphId)
   }
 
-  def uploadJar(interpreter: Interpreter, filePath: String): Unit = {
-    interpreter.dependencies.head.groupArtifactVersion = filePath
+  def updateInterpreterSettings(interpreter: Interpreter): Unit = {
     val response: HttpResponse[String] = restApi
       .performPutData(s"/interpreter/setting/${interpreter.id} ", interpreter.toJson, sessionToken)
 
     if (response.code != 200)
-      throw RestApiException(s"Cannot upload a jar file.\n Error code: ${response.code}.\nBody:${response.body}")
+      throw RestApiException(s"Cannot interpreter settings.\n Error code: ${response.code}.\nBody:${response.body}")
   }
 
   def login(userName: String, password: String): Credentials = {

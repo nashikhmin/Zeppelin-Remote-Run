@@ -42,6 +42,9 @@
                     text="Test Selected Text" description="Temp">
                 <keyboard-shortcut first-keystroke="control alt shift ENTER" keymap="$default"/>
             </action>
+            <action id="zeppelin.UpdateJar" class="jetbrains.zeppelin.actions.UpdateJarOnZeppelin"
+                    text="Add project Jar to Zeppelin"
+                    description="Add or update dependency to default Zeppelin interpretator"/>
         </group>
     </actions>
     <project-components>

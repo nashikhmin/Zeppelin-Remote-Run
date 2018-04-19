@@ -82,6 +82,9 @@ class ZeppelinWebSocketAPI(webSocketAPI: WebSocketAPI) {
       if (status == "FINISHED") {
         outputHandler.onSuccess()
       }
+      if (status == "ERROR") {
+        outputHandler.onError()
+      }
     })
     handlers
   }

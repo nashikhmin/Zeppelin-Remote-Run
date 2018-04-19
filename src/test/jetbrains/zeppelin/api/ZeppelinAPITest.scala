@@ -12,9 +12,10 @@ class ZeppelinAPITest extends FunSuite with Matchers {
   private val url = "localhost"
   private val port = 8080
   private val folder = "TestRemoteNotebooks/"
+  private val notebookName = s"${folder}goldenCase"
 
   test("Zeppelin.CreateNotebookAndRunParagraph") {
-    val notebookName = s"${folder}goldenCase"
+
     val zeppelinService = new ZeppelinService(url, port, notebookName)
     zeppelinService.connect(login, password)
 
@@ -61,11 +62,18 @@ class ZeppelinAPITest extends FunSuite with Matchers {
     assert(notesAfterAdd.length - notes.length == 1)
   }
 
-  test("Zeppelin.GetInterpreters") {
-    val zeppelinRestApi = new ZeppelinRestApi(url, port)
-    zeppelinRestApi.login(login, password)
-    val interpreter = zeppelinRestApi.getInterpreters.head
-    zeppelinRestApi
-      .uploadJar(interpreter, "/home/nashikhmin/git/zeppelin-remote/target/scala-2.12/zeppelin-remote_2.12-0.1.jar")
+  test("Zeppelin.UploadJar") {
+    val zeppelinService = new ZeppelinService(url, port, notebookName)
+    zeppelinService.connect(login, password)
+    val interpreterWithoutDependencies = zeppelinService.interpreter.copy(dependencies = List.empty)
+    zeppelinService.zeppelinRestApi.updateInterpreterSettings(interpreterWithoutDependencies)
+
+    assert(zeppelinService.interpreter == interpreterWithoutDependencies)
+
+    val jarPath = "/home/nashikhmin/git/zeppelin-remote/target/scala-2.12/zeppelin-remote_2.12-0.1.jar"
+    val interpreterWithDependency = interpreterWithoutDependencies.copy(dependencies = List(Dependency(jarPath)))
+    zeppelinService.updateJar(jarPath)
+
+    assert(zeppelinService.interpreter == interpreterWithDependency)
   }
 }

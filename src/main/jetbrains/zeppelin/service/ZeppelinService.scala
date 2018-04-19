@@ -1,8 +1,8 @@
 package jetbrains.zeppelin.service
 
+import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
-import jetbrains.zeppelin.api.{Credentials, NewNotebook, Notebook}
 
 class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                       val zeppelinRestApi: ZeppelinRestApi,
@@ -30,6 +30,18 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     val paragraph = notebookWS.paragraphs.find(_.id == paragraphId).get
     zeppelinWebSocketAPI.runParagraph(paragraph, handler, credentials)
   }
+
+  def updateJar(jarPath: String): Unit = {
+    var interpreter = zeppelinRestApi.getInterpreters.head
+    val dependency = interpreter.dependencies.find(it => it.groupArtifactVersion == jarPath)
+    if (dependency.isEmpty) {
+      interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
+    }
+    zeppelinRestApi.updateInterpreterSettings(interpreter)
+  }
+
+  def interpreter: Interpreter = zeppelinRestApi.getInterpreters.head
+
 
   def close(): Unit = {
     zeppelinWebSocketAPI.close()
