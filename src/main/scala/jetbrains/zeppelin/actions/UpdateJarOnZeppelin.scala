@@ -15,7 +15,7 @@ class UpdateJarOnZeppelin extends AnAction {
 
     // single threaded execution context
     implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
-    
+
     val f = Future {
       val projectPath = event.getProject.getBasePath
       val jarFile = SbtService.packageToJarCurrentProject(projectPath)

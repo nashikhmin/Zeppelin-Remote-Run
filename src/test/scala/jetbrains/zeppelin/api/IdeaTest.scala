@@ -9,6 +9,4 @@ class IdeaTest extends FunSuite with Matchers {
     val jar = SbtService.packageToJarCurrentProject("../..")
     assert(jar.endsWith(".jar"))
   }
-
-
 }

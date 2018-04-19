@@ -9,11 +9,11 @@ import spray.json._
 
 
 class ZeppelinRestApi(val restApi: RestAPI) {
+  var sessionToken: Option[HttpCookie] = None
+
   def this(host: String, port: Int) {
     this(new RestAPI(host, port))
   }
-
-  var sessionToken: Option[HttpCookie] = None
 
   def createNotebook(newNotebook: NewNotebook): Notebook = {
     val result: HttpResponse[String] = restApi.performPostData("/notebook", newNotebook.toJson, sessionToken)
