@@ -7,8 +7,10 @@
 .idea/*.xml
 /*.bat
 *.class
-!scala/scala-impl/testdata/decompiler/**/*.class
 .DS_Store
 *~
-target/
+gitarget/
 /zeppelin-remote.iml
+/project/target/
+out/
+target/

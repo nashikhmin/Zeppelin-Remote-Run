@@ -1,6 +1,5 @@
 package jetbrains.zeppelin.actions
 
-import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import jetbrains.zeppelin.api.idea.IdeaEditorApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
@@ -8,35 +7,29 @@ import jetbrains.zeppelin.components.ZeppelinConnection
 
 class SelectTextAction extends AnAction with IdeaEditorApi {
   override def actionPerformed(event: AnActionEvent): Unit = {
-
-    val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
+    val connection = ZeppelinConnection.connectionFor(event.getProject)
+    val zeppelinService = connection.service
     val editor = currentEditor(event)
     val selectedText = currentSelectedText(editor)
 
-    zeppelinService.runCode(selectedText, NotificationHandlers)
+    connection.printMessage(s"Run paragraph with text: $selectedText...")
+    zeppelinService.runCode(selectedText, NotificationHandlers(connection))
   }
 
-  private def NotificationHandlers: OutputHandler = {
+  private def NotificationHandlers(connection: ZeppelinConnection): OutputHandler = {
     new OutputHandler {
       override def onError(): Unit = {
-        Notifications.Bus
-          .notify(new Notification("Zeppelin Remote Run", " Zeppelin Remote Run:", "Paragraph Run Error", NotificationType
-            .ERROR))
+        connection.printError("Paragraph Run Error")
       }
 
       override def handle(result: OutputResult, isAppend: Boolean): Unit = {
         if (result.data.isEmpty)
           return
-
-        Notifications.Bus
-          .notify(new Notification("Zeppelin Remote Run", " Zeppelin Remote Run:", result.data, NotificationType
-            .INFORMATION))
+        connection.printMessage(result.data)
       }
 
       override def onSuccess(): Unit = {
-        Notifications.Bus
-          .notify(new Notification("Zeppelin Remote Run", " Zeppelin Remote Run:", "Paragraph Run Completed", NotificationType
-            .INFORMATION))
+        connection.printMessage("Paragraph is completed")
       }
     }
   }

@@ -25,13 +25,12 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
-    </extensions>
-
-    <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="language" instance="jetbrains.zeppelin.configuration.ConfigurationForm"
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
                              nonDefaultProject="true"/>
+        <toolWindow id="zeppelin-shell-toolwindow" anchor="bottom"
+                    icon="/images/plus.png"
+                    factoryClass="jetbrains.zeppelin.toolwindow.ZeppelinToolWindowFactory"/>
     </extensions>
 
 
