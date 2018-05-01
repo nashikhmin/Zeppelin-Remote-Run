@@ -14,3 +14,4 @@ gitarget/
 /project/target/
 out/
 target/
+!/.idea/sbt.xml
