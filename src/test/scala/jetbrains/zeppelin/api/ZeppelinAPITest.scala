@@ -3,9 +3,8 @@ package jetbrains.zeppelin.api
 import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.service.ZeppelinService
-import org.scalatest.{FunSuite, Matchers}
 
-class ZeppelinAPITest extends FunSuite with Matchers {
+class ZeppelinAPITest extends AbstractScalaTest {
   private val monitor = AnyRef
   private val login = "user1"
   private val password = "password2"
@@ -63,17 +62,22 @@ class ZeppelinAPITest extends FunSuite with Matchers {
   }
 
   test("Zeppelin.UploadJar") {
+
     val zeppelinService = new ZeppelinService(url, port, notebookName)
     zeppelinService.connect(login, password)
     val interpreterWithoutDependencies = zeppelinService.interpreter.copy(dependencies = List.empty)
-    zeppelinService.zeppelinRestApi.updateInterpreterSettings(interpreterWithoutDependencies)
+    zeppelinService.updateInterpreterSetting(interpreterWithoutDependencies)
 
     assert(zeppelinService.interpreter == interpreterWithoutDependencies)
 
-    val jarPath = "/home/nashikhmin/git/zeppelin-remote/target/scala-2.12/zeppelin-remote_2.12-0.1.jar"
+    val jarPath = getClass.getResource("/scala_example.jar").getPath
     val interpreterWithDependency = interpreterWithoutDependencies.copy(dependencies = List(Dependency(jarPath)))
+
     zeppelinService.updateJar(jarPath)
 
     assert(zeppelinService.interpreter == interpreterWithDependency)
+    assert(zeppelinService.interpreter.status == InterpreterStatus.READY)
   }
+
+
 }

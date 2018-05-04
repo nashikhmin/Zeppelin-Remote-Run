@@ -31,7 +31,7 @@ class ZeppelinRestApi(val restApi: RestAPI) {
 
     val arrayList = result.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
     val list = arrayList.convertTo[List[Map[String, String]]]
-      .map((it) => Notebook(it.getOrElse("id", ""), it.getOrElse("name", "")))
+      .map(it => Notebook(it.getOrElse("id", ""), it.getOrElse("name", "")))
       .filter(it => !it.name.startsWith("~Trash") && it.name.startsWith(prefix))
     list
   }
@@ -69,7 +69,7 @@ class ZeppelinRestApi(val restApi: RestAPI) {
   def getInterpreters: List[Interpreter] = {
     val result = restApi.performGetRequest("/interpreter/setting", sessionToken)
     if (result.code != 200)
-      throw RestApiException(s"Cannot get list of notebooks.\n Error code: ${result.code}.\nBody:${result.body}")
+      throw RestApiException(s"Cannot get list of interpreters.\n Error code: ${result.code}.\nBody:${result.body}")
 
     val arrayList = result.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
     arrayList.convertTo[List[Interpreter]]

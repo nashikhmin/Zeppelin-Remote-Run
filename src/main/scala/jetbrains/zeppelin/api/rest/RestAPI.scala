@@ -19,9 +19,7 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
       .header("Charset", "UTF-8")
       .option(HttpOptions.readTimeout(10000))
 
-    if (cookie.isDefined) {
-      request = request.cookie(cookie.get)
-    }
+    cookie.foreach(c => request = request.cookie(c))
     request.asString
   }
 
@@ -31,9 +29,7 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
       .header("Charset", "UTF-8")
       .option(HttpOptions.readTimeout(10000))
 
-    if (cookie.isDefined) {
-      request = request.cookie(cookie.get)
-    }
+    cookie.foreach(c => request = request.cookie(c))
     val result = request.asString
     result
   }
@@ -51,9 +47,7 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
       .header("Charset", "UTF-8")
       .option(HttpOptions.readTimeout(10000))
 
-    if (cookie.isDefined) {
-      request = request.cookie(cookie.get)
-    }
+    cookie.foreach(c => request = request.cookie(c))
     val result = request.asString
     result
   }

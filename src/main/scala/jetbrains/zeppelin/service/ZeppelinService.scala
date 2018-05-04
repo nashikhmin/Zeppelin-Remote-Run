@@ -3,6 +3,7 @@ package jetbrains.zeppelin.service
 import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
+import jetbrains.zeppelin.utils.ThreadRun
 
 class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                       val zeppelinRestApi: ZeppelinRestApi,
@@ -37,10 +38,26 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     if (dependency.isEmpty) {
       interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
     }
-    zeppelinRestApi.updateInterpreterSettings(interpreter)
+    updateInterpreterSetting(interpreter)
   }
 
-  def interpreter: Interpreter = zeppelinRestApi.getInterpreters.head
+  def updateInterpreterSetting(interpreter: Interpreter): Unit = {
+    zeppelinRestApi.updateInterpreterSettings(interpreter)
+
+    ThreadRun.runWithTimeout {
+      while (this.interpreter.status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
+        Thread.sleep(200)
+      }
+    }
+  }
+
+  def interpreter: Interpreter = {
+    val interpreter = zeppelinRestApi.getInterpreters.head
+    if (interpreter.status == InterpreterStatus.ERROR) {
+      throw new InterpreterException(interpreter)
+    }
+    interpreter
+  }
 
 
   def close(): Unit = {
