@@ -4,32 +4,32 @@ import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import jetbrains.zeppelin.api.idea.IdeaEditorApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.components.ZeppelinConnection
+import jetbrains.zeppelin.utils.ZeppelinLogger
 
 class SelectTextAction extends AnAction with IdeaEditorApi {
   override def actionPerformed(event: AnActionEvent): Unit = {
-    val connection = ZeppelinConnection.connectionFor(event.getProject)
-    val zeppelinService = connection.service
+    val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
     val editor = currentEditor(event)
     val selectedText = currentSelectedText(editor)
 
-    connection.printMessage(s"Run paragraph with text: $selectedText...")
-    zeppelinService.runCode(selectedText, NotificationHandlers(connection))
+    ZeppelinLogger.printMessage(s"Run paragraph with text: $selectedText...")
+    zeppelinService.runCode(selectedText, NotificationHandlers())
   }
 
-  private def NotificationHandlers(connection: ZeppelinConnection): OutputHandler = {
+  private def NotificationHandlers(): OutputHandler = {
     new OutputHandler {
       override def onError(): Unit = {
-        connection.printError("Paragraph Run Error")
+        ZeppelinLogger.printError("Paragraph Run Error")
       }
 
       override def handle(result: OutputResult, isAppend: Boolean): Unit = {
         if (result.data.isEmpty)
           return
-        connection.printMessage(result.data)
+        ZeppelinLogger.printMessage(result.data)
       }
 
       override def onSuccess(): Unit = {
-        connection.printMessage("Paragraph is completed")
+        ZeppelinLogger.printMessage("Paragraph is completed")
       }
     }
   }

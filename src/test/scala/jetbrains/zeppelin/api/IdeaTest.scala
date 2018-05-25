@@ -5,7 +5,7 @@ import jetbrains.zeppelin.service.SbtService
 
 class IdeaTest extends AbstractScalaTest {
   test("Zeppelin.RunPackage") {
-    val jar = SbtService.packageToJarCurrentProject("../..")
+    val jar = SbtService.apply.packageToJarCurrentProject("../..")
     assert(jar.endsWith(".jar"))
   }
 }

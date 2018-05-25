@@ -1,6 +1,5 @@
 package jetbrains.zeppelin.toolwindow
 
-import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.project.Project
@@ -8,7 +7,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.ContentFactory
-import jetbrains.zeppelin.components.ZeppelinConnection
+import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**
   * Factory that creates a Zeppelin tool window
@@ -17,7 +16,8 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val panel = new SimpleToolWindowPanel(false, true)
 
-    val console = ZeppelinConnection.connectionFor(project).console
+    val console = new ZeppelinConsole(project)
+    ZeppelinLogger.initOutput(console)
     panel.setContent(console)
     val toolbar = createToolbar(project, console)
     panel.setToolbar(toolbar.getComponent)
@@ -29,10 +29,7 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     toolWindow.setIcon(AllIcons.FileTypes.Text)
 
     Disposer.register(project, console)
-
-    console.print("Initialization...", ConsoleViewContentType.NORMAL_OUTPUT)
   }
-
 
   private def createToolbar(project: Project, console: ZeppelinConsole) = {
     val group = new DefaultActionGroup

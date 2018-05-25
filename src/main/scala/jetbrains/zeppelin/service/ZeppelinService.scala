@@ -3,7 +3,7 @@ package jetbrains.zeppelin.service
 import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
-import jetbrains.zeppelin.utils.ThreadRun
+import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                       val zeppelinRestApi: ZeppelinRestApi,
@@ -38,6 +38,7 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     if (dependency.isEmpty) {
       interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
     }
+    ZeppelinLogger.printMessage("Add dependencies...")
     updateInterpreterSetting(interpreter)
   }
 
@@ -45,8 +46,14 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     zeppelinRestApi.updateInterpreterSettings(interpreter)
 
     ThreadRun.runWithTimeout {
+      var count = 0
+      val messageTime = 2 * 1000
       while (this.interpreter.status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
-        Thread.sleep(200)
+        if (count % messageTime == 0)
+          ZeppelinLogger.printMessage("Wait load dependencies...")
+        val waitTime = 200
+        count += waitTime
+        Thread.sleep(waitTime)
       }
     }
   }
