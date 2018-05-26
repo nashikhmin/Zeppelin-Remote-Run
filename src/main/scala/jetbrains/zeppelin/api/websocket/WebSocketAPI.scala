@@ -146,7 +146,7 @@ class WebSocketAPI(uri: String) {
     response.data
   }
 
-  def doRequestAsync(requestMessage: RequestMessage, handlersMap: mutable.Map[String, MessageHandler]) {
+  def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]) {
     if (!isConnected) throw SessionIsClosedException()
 
     for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)

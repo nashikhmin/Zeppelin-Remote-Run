@@ -41,7 +41,7 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
 
   def resetApi(): ZeppelinService = {
     zeppelinService.foreach(_.close())
-    zeppelinService = Some(new ZeppelinService(uri, port, notebookName))
+    zeppelinService = Some(ZeppelinService(uri, port))
     if (username.nonEmpty || password.nonEmpty) zeppelinService.get.connect(username, password)
     zeppelinService.get
   }

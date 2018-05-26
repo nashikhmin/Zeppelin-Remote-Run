@@ -15,7 +15,7 @@ class ZeppelinAPITest extends AbstractScalaTest {
 
   test("Zeppelin.CreateNotebookAndRunParagraph") {
 
-    val zeppelinService = new ZeppelinService(url, port, notebookName)
+    val zeppelinService = ZeppelinService(url, port)
     zeppelinService.connect(login, password)
 
     val code = "println(\"hello world\")"
@@ -43,7 +43,7 @@ class ZeppelinAPITest extends AbstractScalaTest {
       }
     }
 
-    zeppelinService.runCode(code, handler)
+    zeppelinService.runCode(code, handler, notebookName)
     monitor.synchronized {
       while (waitResult) {
         monitor.wait(20 * 1000)
@@ -53,17 +53,17 @@ class ZeppelinAPITest extends AbstractScalaTest {
   }
 
   test("Zeppelin.GetNotebooks") {
-    val zeppelinRestApi = new ZeppelinRestApi(url, port)
+    val zeppelinRestApi = ZeppelinRestApi(url, port)
     zeppelinRestApi.login(login, password)
-    val notes = zeppelinRestApi.getNotes(folder)
+    val notes = zeppelinRestApi.getNotebooks(folder)
     zeppelinRestApi.createNotebook(NewNotebook(s"${folder}testAdd"))
-    val notesAfterAdd = zeppelinRestApi.getNotes(folder)
+    val notesAfterAdd = zeppelinRestApi.getNotebooks(folder)
     assert(notesAfterAdd.length - notes.length == 1)
   }
 
   test("Zeppelin.UploadJar") {
 
-    val zeppelinService = new ZeppelinService(url, port, notebookName)
+    val zeppelinService = ZeppelinService(url, port)
     zeppelinService.connect(login, password)
     val interpreterWithoutDependencies = zeppelinService.interpreter.copy(dependencies = List.empty)
     zeppelinService.updateInterpreterSetting(interpreterWithoutDependencies)

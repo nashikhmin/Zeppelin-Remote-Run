@@ -13,7 +13,7 @@ class SelectTextAction extends AnAction with IdeaEditorApi {
     val selectedText = currentSelectedText(editor)
 
     ZeppelinLogger.printMessage(s"Run paragraph with text: $selectedText...")
-    zeppelinService.runCode(selectedText, NotificationHandlers())
+    zeppelinService.runCode(selectedText, NotificationHandlers(), s"${event.getProject.getName}")
   }
 
   private def NotificationHandlers(): OutputHandler = {

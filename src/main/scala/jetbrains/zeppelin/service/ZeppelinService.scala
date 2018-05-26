@@ -5,59 +5,97 @@ import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
-class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
-                      val zeppelinRestApi: ZeppelinRestApi,
-                      val notebookName: String) {
-  private lazy val notebook: Notebook = getOrCreateNotebook(notebookName)
+/**
+  * Main component, which is responsible for communication with Zeppelin application
+  *
+  * @param zeppelinWebSocketAPI - service for communication with Zeppelin by WebSockets
+  * @param zeppelinRestApi      - service for communication with Zeppelin by REST API
+  */
+class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
+                              val zeppelinRestApi: ZeppelinRestApi) {
   private var credentials: Credentials = Credentials("", "", "")
 
-  def this(address: String, port: Int, notebookName: String) {
-    this(new ZeppelinWebSocketAPI(address, port), new ZeppelinRestApi(address, port), notebookName)
-  }
-
+  /**
+    * Connection to the Zeppelin
+    *
+    * @param login    - the login of the user
+    * @param password - the password of the user
+    */
   def connect(login: String, password: String): Unit = {
     zeppelinWebSocketAPI.connect()
     credentials = zeppelinRestApi.login(login, password)
   }
 
-  def getOrCreateNotebook(notebookName: String): Notebook = {
-    val note = zeppelinRestApi.getNotes().find(_.name == notebookName)
-    note.getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
-  }
-
-  def runCode(code: String, handler: OutputHandler): Unit = {
+  /**
+    * Run the code on the zeppelin application
+    *
+    * @param code         - the code, which must be executed
+    * @param handler      - a handler, that must handle outputs and status
+    * @param notebookName - a name of the notebook which is the place for executing the code
+    */
+  def runCode(code: String, handler: OutputHandler, notebookName: String): Unit = {
+    val notebook = getOrCreateNotebook(notebookName)
     val paragraphId = zeppelinRestApi.createParagraph(notebook.id, code).id
     val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
     val paragraph = notebookWS.paragraphs.find(_.id == paragraphId).get
     zeppelinWebSocketAPI.runParagraph(paragraph, handler, credentials)
   }
 
+  /**
+    * Get from Zeppelin the notebook by the name. If the notebook does not exist the notebook will be created
+    *
+    * @param notebookName - the name of the notebook
+    * @return notebook
+    */
+  def getOrCreateNotebook(notebookName: String): Notebook = {
+    val note = zeppelinRestApi.getNotebooks().find(_.name == notebookName)
+    note.getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
+  }
+
+  /**
+    * Update Jar file in the Zeppelin interpreter
+    *
+    * @param jarPath - the path to the jar file
+    */
   def updateJar(jarPath: String): Unit = {
     var interpreter = zeppelinRestApi.getInterpreters.head
     val dependency = interpreter.dependencies.find(it => it.groupArtifactVersion == jarPath)
     if (dependency.isEmpty) {
       interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
     }
-    ZeppelinLogger.printMessage("Add dependencies...")
+    ZeppelinLogger.printMessage(s"Upload jar to the Zeppelin, path: $jarPath")
     updateInterpreterSetting(interpreter)
   }
 
+  /**
+    * Update the settings of the interpreter
+    *
+    * @param  interpreter - settings of the new interpreter
+    */
   def updateInterpreterSetting(interpreter: Interpreter): Unit = {
     zeppelinRestApi.updateInterpreterSettings(interpreter)
 
+
+    ZeppelinLogger.printMessage(s"Update the ${interpreter.name} interpreter settings")
     ThreadRun.runWithTimeout {
       var count = 0
       val messageTime = 2 * 1000
       while (this.interpreter.status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
         if (count % messageTime == 0)
-          ZeppelinLogger.printMessage("Wait load dependencies...")
+          ZeppelinLogger.printMessage(s"Updating the ${interpreter.name} interpreter settings...")
         val waitTime = 200
         count += waitTime
         Thread.sleep(waitTime)
       }
     }
+    ZeppelinLogger.printMessage(s"The settings of the ${interpreter.name} interpreter have been updated")
   }
 
+  /**
+    * Get the default Scala Zeppelin interpreter
+    *
+    * @return
+    */
   def interpreter: Interpreter = {
     val interpreter = zeppelinRestApi.getInterpreters.head
     if (interpreter.status == InterpreterStatus.ERROR) {
@@ -66,8 +104,16 @@ class ZeppelinService(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     interpreter
   }
 
-
+  /**
+    * Close the Zeppelin connection
+    */
   def close(): Unit = {
     zeppelinWebSocketAPI.close()
+  }
+}
+
+object ZeppelinService {
+  def apply(address: String, port: Int): ZeppelinService = {
+    new ZeppelinService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port))
   }
 }
