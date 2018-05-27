@@ -7,7 +7,6 @@ import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsSt
 case class Config(enabled: Option[Boolean] = Some(true))
 
 
-// Define a new enumeration with a type alias and work with the full set of enumerated values
 object InterpreterStatus extends Enumeration {
   type InterpreterStatus = Value
   val READY, DOWNLOADING_DEPENDENCIES, ERROR = Value
@@ -70,3 +69,19 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
 }
 
+
+/**
+  * The connection status to the server
+  */
+object ConnectionStatus extends Enumeration {
+  type ConnectionStatus = Value
+  val CONNECTED, FAILED_CONNECTION, DISCONNECTED = Value
+}
+
+
+class ZeppelinConnectionException(uri: String) extends Exception {
+  override def getMessage: String = {
+    s"Cannot connect to the Zeppelin app. " +
+      s"Check the availability of web socket connection to the service $uri"
+  }
+}

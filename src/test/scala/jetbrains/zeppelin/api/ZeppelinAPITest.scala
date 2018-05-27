@@ -13,8 +13,13 @@ class ZeppelinAPITest extends AbstractScalaTest {
   private val folder = "TestRemoteNotebooks/"
   private val notebookName = s"${folder}goldenCase"
 
-  test("Zeppelin.CreateNotebookAndRunParagraph") {
+  test("Zeppelin.RunWihWrongAddress") {
+    val zeppelinService = ZeppelinService(url, 666)
+    assertThrows[ZeppelinConnectionException](zeppelinService.connect(login, password))
+  }
 
+
+  test("Zeppelin.CreateNotebookAndRunParagraph") {
     val zeppelinService = ZeppelinService(url, port)
     zeppelinService.connect(login, password)
 
@@ -78,6 +83,4 @@ class ZeppelinAPITest extends AbstractScalaTest {
     assert(zeppelinService.interpreter == interpreterWithDependency)
     assert(zeppelinService.interpreter.status == InterpreterStatus.READY)
   }
-
-
 }

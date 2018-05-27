@@ -2,6 +2,7 @@ package jetbrains.zeppelin.components
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
+import jetbrains.zeppelin.api.ZeppelinConnectionException
 import jetbrains.zeppelin.service.ZeppelinService
 import jetbrains.zeppelin.toolwindow.ZeppelinConsole
 import jetbrains.zeppelin.utils.ZeppelinLogger
@@ -42,7 +43,17 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
   def resetApi(): ZeppelinService = {
     zeppelinService.foreach(_.close())
     zeppelinService = Some(ZeppelinService(uri, port))
-    if (username.nonEmpty || password.nonEmpty) zeppelinService.get.connect(username, password)
+    try {
+      if (username.nonEmpty || password.nonEmpty) {
+        zeppelinService.get.connect(username, password)
+      }
+    }
+    catch {
+      case e: ZeppelinConnectionException => {
+
+        ZeppelinLogger.printError(e.getMessage)
+      }
+    }
     zeppelinService.get
   }
 }

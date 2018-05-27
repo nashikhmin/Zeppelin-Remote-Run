@@ -2,9 +2,10 @@ package jetbrains.zeppelin.api.websocket
 
 import java.net.URI
 
+import jetbrains.zeppelin.api.ConnectionStatus.ConnectionStatus
 import jetbrains.zeppelin.api._
 import org.eclipse.jetty.websocket.api.Session
-import org.eclipse.jetty.websocket.api.annotations.{OnWebSocketClose, OnWebSocketConnect, OnWebSocketMessage, WebSocket}
+import org.eclipse.jetty.websocket.api.annotations._
 import org.eclipse.jetty.websocket.client.{ClientUpgradeRequest, WebSocketClient}
 import spray.json.{JsObject, _}
 
@@ -62,23 +63,31 @@ import jetbrains.zeppelin.api.websocket.WebSocketApiProtocol._
 @WebSocket(maxTextMessageSize = 64 * 1024)
 class WebSocketAPI(uri: String) {
 
+  private var status = ConnectionStatus.DISCONNECTED
   private val handlersMap: mutable.Map[String, MessageHandler] = mutable.Map()
   private val monitor = AnyRef
   var defaultHandler: MessageHandler = (result: ResponseMessage) => {
     println("Default Handler is called")
   }
   private var session: Session = _
-  private var isConnected = false
   private var client: WebSocketClient = _
 
   @OnWebSocketClose
   def onClose(statusCode: Int, reason: String) {}
 
+  @OnWebSocketError
+  def onError(throwable: Throwable): Unit = {
+    monitor.synchronized {
+      status = ConnectionStatus.FAILED_CONNECTION
+      monitor.notifyAll()
+    }
+  }
+
   @OnWebSocketConnect
   def onConnect(session: Session) {
     this.session = session
     monitor.synchronized {
-      isConnected = true
+      status = ConnectionStatus.CONNECTED
       monitor.notifyAll()
     }
   }
@@ -91,15 +100,16 @@ class WebSocketAPI(uri: String) {
     handlersMap.getOrElse(operationCode, defaultHandler).handle(response)
   }
 
-  def connect() {
+  def connect(): ConnectionStatus = {
     val echoUri = new URI(uri)
     client = new WebSocketClient()
     client.start()
     val request = new ClientUpgradeRequest()
     client.connect(this, echoUri, request)
-    while (!isConnected) {
+    while (status == ConnectionStatus.DISCONNECTED) {
       waitMonitor()
     }
+    status
   }
 
   private def waitMonitor() {
@@ -120,7 +130,7 @@ class WebSocketAPI(uri: String) {
 
 
   def doRequestSync(requestMessage: RequestMessage, responseCode: String): JsObject = {
-    if (!isConnected) throw SessionIsClosedException()
+    if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
 
 
     var gotResponse = false
@@ -147,7 +157,7 @@ class WebSocketAPI(uri: String) {
   }
 
   def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]) {
-    if (!isConnected) throw SessionIsClosedException()
+    if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
 
     for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)
 

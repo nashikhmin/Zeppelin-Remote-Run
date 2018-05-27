@@ -12,17 +12,23 @@ import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
   * @param zeppelinRestApi      - service for communication with Zeppelin by REST API
   */
 class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
-                              val zeppelinRestApi: ZeppelinRestApi) {
+                              val zeppelinRestApi: ZeppelinRestApi, val uri: String) {
   private var credentials: Credentials = Credentials("", "", "")
+  private var connectionStatus = ConnectionStatus.DISCONNECTED
 
   /**
     * Connection to the Zeppelin
     *
     * @param login    - the login of the user
     * @param password - the password of the user
+    * @throws ZeppelinConnectionException if the service is unavailable
     */
   def connect(login: String, password: String): Unit = {
-    zeppelinWebSocketAPI.connect()
+    connectionStatus = zeppelinWebSocketAPI.connect()
+    connectionStatus match {
+      case ConnectionStatus.CONNECTED => ZeppelinLogger.printMessage("Connected to the Zeppelin")
+      case ConnectionStatus.FAILED_CONNECTION => throw new ZeppelinConnectionException(uri)
+    }
     credentials = zeppelinRestApi.login(login, password)
   }
 
@@ -34,6 +40,8 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param notebookName - a name of the notebook which is the place for executing the code
     */
   def runCode(code: String, handler: OutputHandler, notebookName: String): Unit = {
+    checkServiceAvailability()
+
     val notebook = getOrCreateNotebook(notebookName)
     val paragraphId = zeppelinRestApi.createParagraph(notebook.id, code).id
     val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
@@ -48,6 +56,8 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @return notebook
     */
   def getOrCreateNotebook(notebookName: String): Notebook = {
+    checkServiceAvailability()
+
     val note = zeppelinRestApi.getNotebooks().find(_.name == notebookName)
     note.getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
   }
@@ -58,6 +68,8 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param jarPath - the path to the jar file
     */
   def updateJar(jarPath: String): Unit = {
+    checkServiceAvailability()
+
     var interpreter = zeppelinRestApi.getInterpreters.head
     val dependency = interpreter.dependencies.find(it => it.groupArtifactVersion == jarPath)
     if (dependency.isEmpty) {
@@ -73,9 +85,9 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param  interpreter - settings of the new interpreter
     */
   def updateInterpreterSetting(interpreter: Interpreter): Unit = {
+    checkServiceAvailability()
+
     zeppelinRestApi.updateInterpreterSettings(interpreter)
-
-
     ZeppelinLogger.printMessage(s"Update the ${interpreter.name} interpreter settings")
     ThreadRun.runWithTimeout {
       var count = 0
@@ -97,6 +109,8 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @return
     */
   def interpreter: Interpreter = {
+    checkServiceAvailability()
+
     val interpreter = zeppelinRestApi.getInterpreters.head
     if (interpreter.status == InterpreterStatus.ERROR) {
       throw new InterpreterException(interpreter)
@@ -108,12 +122,23 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * Close the Zeppelin connection
     */
   def close(): Unit = {
+    checkServiceAvailability()
+
     zeppelinWebSocketAPI.close()
+  }
+
+  /**
+    * Check is the Zeppelin service is available
+    */
+  private def checkServiceAvailability(): Unit = {
+    if (connectionStatus != ConnectionStatus.CONNECTED)
+      throw new ServiceIsUnavailableException
   }
 }
 
 object ZeppelinService {
   def apply(address: String, port: Int): ZeppelinService = {
-    new ZeppelinService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port))
+    new ZeppelinService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port),
+      s"$address:$port")
   }
 }

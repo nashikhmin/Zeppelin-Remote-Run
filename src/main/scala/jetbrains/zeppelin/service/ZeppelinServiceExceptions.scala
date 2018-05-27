@@ -8,3 +8,7 @@ class InterpreterException(interpreter: Interpreter) extends Exception {
 
 
 class NotebookException() extends Exception
+
+class ServiceIsUnavailableException() extends Exception {
+  override def getMessage: String = "Service is unavailable, please restart the service"
+}
