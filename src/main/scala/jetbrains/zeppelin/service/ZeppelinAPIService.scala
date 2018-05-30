@@ -6,38 +6,34 @@ import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 /**
-  * Main component, which is responsible for communication with Zeppelin application
+  * Class which implements the logic of communication with different API
   *
   * @param zeppelinWebSocketAPI - service for communication with Zeppelin by WebSockets
   * @param zeppelinRestApi      - service for communication with Zeppelin by REST API
   */
-class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
-                              val zeppelinRestApi: ZeppelinRestApi, val uri: String) {
+class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
+                                 val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: User) {
   private var credentials: Credentials = Credentials("", "", "")
-  private var connectionStatus = ConnectionStatus.DISCONNECTED
+
 
   /**
     * Connection to the Zeppelin server
     *
-    * @param login    - the login of the user
-    * @param password - the password of the user
     * @throws ZeppelinConnectionException if the service is unavailable
     * @throws ZeppelinLoginException      if the login/password is wrong
     */
-  def connect(login: String, password: String): Unit = {
-    connectionStatus = zeppelinWebSocketAPI.connect()
-    connectionStatus match {
-      case ConnectionStatus.FAILED_CONNECTION => throw new ZeppelinConnectionException(uri)
-      case _ => Unit
+  def connect(): Unit = {
+    zeppelinWebSocketAPI.connect()
+    zeppelinWebSocketAPI.connectionStatus match {
+      case ConnectionStatus.FAILED => throw ZeppelinConnectionException(uri)
+      case ConnectionStatus.CONNECTED => Unit
+      case _ => throw new Exception("Unhandled Status")
     }
     try {
-      credentials = zeppelinRestApi.login(login, password)
+      credentials = zeppelinRestApi.login(user.login, user.password)
     }
     catch {
-      case _: RestApiException => {
-        connectionStatus = ConnectionStatus.FAILED_LOGIN
-        throw new ZeppelinLoginException()
-      }
+      case _: RestApiException => throw ZeppelinLoginException()
     }
     ZeppelinLogger.printMessage("Connected to the Zeppelin")
   }
@@ -50,8 +46,6 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param notebookName - a name of the notebook which is the place for executing the code
     */
   def runCode(code: String, handler: OutputHandler, notebookName: String): Unit = {
-    checkServiceAvailability()
-
     val notebook = getOrCreateNotebook(notebookName)
     val paragraphId = zeppelinRestApi.createParagraph(notebook.id, code).id
     val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
@@ -66,11 +60,10 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @return notebook
     */
   def getOrCreateNotebook(notebookName: String): Notebook = {
-    checkServiceAvailability()
-
     val note = zeppelinRestApi.getNotebooks().find(_.name == notebookName)
     note.getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
   }
+
 
   /**
     * Update Jar file in the Zeppelin interpreter
@@ -78,8 +71,6 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param jarPath - the path to the jar file
     */
   def updateJar(jarPath: String): Unit = {
-    checkServiceAvailability()
-
     var interpreter = zeppelinRestApi.getInterpreters.head
     val dependency = interpreter.dependencies.find(it => it.groupArtifactVersion == jarPath)
     if (dependency.isEmpty) {
@@ -96,8 +87,6 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param  interpreter - settings of the new interpreter
     */
   def updateInterpreterSetting(interpreter: Interpreter): Unit = {
-    checkServiceAvailability()
-
     zeppelinRestApi.updateInterpreterSettings(interpreter)
     ZeppelinLogger.printMessage(s"Update the ${interpreter.name} interpreter settings")
     ThreadRun.runWithTimeout {
@@ -121,23 +110,10 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @return connected or not
     */
   def isConnected: Boolean = {
-    connectionStatus == ConnectionStatus.CONNECTED
+    zeppelinWebSocketAPI.connectionStatus == ConnectionStatus.CONNECTED &&
+      zeppelinRestApi.loginStatus == LoginStatus.LOGGED
   }
 
-  /**
-    * Get the default Scala Zeppelin interpreter
-    *
-    * @return interpreter
-    */
-  def interpreter: Interpreter = {
-    checkServiceAvailability()
-
-    val interpreter = zeppelinRestApi.getInterpreters.head
-    if (interpreter.status == InterpreterStatus.ERROR) {
-      throw new InterpreterException(interpreter)
-    }
-    interpreter
-  }
 
   /**
     * Close the Zeppelin connection if it is opened
@@ -147,18 +123,23 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Check is the Zeppelin service is available
+    * Get the default Scala Zeppelin interpreter
+    *
+    * @return interpreter
     */
-  private def checkServiceAvailability(): Unit = {
-    if (connectionStatus != ConnectionStatus.CONNECTED) {
-      throw new ServiceIsUnavailableException
+  def interpreter: Interpreter = {
+    val interpreter = zeppelinRestApi.getInterpreters.head
+    if (interpreter.status == InterpreterStatus.ERROR) {
+      throw new InterpreterException(interpreter)
     }
+    interpreter
   }
+
 }
 
-object ZeppelinService {
-  def apply(address: String, port: Int): ZeppelinService = {
-    new ZeppelinService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port),
-      s"$address:$port")
+object ZeppelinAPIService {
+  def apply(address: String, port: Int, user: User): ZeppelinAPIService = {
+    new ZeppelinAPIService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port),
+      s"$address:$port", user)
   }
 }

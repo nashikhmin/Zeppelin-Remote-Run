@@ -2,18 +2,21 @@ package jetbrains.zeppelin.components
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
-import jetbrains.zeppelin.api.{ZeppelinConnectionException, ZeppelinLoginException}
-import jetbrains.zeppelin.service.ZeppelinService
+import jetbrains.zeppelin.service.ZeppelinActionService
 import jetbrains.zeppelin.toolwindow.ZeppelinConsole
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
+/**
+  * Class which handle an actual [[ZeppelinActionService]]
+  *
+  * @param project - an owner project
+  */
 class ZeppelinConnection(val project: Project) extends ProjectComponent {
-  val notebookName = s"RemoteNotebooks/${project.getName}"
   var username: String = ZeppelinConnection.DefaultZeppelinUser
   var password: String = ZeppelinConnection.DefaultZeppelinPassword
   var uri: String = ZeppelinConnection.DefaultZeppelinHost
   var port: Int = ZeppelinConnection.DefaultZeppelinPort
-  private var zeppelinService: Option[ZeppelinService] = None
+  var zeppelinActionService: Option[ZeppelinActionService] = None
 
   override def initComponent(): Unit = {
     super.initComponent()
@@ -38,28 +41,12 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
 
   def getHostURL: String = s"$uri:$port"
 
-  def service: ZeppelinService = zeppelinService.getOrElse(resetApi())
+  def service: ZeppelinActionService = zeppelinActionService.getOrElse(resetApi())
 
-  def resetApi(): ZeppelinService = {
-    zeppelinService.foreach(_.close())
-    zeppelinService = Some(ZeppelinService(uri, port))
-    try {
-      if (username.nonEmpty || password.nonEmpty) {
-        zeppelinService.get.connect(username, password)
-      }
-      else {
-        throw new Exception("Connection without login&password is not implemented")
-      }
-    }
-    catch {
-      case e: ZeppelinConnectionException => {
-        ZeppelinLogger.printError(e.getMessage)
-      }
-      case e: ZeppelinLoginException => {
-        ZeppelinLogger.printError(e.getMessage)
-      }
-    }
-    zeppelinService.get
+  def resetApi(): ZeppelinActionService = {
+    zeppelinActionService.foreach(_.destroy())
+    zeppelinActionService = Some(ZeppelinActionService(uri, port, username, password))
+    zeppelinActionService.get
   }
 }
 

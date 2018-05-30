@@ -75,20 +75,30 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   */
 object ConnectionStatus extends Enumeration {
   type ConnectionStatus = Value
-  val CONNECTED, FAILED_CONNECTION, DISCONNECTED, FAILED_LOGIN = Value
+  val CONNECTED, FAILED, DISCONNECTED = Value
+}
+
+/**
+  * Login status
+  */
+object LoginStatus extends Enumeration {
+  type LoginStatus = Value
+  val LOGGED, NOT_LOGGED = Value
 }
 
 
-class ZeppelinConnectionException(uri: String) extends Exception {
+case class ZeppelinConnectionException(uri: String) extends Exception {
   override def getMessage: String = {
     s"Cannot connect to the Zeppelin app. " +
       s"Check the availability of web socket connection to the service $uri"
   }
 }
 
-class ZeppelinLoginException() extends Exception {
+case class ZeppelinLoginException() extends Exception {
   override def getMessage: String = {
     s"Cannot login to the Zeppelin app. " +
       s"The login or the password is wrong."
   }
 }
+
+case class User(login: String, password: String)

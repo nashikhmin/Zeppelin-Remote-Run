@@ -14,6 +14,7 @@ import spray.json._
   */
 class ZeppelinRestApi private(val restApi: RestAPI) {
   var sessionToken: Option[HttpCookie] = None
+  var loginStatus: LoginStatus.LoginStatus = LoginStatus.NOT_LOGGED
 
   /**
     * Create a new notebook in Zeppelin
@@ -51,7 +52,7 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
   }
 
   /**
-    * Create a pragraph in Zeppelin
+    * Create a paragraph in Zeppelin
     *
     * @param noteId        - id of a notebook
     * @param paragraphText - a text, which be put in the paragraph
@@ -86,6 +87,7 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     }
     val json = response.body.parseJson.asJsObject.fields.getOrElse("body", JsObject())
     sessionToken = response.cookies.reverseIterator.find(_.getName == "JSESSIONID")
+    loginStatus = LoginStatus.LOGGED
     json.convertTo[Credentials]
   }
 

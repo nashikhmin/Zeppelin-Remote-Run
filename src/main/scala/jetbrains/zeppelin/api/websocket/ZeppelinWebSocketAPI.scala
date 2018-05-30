@@ -1,6 +1,6 @@
 package jetbrains.zeppelin.api.websocket
 
-import jetbrains.zeppelin.api.ConnectionStatus.ConnectionStatus
+import jetbrains.zeppelin.api
 import jetbrains.zeppelin.api.ZeppelinAPIProtocol._
 import jetbrains.zeppelin.api._
 import spray.json.{JsObject, _}
@@ -14,8 +14,9 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
   {
     List(ResponseCode.PARAGRAPH_ADDED, ResponseCode.PROGRESS)
       .foreach(code => webSocketAPI.registerHandler(code.toString, (_: ResponseMessage) => Unit))
-
   }
+
+  def connectionStatus: api.ConnectionStatus.Value = webSocketAPI.status
 
   /**
     * Close the connection
@@ -27,7 +28,7 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
   /**
     * Connect to the application
     */
-  def connect(): ConnectionStatus = {
+  def connect(): Unit = {
     webSocketAPI.connect()
   }
 

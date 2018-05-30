@@ -2,9 +2,9 @@ package jetbrains.zeppelin.api
 
 import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
-import jetbrains.zeppelin.service.ZeppelinService
+import jetbrains.zeppelin.service.ZeppelinAPIService
 
-class ZeppelinAPITest extends AbstractScalaTest {
+class ZeppelinAPIServiceTest extends AbstractScalaTest {
   private val monitor = AnyRef
   private val login = "user1"
   private val password = "password2"
@@ -14,19 +14,20 @@ class ZeppelinAPITest extends AbstractScalaTest {
   private val notebookName = s"${folder}goldenCase"
 
   test("Zeppelin.RunWihWrongAddress") {
-    val zeppelinService = ZeppelinService(url, 666)
-    assertThrows[ZeppelinConnectionException](zeppelinService.connect(login, password))
+    val zeppelinService = ZeppelinAPIService(url, port + 666, User(login, password))
+    assertThrows[ZeppelinConnectionException](zeppelinService.connect())
+    assert(!zeppelinService.isConnected)
   }
 
   test("Zeppelin.RunWihWrongLogin") {
-    val zeppelinService = ZeppelinService(url, port)
-    assertThrows[ZeppelinLoginException](zeppelinService.connect(login + "wrong", password))
+    val zeppelinService = ZeppelinAPIService(url, port, User(login + "wrong", password))
+    assertThrows[ZeppelinLoginException](zeppelinService.connect())
+    assert(!zeppelinService.isConnected)
   }
 
   test("Zeppelin.CreateNotebookAndRunParagraph") {
-    val zeppelinService = ZeppelinService(url, port)
-    zeppelinService.connect(login, password)
-
+    val zeppelinService = ZeppelinAPIService(url, port, User(login, password))
+    zeppelinService.connect()
     val code = "println(\"hello world\")"
     var waitResult = true
     var result = "none"
@@ -51,7 +52,7 @@ class ZeppelinAPITest extends AbstractScalaTest {
         }
       }
     }
-
+    val zz = zeppelinService.isConnected
     zeppelinService.runCode(code, handler, notebookName)
     monitor.synchronized {
       while (waitResult) {
@@ -71,9 +72,8 @@ class ZeppelinAPITest extends AbstractScalaTest {
   }
 
   test("Zeppelin.UploadJar") {
-
-    val zeppelinService = ZeppelinService(url, port)
-    zeppelinService.connect(login, password)
+    val zeppelinService = ZeppelinAPIService(url, port, User(login, password))
+    zeppelinService.connect()
     val interpreterWithoutDependencies = zeppelinService.interpreter.copy(dependencies = List.empty)
     zeppelinService.updateInterpreterSetting(interpreterWithoutDependencies)
 

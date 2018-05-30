@@ -35,15 +35,15 @@
 
 
     <actions>
-        <group id="Zeppelin.SampleMenu" text="_Sample Menu" description="Sample menu">
+        <group id="Zeppelin.MainMenu" text="Zeppelin" description="Zeppelin menu">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action id="zeppelin.SelectedText" class="jetbrains.zeppelin.actions.SelectTextAction"
-                    text="Test Selected Text" description="Temp">
+            <action id="zeppelin.RunSelectedCode" class="jetbrains.zeppelin.actions.RunCodeAction"
+                    text="Run the selected code" description="Temp">
                 <keyboard-shortcut first-keystroke="control alt shift ENTER" keymap="$default"/>
             </action>
             <action id="zeppelin.UpdateJar" class="jetbrains.zeppelin.actions.UpdateJarOnZeppelin"
-                    text="Add project Jar to Zeppelin"
-                    description="Add or update dependency to default Zeppelin interpretator"/>
+                    text="Upload current project to Zeppelin"
+                    description="Add or update dependency to default Zeppelin interpreter"/>
         </group>
     </actions>
     <project-components>
