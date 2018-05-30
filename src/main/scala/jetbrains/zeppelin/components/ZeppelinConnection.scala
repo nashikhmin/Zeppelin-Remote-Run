@@ -2,7 +2,7 @@ package jetbrains.zeppelin.components
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
-import jetbrains.zeppelin.api.ZeppelinConnectionException
+import jetbrains.zeppelin.api.{ZeppelinConnectionException, ZeppelinLoginException}
 import jetbrains.zeppelin.service.ZeppelinService
 import jetbrains.zeppelin.toolwindow.ZeppelinConsole
 import jetbrains.zeppelin.utils.ZeppelinLogger
@@ -47,10 +47,15 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
       if (username.nonEmpty || password.nonEmpty) {
         zeppelinService.get.connect(username, password)
       }
+      else {
+        throw new Exception("Connection without login&password is not implemented")
+      }
     }
     catch {
       case e: ZeppelinConnectionException => {
-
+        ZeppelinLogger.printError(e.getMessage)
+      }
+      case e: ZeppelinLoginException => {
         ZeppelinLogger.printError(e.getMessage)
       }
     }

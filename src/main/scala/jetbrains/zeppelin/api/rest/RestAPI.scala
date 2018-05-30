@@ -6,8 +6,6 @@ import scalaj.http.{Http, HttpOptions, HttpResponse}
 import spray.json._
 
 
-final case class RestApiException(private val message: String = "",
-                                  private val cause: Throwable = None.orNull) extends Exception(message, cause)
 
 class RestAPI(host: String, port: Int, https: Boolean = false) {
   private val protocol = if (https) "https" else "http"

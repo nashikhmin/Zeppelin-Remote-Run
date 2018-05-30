@@ -9,6 +9,10 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
 class SelectTextAction extends AnAction with IdeaEditorApi {
   override def actionPerformed(event: AnActionEvent): Unit = {
     val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
+    if (!zeppelinService.isConnected) {
+      ZeppelinLogger.printError("The action cannot be performed. Reconnect plugin to the server.")
+      return
+    }
     val editor = currentEditor(event)
     val selectedText = currentSelectedText(editor)
 

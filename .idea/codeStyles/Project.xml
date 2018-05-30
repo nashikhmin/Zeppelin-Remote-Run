@@ -2,14 +2,19 @@
   <code_scheme name="Project" version="173">
     <ScalaCodeStyleSettings>
       <option name="METHOD_BRACE_FORCE" value="1" />
-      <option name="FINALLY_BRACE_FORCE" value="1" />
-      <option name="TRY_BRACE_FORCE" value="1" />
+      <option name="CLOSURE_BRACE_FORCE" value="1" />
       <option name="CASE_CLAUSE_BRACE_FORCE" value="1" />
+      <option name="DO_NOT_INDENT_CASE_CLAUSE_BODY" value="true" />
     </ScalaCodeStyleSettings>
     <codeStyleSettings language="Scala">
+      <option name="WHILE_ON_NEW_LINE" value="true" />
+      <option name="CATCH_ON_NEW_LINE" value="true" />
+      <option name="FINALLY_ON_NEW_LINE" value="true" />
       <option name="METHOD_PARAMETERS_WRAP" value="5" />
       <option name="METHOD_CALL_CHAIN_WRAP" value="5" />
+      <option name="BINARY_OPERATION_WRAP" value="5" />
       <option name="FOR_STATEMENT_WRAP" value="1" />
+      <option name="IF_BRACE_FORCE" value="1" />
       <option name="DOWHILE_BRACE_FORCE" value="1" />
       <option name="WHILE_BRACE_FORCE" value="1" />
       <option name="FOR_BRACE_FORCE" value="1" />

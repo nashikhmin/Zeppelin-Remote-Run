@@ -18,6 +18,10 @@ class ZeppelinAPITest extends AbstractScalaTest {
     assertThrows[ZeppelinConnectionException](zeppelinService.connect(login, password))
   }
 
+  test("Zeppelin.RunWihWrongLogin") {
+    val zeppelinService = ZeppelinService(url, port)
+    assertThrows[ZeppelinLoginException](zeppelinService.connect(login + "wrong", password))
+  }
 
   test("Zeppelin.CreateNotebookAndRunParagraph") {
     val zeppelinService = ZeppelinService(url, port)

@@ -1,7 +1,7 @@
 package jetbrains.zeppelin.service
 
 import jetbrains.zeppelin.api._
-import jetbrains.zeppelin.api.rest.ZeppelinRestApi
+import jetbrains.zeppelin.api.rest.{RestApiException, ZeppelinRestApi}
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
@@ -17,19 +17,29 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   private var connectionStatus = ConnectionStatus.DISCONNECTED
 
   /**
-    * Connection to the Zeppelin
+    * Connection to the Zeppelin server
     *
     * @param login    - the login of the user
     * @param password - the password of the user
     * @throws ZeppelinConnectionException if the service is unavailable
+    * @throws ZeppelinLoginException      if the login/password is wrong
     */
   def connect(login: String, password: String): Unit = {
     connectionStatus = zeppelinWebSocketAPI.connect()
     connectionStatus match {
-      case ConnectionStatus.CONNECTED => ZeppelinLogger.printMessage("Connected to the Zeppelin")
       case ConnectionStatus.FAILED_CONNECTION => throw new ZeppelinConnectionException(uri)
+      case _ => Unit
     }
-    credentials = zeppelinRestApi.login(login, password)
+    try {
+      credentials = zeppelinRestApi.login(login, password)
+    }
+    catch {
+      case _: RestApiException => {
+        connectionStatus = ConnectionStatus.FAILED_LOGIN
+        throw new ZeppelinLoginException()
+      }
+    }
+    ZeppelinLogger.printMessage("Connected to the Zeppelin")
   }
 
   /**
@@ -93,8 +103,9 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
       var count = 0
       val messageTime = 2 * 1000
       while (this.interpreter.status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
-        if (count % messageTime == 0)
+        if (count % messageTime == 0) {
           ZeppelinLogger.printMessage(s"Updating the ${interpreter.name} interpreter settings...")
+        }
         val waitTime = 200
         count += waitTime
         Thread.sleep(waitTime)
@@ -104,9 +115,18 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
+    * Check  plugin connection to the server
+    *
+    * @return connected or not
+    */
+  def isConnected: Boolean = {
+    connectionStatus == ConnectionStatus.CONNECTED
+  }
+
+  /**
     * Get the default Scala Zeppelin interpreter
     *
-    * @return
+    * @return interpreter
     */
   def interpreter: Interpreter = {
     checkServiceAvailability()
@@ -119,11 +139,9 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Close the Zeppelin connection
+    * Close the Zeppelin connection if it is opened
     */
   def close(): Unit = {
-    checkServiceAvailability()
-
     zeppelinWebSocketAPI.close()
   }
 
@@ -131,8 +149,9 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * Check is the Zeppelin service is available
     */
   private def checkServiceAvailability(): Unit = {
-    if (connectionStatus != ConnectionStatus.CONNECTED)
+    if (connectionStatus != ConnectionStatus.CONNECTED) {
       throw new ServiceIsUnavailableException
+    }
   }
 }
 

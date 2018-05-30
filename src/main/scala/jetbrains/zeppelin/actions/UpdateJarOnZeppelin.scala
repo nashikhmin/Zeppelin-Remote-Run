@@ -12,6 +12,10 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 class UpdateJarOnZeppelin extends AnAction {
   override def actionPerformed(event: AnActionEvent): Unit = {
     val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
+    if (!zeppelinService.isConnected) {
+      ZeppelinLogger.printError("The action cannot be performed. Reconnect plugin to the server.")
+      return
+    }
 
     // single threaded execution context
     implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
