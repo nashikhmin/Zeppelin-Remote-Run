@@ -12,7 +12,9 @@ object ZeppelinLogger {
 
   def printMessage(msg: String): Unit = output.printMessage(msg)
 
-  def printError(msg: String): Unit = output.printError(msg)
+  def printSuccess(msg: String): Unit = output.printMessage("[SUCCESS] " + msg)
+
+  def printError(msg: String): Unit = output.printError("[ERROR] " + msg)
 }
 
 

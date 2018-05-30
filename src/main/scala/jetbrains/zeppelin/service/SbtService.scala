@@ -24,11 +24,12 @@ class SbtService {
   private val packageListener: PackageTextListener = new PackageTextListener
 
   def packageToJarCurrentProject(path: String): String = {
-    ZeppelinLogger.printMessage("Clean project...")
+    ZeppelinLogger.printMessage("Clean the project...")
     runSyncShellCommand(List("sbt", "clean"), path)
-    //ZeppelinLogger.printMessage("Create package...")
+    ZeppelinLogger.printMessage("The project has been cleaned")
+    ZeppelinLogger.printMessage("Create a package...")
     runSyncShellCommand(List("sbt", "package"), path, packageListener)
-    ZeppelinLogger.printMessage("Package is created...")
+    ZeppelinLogger.printMessage("The package is created")
     packageListener.jar
   }
 
@@ -82,6 +83,6 @@ class SbtService {
 }
 
 object SbtService {
-  def apply: SbtService = new SbtService()
+  def apply(): SbtService = new SbtService()
 }
 

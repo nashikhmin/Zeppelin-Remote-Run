@@ -25,3 +25,12 @@ trait OutputHandler {
 
   def onError()
 }
+
+
+/**
+  * The response web socket codes
+  */
+object ResponseCode extends Enumeration {
+  type ResponseCode = Value
+  val PARAGRAPH_UPDATE_OUTPUT, PARAGRAPH_APPEND_OUTPUT, PARAGRAPH, PARAGRAPH_ADDED, NOTE, PROGRESS = Value
+}

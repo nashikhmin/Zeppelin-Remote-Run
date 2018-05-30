@@ -60,13 +60,14 @@ object WebSocketApiProtocol extends DefaultJsonProtocol {
 
 import jetbrains.zeppelin.api.websocket.WebSocketApiProtocol._
 
+//noinspection LoopVariableNotUpdated
 @WebSocket(maxTextMessageSize = 64 * 1024)
 class WebSocketAPI(uri: String) {
 
   private var status = ConnectionStatus.DISCONNECTED
   private val handlersMap: mutable.Map[String, MessageHandler] = mutable.Map()
   private val monitor = AnyRef
-  var defaultHandler: MessageHandler = (result: ResponseMessage) => {
+  var defaultHandler: MessageHandler = (_: ResponseMessage) => {
     println("Default Handler is called")
   }
   private var session: Session = _

@@ -11,6 +11,11 @@ import spray.json.{JsObject, _}
   * @param webSocketAPI - web socket client
   */
 class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
+  {
+    List(ResponseCode.PARAGRAPH_ADDED, ResponseCode.PROGRESS)
+      .foreach(code => webSocketAPI.registerHandler(code.toString, (_: ResponseMessage) => Unit))
+
+  }
 
   /**
     * Close the connection
@@ -103,14 +108,6 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
       ResponseCode.PARAGRAPH_APPEND_OUTPUT -> handleAppendOutput,
       ResponseCode.PARAGRAPH -> handleParagraph
     )
-  }
-
-  /**
-    * The response web socket codes
-    */
-  object ResponseCode extends Enumeration {
-    type ResponseCode = Value
-    val PARAGRAPH_UPDATE_OUTPUT, PARAGRAPH_APPEND_OUTPUT, PARAGRAPH, NOTE = Value
   }
 
   /**

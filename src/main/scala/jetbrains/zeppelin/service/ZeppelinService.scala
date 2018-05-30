@@ -85,8 +85,9 @@ class ZeppelinService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     if (dependency.isEmpty) {
       interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
     }
-    ZeppelinLogger.printMessage(s"Upload jar to the Zeppelin, path: $jarPath")
+    ZeppelinLogger.printMessage(s"Upload the jar to the Zeppelin")
     updateInterpreterSetting(interpreter)
+    ZeppelinLogger.printMessage(s"The jar has been uploaded")
   }
 
   /**

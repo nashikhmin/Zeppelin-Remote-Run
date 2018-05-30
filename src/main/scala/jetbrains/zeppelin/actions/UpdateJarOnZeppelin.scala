@@ -20,21 +20,21 @@ class UpdateJarOnZeppelin extends AnAction {
     // single threaded execution context
     implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
 
-    //ZeppelinLogger.printMessage("Start update jar...")
+    ZeppelinLogger.printMessage("Start update jar...")
     val f = Future {
       val projectPath = event.getProject.getBasePath
-      val sbtService: SbtService = SbtService.apply
-      val jarFile = sbtService.packageToJarCurrentProject(projectPath)
+      val jarFile = SbtService().packageToJarCurrentProject(projectPath)
       zeppelinService.updateJar(jarFile)
     }
 
-    f.onComplete { result =>
+    f.onComplete { result => {
       if (result.isSuccess) {
-        ZeppelinLogger.printMessage("Jar file is updated")
+        ZeppelinLogger.printSuccess("Jar file is updated")
       }
       if (result.isFailure) {
         ZeppelinLogger.printError("Jar update is failed")
       }
+    }
     }
   }
 }
