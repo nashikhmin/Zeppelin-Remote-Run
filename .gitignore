@@ -10,8 +10,8 @@
 .DS_Store
 *~
 gitarget/
-/zeppelin-remote.iml
+*.iml
 /project/target/
 out/
 target/
-!/.idea/sbt.xml
+/idea/

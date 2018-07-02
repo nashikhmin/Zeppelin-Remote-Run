@@ -1,13 +1,12 @@
-name := "zeppelin-remote"
+import Dependencies._
 
-version := "0.1"
-
-scalaVersion := "2.12.4"
-
-val akkaV = "10.1.0"
-
-libraryDependencies ++= Seq(
-  "org.eclipse.jetty.websocket" % "websocket-client" % "9.4.8.v20171121",
-  "org.scalaj" %% "scalaj-http" % "2.3.0",
-  "io.spray" %% "spray-json" % "1.3.3",
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test")
+lazy val root = (project in file("."))
+  .settings(
+    organization := "org.jetbrains",
+    name         := "zeppelin-remote-run",
+    version      := "0.1.0-SNAPSHOT",
+    scalaVersion := "2.12.6",
+      ideaBuild := "181.4203.550",
+    libraryDependencies ++= mainDependencies,
+    unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+  )

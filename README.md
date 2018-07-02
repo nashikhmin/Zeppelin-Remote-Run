@@ -3,6 +3,8 @@ Intelij IDEA plugin for Scala to run tasks on Zeppelin remotely
 
 ## How to run plugin:
 
-1. Create IDEA project "Intellij Platform project", select Scala in settings;
-2. Clone current project in created plugin folder;
-3. Update dependencies from SBT (the message must be apperead automatically).
+1. Import the project as a sbt project;
+2. Update sbt project;
+3. Run `sbt updateIdea`;
+4. In Project structure set 'Project SDK' as `idea/LATEST-EAP-SNAPSHOT`;
+5. Run `IDEA`.
