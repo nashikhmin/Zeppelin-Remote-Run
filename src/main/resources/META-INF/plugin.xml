@@ -29,22 +29,12 @@
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
                              nonDefaultProject="true"/>
         <toolWindow id="zeppelin-shell-toolwindow" anchor="bottom"
-                    icon="/images/plus.png"
+                    icon="/images/ZeppelinLogo.png"
                     factoryClass="jetbrains.zeppelin.toolwindow.ZeppelinToolWindowFactory"/>
     </extensions>
 
 
     <actions>
-        <group id="Zeppelin.MainMenu" text="Zeppelin" description="Zeppelin menu">
-            <add-to-group group-id="MainMenu" anchor="last"/>
-            <action id="zeppelin.RunSelectedCode" class="jetbrains.zeppelin.actions.RunCodeAction"
-                    text="Run the selected code" description="Temp">
-                <keyboard-shortcut first-keystroke="control alt shift ENTER" keymap="$default"/>
-            </action>
-            <action id="zeppelin.UpdateJar" class="jetbrains.zeppelin.actions.UpdateJarOnZeppelin"
-                    text="Upload current project to Zeppelin"
-                    description="Add or update dependency to default Zeppelin interpreter"/>
-        </group>
     </actions>
     <project-components>
         <component>

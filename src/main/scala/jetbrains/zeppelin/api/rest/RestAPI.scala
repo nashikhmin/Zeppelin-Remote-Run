@@ -34,7 +34,7 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
 
   def performPostForm(uri: String, params: Map[String, String]): HttpResponse[String] = {
     val paramString = if (params.nonEmpty) "?" + params.map(_.productIterator.mkString("=")).mkString("&")
-    val result = Http("http://localhost:8080/api/login" + paramString).postForm
+    val result = Http(s"http://$host:$port/api/login" + paramString).postForm
       .option(HttpOptions.readTimeout(10000)).asString
     result
   }
