@@ -16,6 +16,7 @@ public class ConfigurationForm implements SearchableConfigurable {
     private JTextField portField;
     private JPasswordField passwordField;
     private JTextField usernameField;
+    private JCheckBox anonymousCheckBox;
 
     public ConfigurationForm(@NotNull Project project) {
         myProject = project;
@@ -26,34 +27,32 @@ public class ConfigurationForm implements SearchableConfigurable {
         ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(project);
         passwordField.setText(connection.password());
         usernameField.setText(connection.username());
+        portField.setText(String.valueOf(connection.port()));
         addressField.setText(connection.uri());
         portField.setText(String.valueOf(connection.port()));
+        anonymousCheckBox.setSelected(connection.anonymousAccess());
     }
 
     @Override
     public void apply() {
-        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
-
         if (!settingForm.isVisible()) {
             return;
         }
-        final String oldUsername = connection.username();
-        final String oldPassword = connection.password();
-        final String oldUri = connection.uri();
-        final Integer oldPort = connection.port();
 
         final String newUsername = usernameField.getText();
         final String newPassword = String.valueOf(passwordField.getPassword());
         final String newUri = addressField.getText();
         final Integer newPort = Integer.valueOf(portField.getText());
+        final Boolean newAnonAccess = anonymousCheckBox.isSelected();
 
+        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
 
-        if (!oldUsername.equals(newUsername) || !oldPassword.equals(newPassword) || !oldUri.equals(newUri)
-                || !oldPort.equals(newPort)) {
+        if (isModified()) {
             connection.setUri(newUri);
             connection.setPort(newPort);
             connection.setUsername(newUsername);
             connection.setPassword(newPassword);
+            connection.setAnonymousAccess(newAnonAccess);
             connection.resetApi();
         }
     }
@@ -81,14 +80,17 @@ public class ConfigurationForm implements SearchableConfigurable {
         final String oldPassword = connection.password();
         final String oldUri = connection.uri();
         final Integer oldPort = connection.port();
+        final Boolean oldAnonAccess = connection.anonymousAccess();
+
 
         final String newUsername = usernameField.getText();
         final String newPassword = String.valueOf(passwordField.getPassword());
         final String newUri = addressField.getText();
         final Integer newPort = Integer.valueOf(portField.getText());
+        final Boolean newAnonAccess = anonymousCheckBox.isSelected();
 
         return !oldUsername.equals(newUsername) || !oldPassword.equals(newPassword) || !oldUri.equals(newUri)
-                || !oldPort.equals(newPort);
+                || !oldPort.equals(newPort) || !oldAnonAccess.equals(newAnonAccess);
     }
 
     @NotNull

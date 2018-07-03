@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 /**
   * Main class that implement logic of communication with Zeppelin
   */
-class ZeppelinActionService(address: String, port: Int, user: User) {
+class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(address, port, user)
 
   /**
@@ -55,7 +55,7 @@ class ZeppelinActionService(address: String, port: Int, user: User) {
     try {
       zeppelinService.close()
       zeppelinService = ZeppelinAPIService(address, port, user)
-      zeppelinService.connect()
+      zeppelinService.connect(false)
     }
     catch {
       case _: ZeppelinConnectionException => {
@@ -105,7 +105,7 @@ class ZeppelinActionService(address: String, port: Int, user: User) {
 }
 
 object ZeppelinActionService {
-  def apply(address: String, port: Int, userName: String, password: String): ZeppelinActionService = {
-    new ZeppelinActionService(address, port, User(userName, password))
+  def apply(address: String, port: Int, user: Option[User]): ZeppelinActionService = {
+    new ZeppelinActionService(address, port, user)
   }
 }

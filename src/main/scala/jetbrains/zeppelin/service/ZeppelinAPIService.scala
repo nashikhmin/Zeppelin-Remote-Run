@@ -12,29 +12,32 @@ import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
   * @param zeppelinRestApi      - service for communication with Zeppelin by REST API
   */
 class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
-                                 val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: User) {
-  private var credentials: Credentials = Credentials("", "", "")
+                                 val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: Option[User]) {
+  private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
 
 
   /**
     * Connection to the Zeppelin server
     *
+    * @param needAuth is needed authentication by login/password
     * @throws ZeppelinConnectionException if the service is unavailable
     * @throws ZeppelinLoginException      if the login/password is wrong
     */
-  def connect(): Unit = {
+  def connect(needAuth: Boolean = true): Unit = {
     zeppelinWebSocketAPI.connect()
     zeppelinWebSocketAPI.connectionStatus match {
       case ConnectionStatus.FAILED => throw ZeppelinConnectionException(uri)
       case ConnectionStatus.CONNECTED => Unit
       case _ => throw new Exception("Unhandled Status")
     }
+
     try {
-      credentials = zeppelinRestApi.login(user.login, user.password)
+      user.foreach(it => credentials = zeppelinRestApi.login(it.login, it.password))
     }
     catch {
       case _: RestApiException => throw ZeppelinLoginException()
     }
+
     ZeppelinLogger.printMessage("Connected to the Zeppelin")
   }
 
@@ -105,24 +108,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Check  plugin connection to the server
-    *
-    * @return connected or not
-    */
-  def isConnected: Boolean = {
-    zeppelinWebSocketAPI.connectionStatus == ConnectionStatus.CONNECTED &&
-      zeppelinRestApi.loginStatus == LoginStatus.LOGGED
-  }
-
-
-  /**
-    * Close the Zeppelin connection if it is opened
-    */
-  def close(): Unit = {
-    zeppelinWebSocketAPI.close()
-  }
-
-  /**
     * Get the default Scala Zeppelin interpreter
     *
     * @return interpreter
@@ -135,10 +120,26 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     interpreter
   }
 
+  /**
+    * Check  plugin connection to the server
+    *
+    * @return connected or not
+    */
+  def isConnected: Boolean = {
+    zeppelinWebSocketAPI.connectionStatus == ConnectionStatus.CONNECTED &&
+      (user.isEmpty || zeppelinRestApi.loginStatus == LoginStatus.LOGGED)
+  }
+
+  /**
+    * Close the Zeppelin connection if it is opened
+    */
+  def close(): Unit = {
+    zeppelinWebSocketAPI.close()
+  }
 }
 
 object ZeppelinAPIService {
-  def apply(address: String, port: Int, user: User): ZeppelinAPIService = {
+  def apply(address: String, port: Int, user: Option[User]): ZeppelinAPIService = {
     new ZeppelinAPIService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port),
       s"$address:$port", user)
   }

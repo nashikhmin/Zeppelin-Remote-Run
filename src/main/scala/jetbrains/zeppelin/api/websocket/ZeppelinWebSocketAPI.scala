@@ -12,7 +12,7 @@ import spray.json.{JsObject, _}
   */
 class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
   {
-    List(ResponseCode.PARAGRAPH_ADDED, ResponseCode.PROGRESS)
+    List(ResponseCode.PARAGRAPH_ADDED, ResponseCode.PROGRESS, ResponseCode.SAVE_NOTE_FORMS, ResponseCode.NOTES_INFO)
       .foreach(code => webSocketAPI.registerHandler(code.toString, (_: ResponseMessage) => Unit))
   }
 

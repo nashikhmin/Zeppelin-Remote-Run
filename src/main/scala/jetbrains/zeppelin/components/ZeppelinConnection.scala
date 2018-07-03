@@ -2,6 +2,7 @@ package jetbrains.zeppelin.components
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
+import jetbrains.zeppelin.api.User
 import jetbrains.zeppelin.service.ZeppelinActionService
 import jetbrains.zeppelin.toolwindow.ZeppelinConsole
 import jetbrains.zeppelin.utils.ZeppelinLogger
@@ -12,6 +13,7 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
   * @param project - an owner project
   */
 class ZeppelinConnection(val project: Project) extends ProjectComponent {
+  var anonymousAccess: Boolean = ZeppelinConnection.DefaultZeppelinAnonymousAccess
   var username: String = ZeppelinConnection.DefaultZeppelinUser
   var password: String = ZeppelinConnection.DefaultZeppelinPassword
   var uri: String = ZeppelinConnection.DefaultZeppelinHost
@@ -39,13 +41,18 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
     port = value
   }
 
+  def setAnonymousAccess(value: Boolean): Unit = {
+    anonymousAccess = value
+  }
+
   def getHostURL: String = s"$uri:$port"
 
   def service: ZeppelinActionService = zeppelinActionService.getOrElse(resetApi())
 
   def resetApi(): ZeppelinActionService = {
     zeppelinActionService.foreach(_.destroy())
-    zeppelinActionService = Some(ZeppelinActionService(uri, port, username, password))
+    val user = if (anonymousAccess) None else Some(User(username, password))
+    zeppelinActionService = Some(ZeppelinActionService(uri, port, user))
     zeppelinActionService.get
   }
 }
@@ -55,6 +62,7 @@ object ZeppelinConnection {
   val DefaultZeppelinPort = 8080
   val DefaultZeppelinUser = "admin"
   val DefaultZeppelinPassword = "password1"
+  val DefaultZeppelinAnonymousAccess = false
 
   def connectionFor(project: Project): ZeppelinConnection = project.getComponent(classOf[ZeppelinConnection])
 }
