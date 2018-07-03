@@ -6,8 +6,8 @@ import jetbrains.zeppelin.service.ZeppelinAPIService
 
 class ZeppelinAPIServiceTest extends AbstractScalaTest {
   private val monitor = AnyRef
-  private val login = "user1"
-  private val password = "password2"
+  private val login = "admin"
+  private val password = "password1"
   private val url = "localhost"
   private val port = 8080
   private val folder = "TestRemoteNotebooks/"

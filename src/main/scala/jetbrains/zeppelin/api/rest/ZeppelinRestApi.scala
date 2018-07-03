@@ -24,7 +24,7 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     */
   def createNotebook(newNotebook: NewNotebook): Notebook = {
     val response: HttpResponse[String] = restApi.performPostData("/notebook", newNotebook.toJson, sessionToken)
-    if (response.code != 201) {
+    if (response.code != 200) {
       throw RestApiException(s"Cannot create a notebook.", response.code)
     }
 
@@ -62,7 +62,7 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     val data = Map("title" -> "", "text" -> paragraphText).toJson
     val response: HttpResponse[String] = restApi.performPostData(s"/notebook/$noteId/paragraph", data, sessionToken)
 
-    if (response.code != 201) {
+    if (response.code != 200) {
       throw RestApiException(s"Cannot create a paragraph", response.code)
     }
 
