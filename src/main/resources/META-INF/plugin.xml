@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.your.company.unique.plugin.id</id>
+    <id>org.jetbrains.scala.zeppelin</id>
     <name>Zeppelin Remote Run</name>
     <version>0.1</version>
     <vendor email="veoring@gmail.com" url="https://github.com/veor12">Nikita Ashikhmin</vendor>
