@@ -3,7 +3,7 @@ package jetbrains.zeppelin.service
 import java.util.concurrent.Executors
 
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
-import jetbrains.zeppelin.api.{User, ZeppelinConnectionException, ZeppelinLoginException}
+import jetbrains.zeppelin.api.{Interpreter, User, ZeppelinConnectionException, ZeppelinLoginException}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -13,6 +13,15 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
   */
 class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(address, port, user)
+
+  /**
+    * Get a list of available interpreters
+    *
+    * @return the list with interpreters
+    */
+  def interpreterList: List[Interpreter] = {
+    if (!connectIfNotYet()) List() else zeppelinService.interpreters
+  }
 
   /**
     * Run code on the Zeppelin server

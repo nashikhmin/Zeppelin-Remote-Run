@@ -113,11 +113,20 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @return interpreter
     */
   def interpreter: Interpreter = {
-    val interpreter = zeppelinRestApi.getInterpreters.head
+    val interpreter = interpreters.head
     if (interpreter.status == InterpreterStatus.ERROR) {
       throw new InterpreterException(interpreter)
     }
     interpreter
+  }
+
+  /**
+    * Get a list of the available interpreters
+    *
+    * @return the list of interpreters
+    */
+  def interpreters: List[Interpreter] = {
+    zeppelinRestApi.getInterpreters
   }
 
   /**

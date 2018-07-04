@@ -4,7 +4,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import jetbrains.zeppelin.api.User
 import jetbrains.zeppelin.service.ZeppelinActionService
-import jetbrains.zeppelin.toolwindow.ZeppelinConsole
+import jetbrains.zeppelin.toolwindow.{InterpretersView, ZeppelinConsole}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**
@@ -13,12 +13,13 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
   * @param project - an owner project
   */
 class ZeppelinConnection(val project: Project) extends ProjectComponent {
+  val interpretersView: InterpretersView = new InterpretersView
   var anonymousAccess: Boolean = ZeppelinConnection.DefaultZeppelinAnonymousAccess
   var username: String = ZeppelinConnection.DefaultZeppelinUser
   var password: String = ZeppelinConnection.DefaultZeppelinPassword
   var uri: String = ZeppelinConnection.DefaultZeppelinHost
   var port: Int = ZeppelinConnection.DefaultZeppelinPort
-  var zeppelinActionService: Option[ZeppelinActionService] = None
+  private var zeppelinActionService: Option[ZeppelinActionService] = None
 
   override def initComponent(): Unit = {
     super.initComponent()
