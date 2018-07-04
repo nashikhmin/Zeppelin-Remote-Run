@@ -13,20 +13,22 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
   * Factory that creates a Zeppelin tool window
   */
 class ZeppelinToolWindowFactory extends ToolWindowFactory {
+  override def init(toolWindow: ToolWindow): Unit = {
+    toolWindow.setStripeTitle("Zeppelin")
+  }
+
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     val panel = new SimpleToolWindowPanel(false, true)
-
     val console = new ZeppelinConsole(project)
     ZeppelinLogger.initOutput(console)
     panel.setContent(console)
     val toolbar = createToolbar(project, console)
     panel.setToolbar(toolbar.getComponent)
 
-
-    val content = ContentFactory.SERVICE.getInstance.createContent(panel, "", true)
-
-    toolWindow.getContentManager.addContent(content)
-
+    val mainContent = ContentFactory.SERVICE.getInstance.createContent(panel, "Main", true)
+    toolWindow.getContentManager.addContent(mainContent)
+    val interpretersContent = ContentFactory.SERVICE.getInstance.createContent(panel, "Interpreters", true)
+    toolWindow.getContentManager.addContent(interpretersContent)
     Disposer.register(project, console)
   }
 

@@ -85,14 +85,15 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
       zeppelinService.updateJar(jarFile)
     }
 
-    f.onComplete { result => {
-      if (result.isSuccess) {
-        ZeppelinLogger.printSuccess("Jar file is updated")
+    f.onComplete {
+      result => {
+        if (result.isSuccess) {
+          ZeppelinLogger.printSuccess("Jar file is updated")
+        }
+        if (result.isFailure) {
+          ZeppelinLogger.printError("Jar update is failed")
+        }
       }
-      if (result.isFailure) {
-        ZeppelinLogger.printError("Jar update is failed")
-      }
-    }
     }
   }
 
