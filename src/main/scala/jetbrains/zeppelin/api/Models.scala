@@ -12,6 +12,19 @@ object InterpreterStatus extends Enumeration {
   val READY, DOWNLOADING_DEPENDENCIES, ERROR = Value
 }
 
+
+case class InterpreterBindings(
+                                id: String,
+                                name: String,
+                                interpreters: List[InterpreterBinding]
+                              )
+
+case class InterpreterBinding(
+                               defaultInterpreter: Boolean,
+                               name: String,
+                             )
+
+
 case class Interpreter(id: String,
                        name: String,
                        group: String,
@@ -67,6 +80,8 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val DependencyFormat: RootJsonFormat[Dependency] = jsonFormat3(Dependency)
   implicit val InterpreterStatusFormat: RootJsonFormat[api.InterpreterStatus.Value] = enumFormat(InterpreterStatus)
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
+  implicit val InterpreterBindingFormat: RootJsonFormat[InterpreterBinding] = jsonFormat2(InterpreterBinding)
+  implicit val InterpreterBindingsFormat: RootJsonFormat[InterpreterBindings] = jsonFormat3(InterpreterBindings)
 }
 
 

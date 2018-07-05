@@ -108,12 +108,12 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Get the default Scala Zeppelin interpreter
+    * Get the default Notebook interpreter
     *
     * @return interpreter
     */
   def interpreter: Interpreter = {
-    val interpreter = interpreters.head
+    val interpreter = allInterpreters.head
     if (interpreter.status == InterpreterStatus.ERROR) {
       throw new InterpreterException(interpreter)
     }
@@ -121,11 +121,24 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
+    * Get default interpreter for a notebook
+    *
+    * @param noteId - id of the notebook
+    * @return default interpreter
+    */
+  def defaultInterpreter(noteId: String): Interpreter = {
+    val defaultInterpreterId = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).headOption
+      .getOrElse(throw new Exception)
+      .name
+    this.allInterpreters.find(_.id == defaultInterpreterId).get
+  }
+
+  /**
     * Get a list of the available interpreters
     *
     * @return the list of interpreters
     */
-  def interpreters: List[Interpreter] = {
+  def allInterpreters: List[Interpreter] = {
     zeppelinRestApi.getInterpreters
   }
 

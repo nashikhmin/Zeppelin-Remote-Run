@@ -48,6 +48,16 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     response.convertTo[Notebook]
   }
 
+  def getBindingInterpreters(noteId: String, credentials: Credentials): List[InterpreterBindings] = {
+    val data = Map("noteId" -> noteId)
+    val opRequest = RequestOperations.GET_INTERPRETER_BINDINGS.toString
+    val opResponse = ResponseCode.INTERPRETER_BINDINGS.toString
+    val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
+    val response = webSocketAPI.doRequestSync(requestMessage, opResponse).fields
+      .getOrElse("interpreterBindings", JsArray())
+    response.convertTo[List[InterpreterBindings]]
+  }
+
   /**
     * Run the paragraph in the Zeppelin application
     *
@@ -116,7 +126,7 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     */
   object RequestOperations extends Enumeration {
     type RequestOperations = Value
-    val GET_NOTE, RUN_PARAGRAPH = Value
+    val GET_NOTE, RUN_PARAGRAPH, GET_INTERPRETER_BINDINGS, SAVE_INTERPRETER_BINDINGS = Value
   }
 
 }

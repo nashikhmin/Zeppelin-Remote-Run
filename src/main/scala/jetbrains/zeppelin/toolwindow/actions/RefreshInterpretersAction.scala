@@ -16,7 +16,7 @@ class RefreshInterpretersAction extends DumbAwareAction {
   override def actionPerformed(event: AnActionEvent): Unit = {
     val connection = ZeppelinConnection.connectionFor(event.getProject)
     val service = connection.service
-    val interpretersNames = service.interpreterList.map(_.name)
+    val interpretersNames = service.interpreterList(event.getProject.getName).map(_.name)
     connection.interpretersView.updateInterpretersList(interpretersNames)
   }
 }

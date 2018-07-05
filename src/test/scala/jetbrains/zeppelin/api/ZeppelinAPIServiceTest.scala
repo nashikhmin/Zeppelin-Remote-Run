@@ -46,6 +46,14 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
     assert(notesAfterAdd.length - notes.length == 1)
   }
 
+  test("Zeppelin.GetDefaultInterpreter") {
+    val zeppelinService = ZeppelinAPIService(url, port, None)
+    zeppelinService.connect()
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val result = zeppelinService.defaultInterpreter(notebook.id)
+    assert(result.name == "spark")
+  }
+
   test("Zeppelin.UploadJar") {
     val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
     zeppelinService.connect()

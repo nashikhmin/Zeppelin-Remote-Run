@@ -34,7 +34,7 @@ trait OutputHandler {
 object ResponseCode extends Enumeration {
   type ResponseCode = Value
   val PARAGRAPH_UPDATE_OUTPUT, PARAGRAPH_APPEND_OUTPUT, PARAGRAPH, PARAGRAPH_ADDED, NOTE, PROGRESS,
-  SAVE_NOTE_FORMS, NOTES_INFO = Value
+  SAVE_NOTE_FORMS, NOTES_INFO, INTERPRETER_BINDINGS = Value
 }
 
 

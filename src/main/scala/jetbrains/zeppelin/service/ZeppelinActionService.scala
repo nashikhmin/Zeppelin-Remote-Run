@@ -19,8 +19,13 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
     *
     * @return the list with interpreters
     */
-  def interpreterList: List[Interpreter] = {
-    if (!connectIfNotYet()) List() else zeppelinService.interpreters
+  def interpreterList(notebookName: String): List[Interpreter] = {
+    if (!connectIfNotYet()) return List()
+    val allInterpreters = zeppelinService.allInterpreters
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
+    val a = defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
+    a
   }
 
   /**
