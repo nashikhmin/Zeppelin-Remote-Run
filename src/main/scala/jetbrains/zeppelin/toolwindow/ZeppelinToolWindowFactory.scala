@@ -49,7 +49,6 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     val panel = new SimpleToolWindowPanel(false, true)
 
     val interpretersView = ZeppelinConnection.connectionFor(project).interpretersView
-    interpretersView.updateInterpretersList(List("Please refresh the list..."))
     panel.setContent(interpretersView)
     val toolbar = createInterpretersToolbar(project, interpretersView)
     panel.setToolbar(toolbar.getComponent)
