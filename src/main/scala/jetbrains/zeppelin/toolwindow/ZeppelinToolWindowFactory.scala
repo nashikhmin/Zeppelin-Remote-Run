@@ -7,7 +7,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
 import jetbrains.zeppelin.components.ZeppelinConnection
-import jetbrains.zeppelin.toolwindow.actions.{RefreshInterpretersAction, RunCodeAction, UpdateJarOnZeppelin}
+import jetbrains.zeppelin.toolwindow.actions.{RefreshInterpretersAction, RunCodeAction, SetDefaultInterpretersAction, UpdateJarOnZeppelin}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**
@@ -61,6 +61,7 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
   private def createInterpretersToolbar(project: Project, interpreters: InterpretersView) = {
     val group = new DefaultActionGroup
     group.add(new RefreshInterpretersAction())
+    group.add(new SetDefaultInterpretersAction())
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(interpreters.getComponent)
     toolbar

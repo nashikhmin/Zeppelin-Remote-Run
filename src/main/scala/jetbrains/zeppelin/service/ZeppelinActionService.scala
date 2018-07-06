@@ -9,23 +9,10 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 /**
-  * Main class that implement logic of communication with Zeppelin
+  * Main class that implement logic of the actions for the communication with Zeppelin
   */
 class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(address, port, user)
-
-  /**
-    * Get a list of available interpreters
-    *
-    * @return the list with interpreters
-    */
-  def interpreterList(notebookName: String): List[Interpreter] = {
-    if (!connectIfNotYet()) return List()
-    val allInterpreters = zeppelinService.allInterpreters
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
-    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
-    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
-  }
 
   /**
     * Run code on the Zeppelin server
@@ -78,6 +65,32 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
       case _: ZeppelinLoginException => ZeppelinLogger.printError(s"Authentication error. Check login and password")
     }
     zeppelinService.isConnected
+  }
+
+  /**
+    * Set the selected interpreter as a default interpreter for the notebook
+    *
+    * @param notebookName    - a name of a notebook
+    * @param interpreterName - an interpreter name
+    */
+  def setDefaultInterpreter(notebookName: String, interpreterName: String): Unit = {
+    val interpreter = interpreterList(notebookName).find(_.name == interpreterName).get
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    zeppelinService.setDefaultInterpreter(notebook.id, interpreter.id)
+  }
+
+  /**
+    * Get a list of available interpreters for the notebook
+    *
+    * @param notebookName - a name of the notebook
+    * @return the list with interpreters
+    */
+  def interpreterList(notebookName: String): List[Interpreter] = {
+    if (!connectIfNotYet()) return List()
+    val allInterpreters = zeppelinService.allInterpreters
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
+    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
   }
 
   /**

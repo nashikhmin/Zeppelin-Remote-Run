@@ -56,6 +56,16 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
     zeppelinActionService = Some(ZeppelinActionService(uri, port, user))
     zeppelinActionService.get
   }
+
+  /**
+    * Update list of  interpreters for the notebook
+    *
+    * @param notebookName - a name of the notebook
+    */
+  def updateInterpreterList(notebookName: String): Unit = {
+    val interpretersNames = service.interpreterList(notebookName).map(_.name)
+    interpretersView.updateInterpretersList(interpretersNames)
+  }
 }
 
 object ZeppelinConnection {

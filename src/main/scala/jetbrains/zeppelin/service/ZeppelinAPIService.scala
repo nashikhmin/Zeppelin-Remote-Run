@@ -144,6 +144,20 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
+    * Set a default interpreter for the notebook
+    *
+    * @param noteId        - id of the notebook
+    * @param interpreterId - id of the interpreter
+    */
+  def setDefaultInterpreter(noteId: String, interpreterId: String): Unit = {
+    val bindingInterpreters = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).map(_.id)
+    val newDefaultInterpreter = bindingInterpreters.find(_ == interpreterId)
+      .getOrElse(throw new InterpreterNotFoundException(interpreterId))
+    val newBindingInterpreters = newDefaultInterpreter +: bindingInterpreters.filter(_ != newDefaultInterpreter)
+    zeppelinWebSocketAPI.saveListOfBindingInterpreters(noteId, newBindingInterpreters, credentials)
+  }
+
+  /**
     * Check  plugin connection to the server
     *
     * @return connected or not

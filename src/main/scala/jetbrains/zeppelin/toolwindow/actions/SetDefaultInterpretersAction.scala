@@ -6,15 +6,20 @@ import com.intellij.openapi.project.DumbAwareAction
 import jetbrains.zeppelin.components.ZeppelinConnection
 
 /**
-  * Refresh a list of available interpreters on Zeppelin.
+  * Set a new default interpreter for the Zeppelin
   */
-class RefreshInterpretersAction extends DumbAwareAction {
+class SetDefaultInterpretersAction extends DumbAwareAction {
   val templatePresentation: Presentation = getTemplatePresentation
-  templatePresentation.setIcon(AllIcons.Actions.Refresh)
-  templatePresentation.setText("Refresh Interpreters list")
+  templatePresentation.setIcon(AllIcons.Actions.Get)
+  templatePresentation.setText("Set interpreter as a default")
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val connection = ZeppelinConnection.connectionFor(event.getProject)
+    val interpretersView = connection.interpretersView
+    val interpreterName = interpretersView.getSelectedValue
+    val service = connection.service
+
+    service.setDefaultInterpreter(event.getProject.getName, interpreterName)
     connection.updateInterpreterList(event.getProject.getName)
   }
 }

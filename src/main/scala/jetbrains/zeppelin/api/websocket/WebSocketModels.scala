@@ -37,9 +37,7 @@ object ResponseCode extends Enumeration {
   SAVE_NOTE_FORMS, NOTES_INFO, INTERPRETER_BINDINGS = Value
 }
 
-
 case class SessionIsClosedException() extends Exception()
-
 
 case class RequestMessage(op: String, data: JsValue, credentials: Credentials)
 

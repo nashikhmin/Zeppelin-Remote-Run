@@ -22,8 +22,8 @@ class WebSocketAPI(uri: String) {
   var defaultHandler: MessageHandler = (_: ResponseMessage) => {
     println("Default Handler is called")
   }
-  private var session: Session = _
   var status: api.ConnectionStatus.Value = ConnectionStatus.DISCONNECTED
+  private var session: Session = _
 
   @OnWebSocketClose
   def onClose(statusCode: Int, reason: String): Unit = {
@@ -88,7 +88,6 @@ class WebSocketAPI(uri: String) {
   def doRequestSync(requestMessage: RequestMessage, responseCode: String): JsObject = {
     if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
 
-
     var gotResponse = false
     var response: ResponseMessage = null
 
@@ -100,9 +99,7 @@ class WebSocketAPI(uri: String) {
       }
     })
 
-    import WebSocketApiProtocol._
-    val msg = requestMessage.toJson.toString()
-    session.getRemote.sendString(msg)
+    doRequestWithoutWaitingResult(requestMessage)
 
     monitor.synchronized {
       while (!gotResponse) {
@@ -112,16 +109,18 @@ class WebSocketAPI(uri: String) {
     response.data
   }
 
-  def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]) {
-    if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
-
+  def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]): Unit = {
     for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)
+    doRequestWithoutWaitingResult(requestMessage)
+  }
+
+  def doRequestWithoutWaitingResult(requestMessage: RequestMessage): Unit = {
+    if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
 
     import WebSocketApiProtocol._
     val msg = requestMessage.toJson.toString()
     session.getRemote.sendString(msg)
   }
-
 
   def registerHandler(op: String, handler: MessageHandler) {
     handlersMap += (op -> handler)
