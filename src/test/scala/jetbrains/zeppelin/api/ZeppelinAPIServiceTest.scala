@@ -57,18 +57,18 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   test("Zeppelin.UploadJar") {
     val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
     zeppelinService.connect()
-    val interpreterWithoutDependencies = zeppelinService.interpreter.copy(dependencies = List.empty)
+    val notebookId = zeppelinService.getOrCreateNotebook(notebookName).id
+    val interpreterWithoutDependencies = zeppelinService.defaultInterpreter(notebookId).copy(dependencies = List.empty)
     zeppelinService.updateInterpreterSetting(interpreterWithoutDependencies)
 
-    assert(zeppelinService.interpreter == interpreterWithoutDependencies)
+    assert(zeppelinService.defaultInterpreter(notebookId) == interpreterWithoutDependencies)
 
     val jarPath = getClass.getResource("/scala_example.jar").getPath
     val interpreterWithDependency = interpreterWithoutDependencies.copy(dependencies = List(Dependency(jarPath)))
+    zeppelinService.updateJar(notebookId, jarPath)
 
-    zeppelinService.updateJar(jarPath)
-
-    assert(zeppelinService.interpreter == interpreterWithDependency)
-    assert(zeppelinService.interpreter.status == InterpreterStatus.READY)
+    assert(zeppelinService.defaultInterpreter(notebookId) == interpreterWithDependency)
+    assert(zeppelinService.defaultInterpreter(notebookId).status == InterpreterStatus.READY)
   }
 
   def performSimpleExecuteTest(zeppelinService: ZeppelinAPIService): Unit = {

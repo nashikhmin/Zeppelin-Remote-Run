@@ -6,7 +6,7 @@ import com.intellij.openapi.project.DumbAwareAction
 import jetbrains.zeppelin.components.ZeppelinConnection
 
 /**
-  * Upload project jar to Zeppelin server
+  * Upload a project jar to Zeppelin server
   */
 class UpdateJarOnZeppelin extends DumbAwareAction {
   val templatePresentation: Presentation = getTemplatePresentation
@@ -16,6 +16,6 @@ class UpdateJarOnZeppelin extends DumbAwareAction {
   override def actionPerformed(event: AnActionEvent): Unit = {
     val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
     val projectPath = event.getProject.getBasePath
-    zeppelinService.updateJar(projectPath)
+    zeppelinService.updateJar(event.getProject.getName, projectPath)
   }
 }

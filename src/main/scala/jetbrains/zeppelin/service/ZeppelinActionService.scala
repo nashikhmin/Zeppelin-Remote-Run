@@ -24,8 +24,7 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
     val allInterpreters = zeppelinService.allInterpreters
     val notebook = zeppelinService.getOrCreateNotebook(notebookName)
     val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
-    val a = defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
-    a
+    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
   }
 
   /**
@@ -84,19 +83,21 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   /**
     * Upload the current project to the Zeppelin server as a jar file
     *
-    * @param projectPath - full path to the project
+    * @param notebookName - a name of the notebook
+    * @param projectPath  - the full path to the project
     */
-  def updateJar(projectPath: String): Unit = {
+  def updateJar(notebookName: String, projectPath: String): Unit = {
     if (!connectIfNotYet()) return
 
     // single threaded execution context
     implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
 
+    val notebookId = zeppelinService.getOrCreateNotebook(notebookName).id
     ZeppelinLogger.printMessage("Start update jar...")
     val f = Future {
 
       val jarFile = SbtService().packageToJarCurrentProject(projectPath)
-      zeppelinService.updateJar(jarFile)
+      zeppelinService.updateJar(notebookId, jarFile)
     }
 
     f.onComplete {

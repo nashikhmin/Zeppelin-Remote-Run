@@ -15,7 +15,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                                  val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: Option[User]) {
   private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
 
-
   /**
     * Connection to the Zeppelin server
     *
@@ -71,15 +70,16 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   /**
     * Update Jar file in the Zeppelin interpreter
     *
-    * @param jarPath - the path to the jar file
+    * @param notebookId - an id of the project
+    * @param jarPath    - the path to the jar file
     */
-  def updateJar(jarPath: String): Unit = {
-    var interpreter = zeppelinRestApi.getInterpreters.head
+  def updateJar(notebookId: String, jarPath: String): Unit = {
+    var interpreter = defaultInterpreter(notebookId)
     val dependency = interpreter.dependencies.find(it => it.groupArtifactVersion == jarPath)
     if (dependency.isEmpty) {
       interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
     }
-    ZeppelinLogger.printMessage(s"Upload the jar to the Zeppelin")
+    ZeppelinLogger.printMessage(s"Upload the jar to the Zeppelin...")
     updateInterpreterSetting(interpreter)
     ZeppelinLogger.printMessage(s"The jar has been uploaded")
   }
@@ -91,11 +91,11 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     */
   def updateInterpreterSetting(interpreter: Interpreter): Unit = {
     zeppelinRestApi.updateInterpreterSettings(interpreter)
-    ZeppelinLogger.printMessage(s"Update the ${interpreter.name} interpreter settings")
+    ZeppelinLogger.printMessage(s"Start updating the ${interpreter.name} interpreter settings...")
     ThreadRun.runWithTimeout {
       var count = 0
       val messageTime = 2 * 1000
-      while (this.interpreter.status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
+      while (this.interpreterById(interpreter.id).status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
         if (count % messageTime == 0) {
           ZeppelinLogger.printMessage(s"Updating the ${interpreter.name} interpreter settings...")
         }
@@ -108,12 +108,13 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Get the default Notebook interpreter
+    * Get an interpreter by ID
     *
+    * @param id - id of an interpreter
     * @return interpreter
     */
-  def interpreter: Interpreter = {
-    val interpreter = allInterpreters.head
+  def interpreterById(id: String): Interpreter = {
+    val interpreter = allInterpreters.find(_.id == id).getOrElse(throw new InterpreterNotFoundException(id))
     if (interpreter.status == InterpreterStatus.ERROR) {
       throw new InterpreterException(interpreter)
     }
