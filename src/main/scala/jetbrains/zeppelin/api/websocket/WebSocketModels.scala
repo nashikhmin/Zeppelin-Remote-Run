@@ -1,6 +1,6 @@
 package jetbrains.zeppelin.api.websocket
 
-import jetbrains.zeppelin.api.Credentials
+import jetbrains.zeppelin.api.{Credentials, ExecutionResults}
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
 
@@ -22,7 +22,7 @@ private object ZeppelinWebSocketProtocol extends DefaultJsonProtocol {
 trait OutputHandler {
   def handle(data: OutputResult, isAppend: Boolean)
 
-  def onSuccess()
+  def onSuccess(msg: ExecutionResults = ExecutionResults())
 
   def onError()
 }

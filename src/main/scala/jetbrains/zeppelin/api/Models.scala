@@ -51,6 +51,9 @@ case class Paragraph(id: String, jobName: String = "",
 
 case class Credentials(principal: String, ticket: String, roles: String)
 
+case class ExecutionResults(code: String = "", msg: List[ExecutionResultsMsg] = List())
+
+case class ExecutionResultsMsg(resultType: String, data: String)
 
 /**
   * Model for new notebook request by REST API
@@ -82,6 +85,22 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
   implicit val InterpreterBindingFormat: RootJsonFormat[InterpreterBinding] = jsonFormat2(InterpreterBinding)
   implicit val InterpreterBindingsFormat: RootJsonFormat[InterpreterBindings] = jsonFormat3(InterpreterBindings)
+
+
+  implicit object ExecutionResultsMsgFormat extends RootJsonFormat[ExecutionResultsMsg] {
+    def write(r: ExecutionResultsMsg): JsValue = {
+      throw throw DeserializationException("Non implemented")
+    }
+
+    def read(value: JsValue): ExecutionResultsMsg = {
+      value.asJsObject.getFields("type", "data") match {
+        case Seq(JsString(resultType), JsString(data)) => ExecutionResultsMsg(resultType, data)
+        case _ => throw DeserializationException("Response message expected")
+      }
+    }
+  }
+
+  implicit val ExecutionResultsFormat: RootJsonFormat[ExecutionResults] = jsonFormat2(ExecutionResults)
 }
 
 

@@ -97,7 +97,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
         assert(result.data.isEmpty || result.data == "hello world\n")
       }
 
-      override def onSuccess(): Unit = {
+      override def onSuccess(executionResults: ExecutionResults): Unit = {
         monitor.synchronized {
           waitResult = false
           result = "success"

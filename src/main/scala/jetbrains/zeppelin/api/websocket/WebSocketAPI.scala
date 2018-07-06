@@ -14,7 +14,7 @@ import spray.json.{JsObject, _}
 import scala.collection.mutable
 
 //noinspection LoopVariableNotUpdated,RedundantBlock
-@WebSocket(maxTextMessageSize = 64 * 1024)
+@WebSocket(maxTextMessageSize = 1024 * 1024)
 class WebSocketAPI(uri: String) {
   private val client: WebSocketClient = new WebSocketClient()
   private val handlersMap: mutable.Map[String, MessageHandler] = mutable.Map()
@@ -102,16 +102,11 @@ class WebSocketAPI(uri: String) {
     doRequestWithoutWaitingResult(requestMessage)
 
     monitor.synchronized {
-      while (!gotResponse) {
+      while (!gotResponse && status == ConnectionStatus.CONNECTED) {
         monitor.wait()
       }
     }
     response.data
-  }
-
-  def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]): Unit = {
-    for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)
-    doRequestWithoutWaitingResult(requestMessage)
   }
 
   def doRequestWithoutWaitingResult(requestMessage: RequestMessage): Unit = {
@@ -124,5 +119,10 @@ class WebSocketAPI(uri: String) {
 
   def registerHandler(op: String, handler: MessageHandler) {
     handlersMap += (op -> handler)
+  }
+
+  def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]): Unit = {
+    for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)
+    doRequestWithoutWaitingResult(requestMessage)
   }
 }

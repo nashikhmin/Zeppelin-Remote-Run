@@ -2,8 +2,8 @@ package jetbrains.zeppelin.service
 
 import java.util.concurrent.Executors
 
+import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
-import jetbrains.zeppelin.api.{Interpreter, User, ZeppelinConnectionException, ZeppelinLoginException}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -36,7 +36,13 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
         ZeppelinLogger.printMessage(result.data)
       }
 
-      override def onSuccess(): Unit = {
+      override def onSuccess(executionResults: ExecutionResults = ExecutionResults()): Unit = {
+        executionResults.msg.foreach(it => {
+          it.resultType match {
+            case "TABLE" => ZeppelinLogger.printMessage(it.data)
+            case _ => Unit
+          }
+        })
         ZeppelinLogger.printMessage("Paragraph is completed")
       }
     }

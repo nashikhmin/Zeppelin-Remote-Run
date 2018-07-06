@@ -131,7 +131,11 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
           .getOrElse("status", JsString("")).convertTo[String]
 
         status match {
-          case "FINISHED" => outputHandler.onSuccess()
+          case "FINISHED" => {
+            val results = result.data.fields.getOrElse("paragraph", JsObject()).asJsObject().fields
+              .getOrElse("results", throw new Exception).convertTo[ExecutionResults]
+            outputHandler.onSuccess(results)
+          }
           case "ERROR" => outputHandler.onError()
           case _ => Unit
         }
