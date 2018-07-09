@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import jetbrains.zeppelin.api.User
 import jetbrains.zeppelin.service.ZeppelinActionService
+import jetbrains.zeppelin.settings.{RemoteRunApplicationSettings, ZeppelinSettings}
 import jetbrains.zeppelin.toolwindow.{InterpretersView, ZeppelinConsole}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
@@ -14,11 +15,6 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
   */
 class ZeppelinConnection(val project: Project) extends ProjectComponent {
   val interpretersView: InterpretersView = new InterpretersView
-  var anonymousAccess: Boolean = ZeppelinConnection.DefaultZeppelinAnonymousAccess
-  var username: String = ZeppelinConnection.DefaultZeppelinUser
-  var password: String = ZeppelinConnection.DefaultZeppelinPassword
-  var uri: String = ZeppelinConnection.DefaultZeppelinHost
-  var port: Int = ZeppelinConnection.DefaultZeppelinPort
   private var zeppelinActionService: Option[ZeppelinActionService] = None
 
   override def initComponent(): Unit = {
@@ -26,35 +22,40 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
     ZeppelinLogger.initOutput(new ZeppelinConsole(project))
   }
 
-  def setUsername(value: String): Unit = {
-    username = value
+  /**
+    * Update stored Zeppelin settings
+    *
+    * @param newSettings - new Zeppelin settings
+    */
+  def updateSettings(newSettings: ZeppelinSettings): Unit = {
+    val settings = RemoteRunApplicationSettings.getInstance(project)
+    settings.setZeppelinSettings(newSettings)
+    val state = settings.getState
+    settings.loadState(state)
+    resetApi()
   }
 
-  def setPassword(value: String): Unit = {
-    password = value
-  }
-
-  def setUri(value: String): Unit = {
-    uri = value
-  }
-
-  def setPort(value: Int): Unit = {
-    port = value
-  }
-
-  def setAnonymousAccess(value: Boolean): Unit = {
-    anonymousAccess = value
-  }
-
-  def getHostURL: String = s"$uri:$port"
-
-  def service: ZeppelinActionService = zeppelinActionService.getOrElse(resetApi())
-
+  /**
+    * Full restart of all connections
+    *
+    * @return new action service
+    */
   def resetApi(): ZeppelinActionService = {
     zeppelinActionService.foreach(_.destroy())
-    val user = if (anonymousAccess) None else Some(User(username, password))
-    zeppelinActionService = Some(ZeppelinActionService(uri, port, user))
+
+    val zeppelinSettings = getZeppelinSettings
+    val user = if (zeppelinSettings.isAnonymous) None else Some(User(zeppelinSettings.login, zeppelinSettings.password))
+    zeppelinActionService = Some(ZeppelinActionService(zeppelinSettings.address, zeppelinSettings.port, user))
     zeppelinActionService.get
+  }
+
+  /**
+    * Get saved zeppelin settings
+    *
+    * @return settings
+    */
+  def getZeppelinSettings: ZeppelinSettings = {
+    RemoteRunApplicationSettings.getInstance(project).getZeppelinSettings
   }
 
   /**
@@ -66,14 +67,10 @@ class ZeppelinConnection(val project: Project) extends ProjectComponent {
     val interpretersNames = service.interpreterList(notebookName).map(_.name)
     interpretersView.updateInterpretersList(interpretersNames)
   }
+
+  def service: ZeppelinActionService = zeppelinActionService.getOrElse(resetApi())
 }
 
 object ZeppelinConnection {
-  val DefaultZeppelinHost = "localhost"
-  val DefaultZeppelinPort = 8080
-  val DefaultZeppelinUser = "admin"
-  val DefaultZeppelinPassword = "password1"
-  val DefaultZeppelinAnonymousAccess = false
-
   def connectionFor(project: Project): ZeppelinConnection = project.getComponent(classOf[ZeppelinConnection])
 }
