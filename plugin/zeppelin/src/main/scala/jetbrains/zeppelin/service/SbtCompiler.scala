@@ -5,9 +5,10 @@ import java.nio.charset.Charset
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
+import jetbrains.zeppelin.api.compiler.ProjectCompiler
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
-class SbtService {
+class SbtCompiler extends ProjectCompiler {
   private val defaultListener = new ProcessListener {
     override def startNotified(processEvent: ProcessEvent): Unit = {}
 
@@ -23,7 +24,13 @@ class SbtService {
   }
   private val packageListener: PackageTextListener = new PackageTextListener
 
-  def packageToJarCurrentProject(path: String): String = {
+  /**
+    * Compile the current project and package it to a jar
+    *
+    * @param path - root project, which should be packed
+    * @return path to the jar file
+    */
+  override def compileAndPackage(path: String): String = {
     ZeppelinLogger.printMessage("Clean the project...")
     runSyncShellCommand(List("sbt", "clean"), path)
     ZeppelinLogger.printMessage("The project has been cleaned")
@@ -82,7 +89,7 @@ class SbtService {
 
 }
 
-object SbtService {
-  def apply(): SbtService = new SbtService()
+object SbtCompiler {
+  def apply(): SbtCompiler = new SbtCompiler()
 }
 

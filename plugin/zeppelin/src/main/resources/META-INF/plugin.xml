@@ -23,6 +23,13 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
+
+    <extensionPoints>
+        <extensionPoint name="compileProject" interface="jetbrains.zeppelin.external.compile.LanguageCompiler"
+                        area="IDEA_PROJECT"/>
+    </extensionPoints>
+
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="language" instance="jetbrains.zeppelin.settings.ConfigurationForm"
@@ -34,7 +41,6 @@
 
         <projectService serviceImplementation="jetbrains.zeppelin.settings.RemoteRunApplicationSettings"/>
     </extensions>
-
 
     <actions>
     </actions>

@@ -115,7 +115,7 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
     ZeppelinLogger.printMessage("Start update jar...")
     val f = Future {
 
-      val jarFile = SbtService().packageToJarCurrentProject(projectPath)
+      val jarFile = SbtCompiler().compileAndPackage(projectPath)
       zeppelinService.updateJar(notebookId, jarFile)
     }
 

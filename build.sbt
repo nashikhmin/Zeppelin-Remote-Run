@@ -1,12 +1,43 @@
-import Dependencies._
+import Common._
+import org.jetbrains.sbtidea.Keys.{ideaExternalPlugins, updateIdea}
 
-lazy val root = (project in file("."))
+
+ideaDownloadDirectory in ThisBuild := homePrefix / ".RemoteRunPlugin" / "sdk"
+
+ideaExternalPlugins += IdeaPlugin.Id("Scala", "org.intellij.scala", None)
+
+ideaBuild := Versions.ideaVersion
+
+onLoad in Global := ((s: State) => {
+  "updateIdea" :: s
+}) compose (onLoad in Global).value
+
+
+
+lazy val root = newProject("RemoteRunPlugin", file("."))
+  .dependsOn(
+    zeppelin % "test->test;compile->compile",
+    scalaIntegration % "test->test;compile->compile")
+  .aggregate(
+    zeppelin,
+    scalaIntegration)
   .settings(
-    organization := "org.jetbrains",
-    name         := "zeppelin-remote-run",
-    version      := "0.1.0-SNAPSHOT",
-    scalaVersion := "2.12.6",
-      ideaBuild := "181.4203.550",
-    libraryDependencies ++= mainDependencies,
-    unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+    aggregate.in(updateIdea) := false)
+
+
+lazy val zeppelin = newProject("zeppelin", file("plugin/zeppelin"))
+  .settings(
+    version := Versions.scalaVersion,
+
+    libraryDependencies ++= Dependencies.zeppelinDependencies,
+    unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
   )
+  .enablePlugins(SbtIdeaPlugin)
+
+lazy val scalaIntegration =
+  newProject("scala-intergration", file("plugin/integration/scala-plugin"))
+    .dependsOn(zeppelin % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaExternalPlugins += IdeaPlugin.Id("Scala", "org.intellij.scala", None),
+    )
