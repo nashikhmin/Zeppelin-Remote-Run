@@ -27,12 +27,12 @@ class ZeppelinSettings {
   @Attribute("IsAnonymous")
   var isAnonymous: Boolean = false
 
-  def setPort(value: Int): Unit = {
-    port = value
-  }
-
   def setAddress(value: String): Unit = {
     address = value
+  }
+
+  def setIsAnonymous(value: Boolean): Unit = {
+    isAnonymous = value
   }
 
   def setLogin(value: String): Unit = {
@@ -43,8 +43,8 @@ class ZeppelinSettings {
     password = value
   }
 
-  def setIsAnonymous(value: Boolean): Unit = {
-    isAnonymous = value
+  def setPort(value: Int): Unit = {
+    port = value
   }
 }
 
@@ -53,7 +53,7 @@ object ZeppelinSettings {
 }
 
 trait ZeppelinHolder {
-  def setZeppelinSettings(settings: ZeppelinSettings): Unit
-
   def getZeppelinSettings: ZeppelinSettings
+
+  def setZeppelinSettings(settings: ZeppelinSettings): Unit
 }

@@ -16,6 +16,13 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
 
   /**
+    * Close the Zeppelin connection if it is opened
+    */
+  def close(): Unit = {
+    zeppelinWebSocketAPI.close()
+  }
+
+  /**
     * Connection to the Zeppelin server
     *
     * @param needAuth is needed authentication by login/password
@@ -38,6 +45,38 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     }
 
     ZeppelinLogger.printMessage("Connected to the Zeppelin")
+  }
+
+  /**
+    * Get default interpreter for a notebook
+    *
+    * @param noteId - id of the notebook
+    * @return default interpreter
+    */
+  def defaultInterpreter(noteId: String): Interpreter = {
+    val defaultInterpreterId = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).headOption
+      .getOrElse(throw new Exception)
+      .name
+    this.allInterpreters.find(_.id == defaultInterpreterId).get
+  }
+
+  /**
+    * Get a list of the available interpreters
+    *
+    * @return the list of interpreters
+    */
+  def allInterpreters: List[Interpreter] = {
+    zeppelinRestApi.getInterpreters
+  }
+
+  /**
+    * Check  plugin connection to the server
+    *
+    * @return connected or not
+    */
+  def isConnected: Boolean = {
+    zeppelinWebSocketAPI.connectionStatus == ConnectionStatus.CONNECTED &&
+      (user.isEmpty || zeppelinRestApi.loginStatus == LoginStatus.LOGGED)
   }
 
   /**
@@ -66,22 +105,18 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     note.getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
   }
 
-
   /**
-    * Update Jar file in the Zeppelin interpreter
+    * Set a default interpreter for the notebook
     *
-    * @param notebookId - an id of the project
-    * @param jarPath    - the path to the jar file
+    * @param noteId        - id of the notebook
+    * @param interpreterId - id of the interpreter
     */
-  def updateJar(notebookId: String, jarPath: String): Unit = {
-    var interpreter = defaultInterpreter(notebookId)
-    val dependency = interpreter.dependencies.find(it => it.groupArtifactVersion == jarPath)
-    if (dependency.isEmpty) {
-      interpreter = interpreter.copy(dependencies = Dependency(jarPath) :: interpreter.dependencies)
-    }
-    ZeppelinLogger.printMessage(s"Upload the jar to the Zeppelin...")
-    updateInterpreterSetting(interpreter)
-    ZeppelinLogger.printMessage(s"The jar has been uploaded")
+  def setDefaultInterpreter(noteId: String, interpreterId: String): Unit = {
+    val bindingInterpreters = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).map(_.id)
+    val newDefaultInterpreter = bindingInterpreters.find(_ == interpreterId)
+      .getOrElse(throw new InterpreterNotFoundException(interpreterId))
+    val newBindingInterpreters = newDefaultInterpreter +: bindingInterpreters.filter(_ != newDefaultInterpreter)
+    zeppelinWebSocketAPI.saveListOfBindingInterpreters(noteId, newBindingInterpreters, credentials)
   }
 
   /**
@@ -95,13 +130,20 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     ThreadRun.runWithTimeout {
       var count = 0
       val messageTime = 2 * 1000
-      while (this.interpreterById(interpreter.id).status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
-        if (count % messageTime == 0) {
-          ZeppelinLogger.printMessage(s"Updating the ${interpreter.name} interpreter settings...")
+      try {
+        while (this.interpreterById(interpreter.id).status == InterpreterStatus.DOWNLOADING_DEPENDENCIES) {
+          if (count % messageTime == 0) {
+            ZeppelinLogger.printMessage(s"Updating the ${interpreter.name} interpreter settings...")
+          }
+          val waitTime = 200
+          count += waitTime
+          Thread.sleep(waitTime)
         }
-        val waitTime = 200
-        count += waitTime
-        Thread.sleep(waitTime)
+      }
+      catch {
+        case e: InterpreterException => {
+          ZeppelinLogger.printError("Error during updating interpreter settings." + e.getMessage)
+        }
       }
     }
     ZeppelinLogger.printMessage(s"The settings of the ${interpreter.name} interpreter have been updated")
@@ -119,59 +161,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
       throw new InterpreterException(interpreter)
     }
     interpreter
-  }
-
-  /**
-    * Get default interpreter for a notebook
-    *
-    * @param noteId - id of the notebook
-    * @return default interpreter
-    */
-  def defaultInterpreter(noteId: String): Interpreter = {
-    val defaultInterpreterId = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).headOption
-      .getOrElse(throw new Exception)
-      .name
-    this.allInterpreters.find(_.id == defaultInterpreterId).get
-  }
-
-  /**
-    * Get a list of the available interpreters
-    *
-    * @return the list of interpreters
-    */
-  def allInterpreters: List[Interpreter] = {
-    zeppelinRestApi.getInterpreters
-  }
-
-  /**
-    * Set a default interpreter for the notebook
-    *
-    * @param noteId        - id of the notebook
-    * @param interpreterId - id of the interpreter
-    */
-  def setDefaultInterpreter(noteId: String, interpreterId: String): Unit = {
-    val bindingInterpreters = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).map(_.id)
-    val newDefaultInterpreter = bindingInterpreters.find(_ == interpreterId)
-      .getOrElse(throw new InterpreterNotFoundException(interpreterId))
-    val newBindingInterpreters = newDefaultInterpreter +: bindingInterpreters.filter(_ != newDefaultInterpreter)
-    zeppelinWebSocketAPI.saveListOfBindingInterpreters(noteId, newBindingInterpreters, credentials)
-  }
-
-  /**
-    * Check  plugin connection to the server
-    *
-    * @return connected or not
-    */
-  def isConnected: Boolean = {
-    zeppelinWebSocketAPI.connectionStatus == ConnectionStatus.CONNECTED &&
-      (user.isEmpty || zeppelinRestApi.loginStatus == LoginStatus.LOGGED)
-  }
-
-  /**
-    * Close the Zeppelin connection if it is opened
-    */
-  def close(): Unit = {
-    zeppelinWebSocketAPI.close()
   }
 }
 

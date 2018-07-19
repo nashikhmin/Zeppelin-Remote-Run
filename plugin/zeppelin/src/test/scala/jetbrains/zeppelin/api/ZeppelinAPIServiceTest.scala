@@ -1,5 +1,6 @@
 package jetbrains.zeppelin.api
 
+import jetbrains.zeppelin.AbstractScalaTest
 import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.service.ZeppelinAPIService
@@ -14,6 +15,8 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   private val port = 8080
   private val folder = "TestRemoteNotebooks/"
   private val runCodeTestNotebook = s"${folder}runCode"
+  private val interpreterIdTest = "md"
+  private val interpreterSparkId = "spark"
 
   test("Zeppelin.RunWihWrongAddress") {
     val zeppelinService = ZeppelinAPIService(url, port + 666, Some(User(login, password)))
@@ -48,7 +51,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.GetDefaultInterpreter") {
-    val zeppelinService = ZeppelinAPIService(url, port, None)
+    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
     zeppelinService.connect()
     val notebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
     val interpreters = zeppelinService.allInterpreters.map(_.id)
@@ -60,27 +63,43 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
     assert(result.id == randomInterpreter)
   }
 
+  test("Zeppelin.InterpreterInstantiation") {
+    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
+    zeppelinService.connect()
+    val interpreter = zeppelinService.interpreterById(interpreterIdTest)
+    val globalInterpreter = interpreter.copy(option = InterpreterOption())
+    zeppelinService.updateInterpreterSetting(globalInterpreter)
+    assert(zeppelinService.interpreterById(interpreterIdTest) == globalInterpreter)
+
+    val changedInterpreter = interpreter.copy(option = InterpreterOption(
+      Some(InstantiationType.SHARED.toString),
+      Some(InstantiationType.SCOPED.toString)))
+    zeppelinService.updateInterpreterSetting(changedInterpreter)
+    assert(zeppelinService.interpreterById(interpreterIdTest) == changedInterpreter)
+  }
+
   test("Zeppelin.UploadJar") {
     val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
     zeppelinService.connect()
-    val notebookId = zeppelinService.getOrCreateNotebook(runCodeTestNotebook).id
-    val interpreterWithoutDependencies = zeppelinService.defaultInterpreter(notebookId).copy(dependencies = List.empty)
+
+    val interpreterWithoutDependencies = zeppelinService.interpreterById(interpreterSparkId)
+      .copy(dependencies = List.empty)
     zeppelinService.updateInterpreterSetting(interpreterWithoutDependencies)
 
-    assert(zeppelinService.defaultInterpreter(notebookId) == interpreterWithoutDependencies)
+    assert(zeppelinService.interpreterById(interpreterSparkId) == interpreterWithoutDependencies)
 
     val jarPath = getClass.getResource("/scala_example.jar").getPath
     val interpreterWithDependency = interpreterWithoutDependencies.copy(dependencies = List(Dependency(jarPath)))
-    zeppelinService.updateJar(notebookId, jarPath)
+    zeppelinService.updateInterpreterSetting(interpreterWithDependency)
 
-    assert(zeppelinService.defaultInterpreter(notebookId) == interpreterWithDependency)
-    assert(zeppelinService.defaultInterpreter(notebookId).status == InterpreterStatus.READY)
+    assert(zeppelinService.interpreterById(interpreterSparkId) == interpreterWithDependency)
+    assert(zeppelinService.interpreterById(interpreterSparkId).status == InterpreterStatus.READY)
   }
 
   def performSimpleExecuteTest(zeppelinService: ZeppelinAPIService): Unit = {
     zeppelinService.connect()
     val notebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
-    zeppelinService.setDefaultInterpreter(notebook.id, "spark")
+    zeppelinService.setDefaultInterpreter(notebook.id, interpreterSparkId)
     val code = "println(\"hello world\")"
     var waitResult = true
     var result = "none"

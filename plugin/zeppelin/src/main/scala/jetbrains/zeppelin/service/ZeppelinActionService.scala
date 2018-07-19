@@ -50,6 +50,93 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   }
 
   /**
+    * Set the selected interpreter as a default interpreter for the notebook
+    *
+    * @param notebookName    - a name of a notebook
+    * @param interpreterName - an interpreter name
+    */
+  def setDefaultInterpreter(notebookName: String, interpreterName: String): Unit = {
+    val interpreter: Interpreter = getInterpreterByName(notebookName, interpreterName)
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    zeppelinService.setDefaultInterpreter(notebook.id, interpreter.id)
+  }
+
+  /**
+    * Get interpreter settings for a notebook by name
+    *
+    * @param notebookName    - a name of a notebook
+    * @param interpreterName - a name of an interpreter
+    * @return an interpreter model
+    */
+  def getInterpreterByName(notebookName: String,
+                           interpreterName: String): Interpreter = {
+    val interpreter = interpreterList(notebookName).find(_.name == interpreterName.split(" ").head).get
+    interpreter
+  }
+
+  /**
+    * Get a list of available interpreters for the notebook
+    *
+    * @param notebookName - a name of the notebook
+    * @return the list with interpreters
+    */
+  def interpreterList(notebookName: String): List[Interpreter] = {
+    if (!connectIfNotYet()) return List()
+    val allInterpreters = zeppelinService.allInterpreters
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
+    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
+  }
+
+  /**
+    * Upload new interpreter settings
+    *
+    * @param interpreter - a model of an interpreter
+    */
+  def updateInterpreterSettings(interpreter: Interpreter): Unit = {
+    if (!connectIfNotYet()) return
+
+    val oldInterpreterSettings = getInterpreterById(interpreter.id)
+    val oldDependencies = oldInterpreterSettings.dependencies
+    val newDependencies = interpreter.dependencies
+
+    val removedDependencies = oldDependencies.filter(it => !newDependencies.contains(it))
+    val addedDependencies = newDependencies.filter(it => !oldDependencies.contains(it))
+
+    if (removedDependencies.nonEmpty) {
+      ZeppelinLogger.printMessage("The next dependencies will be removed:")
+      removedDependencies.foreach(it => ZeppelinLogger.printMessage(it.groupArtifactVersion))
+    }
+
+    if (addedDependencies.nonEmpty) {
+      ZeppelinLogger.printMessage("The next dependencies will be added:")
+      addedDependencies.foreach(it => ZeppelinLogger.printMessage(it.groupArtifactVersion))
+    }
+
+
+    // single threaded execution context
+    implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
+
+    val f = Future {
+      zeppelinService.updateInterpreterSetting(interpreter)
+    }
+
+    f.onComplete {
+      result => {
+        if (result.isSuccess) {
+          ZeppelinLogger
+            .printSuccess("Interpreter settings were updated." +
+              s" Removed: ${removedDependencies.size}." +
+              s" Added: ${addedDependencies.size}.")
+        }
+        if (result.isFailure) {
+          ZeppelinLogger.printError("The error during the updating")
+        }
+      }
+    }
+  }
+
+  /**
     * Test the connection and try to connect if the server is disconnected
     *
     * @return the server is connected
@@ -74,62 +161,15 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   }
 
   /**
-    * Set the selected interpreter as a default interpreter for the notebook
+    * Get interpreter settings by interpreter id
     *
-    * @param notebookName    - a name of a notebook
-    * @param interpreterName - an interpreter name
+    * @param interpreterId - an id of an interpreter
+    * @return an interpreter model
     */
-  def setDefaultInterpreter(notebookName: String, interpreterName: String): Unit = {
-    val interpreter = interpreterList(notebookName).find(_.name == interpreterName).get
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
-    zeppelinService.setDefaultInterpreter(notebook.id, interpreter.id)
+  def getInterpreterById(interpreterId: String): Interpreter = {
+    zeppelinService.interpreterById(interpreterId)
   }
 
-  /**
-    * Get a list of available interpreters for the notebook
-    *
-    * @param notebookName - a name of the notebook
-    * @return the list with interpreters
-    */
-  def interpreterList(notebookName: String): List[Interpreter] = {
-    if (!connectIfNotYet()) return List()
-    val allInterpreters = zeppelinService.allInterpreters
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
-    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
-    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
-  }
-
-  /**
-    * Upload the current project to the Zeppelin server as a jar file
-    *
-    * @param notebookName - a name of the notebook
-    * @param projectPath  - the full path to the project
-    */
-  def updateJar(notebookName: String, projectPath: String): Unit = {
-    if (!connectIfNotYet()) return
-
-    // single threaded execution context
-    implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
-
-    val notebookId = zeppelinService.getOrCreateNotebook(notebookName).id
-    ZeppelinLogger.printMessage("Start update jar...")
-    val f = Future {
-
-      val jarFile = SbtCompiler().compileAndPackage(projectPath)
-      zeppelinService.updateJar(notebookId, jarFile)
-    }
-
-    f.onComplete {
-      result => {
-        if (result.isSuccess) {
-          ZeppelinLogger.printSuccess("Jar file is updated")
-        }
-        if (result.isFailure) {
-          ZeppelinLogger.printError("Jar update is failed")
-        }
-      }
-    }
-  }
 
   /**
     * Method that close all connections and free resources

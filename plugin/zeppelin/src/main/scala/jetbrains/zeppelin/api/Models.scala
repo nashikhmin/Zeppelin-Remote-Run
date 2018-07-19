@@ -4,6 +4,8 @@ import jetbrains.zeppelin.api
 import jetbrains.zeppelin.api.InterpreterStatus.InterpreterStatus
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
+import scala.util.Try
+
 case class Config(enabled: Option[Boolean] = Some(true))
 
 
@@ -21,9 +23,47 @@ case class InterpreterBindings(
 
 case class InterpreterBinding(
                                defaultInterpreter: Boolean,
-                               name: String,
+                               name: String
                              )
 
+
+object InstantiationType extends Enumeration {
+  type InstantiationType = Value
+  val SHARED: api.InstantiationType.Value = Value("shared")
+  val SCOPED: api.InstantiationType.Value = Value("scoped")
+  val ISOLATED: api.InstantiationType.Value = Value("isolated")
+}
+
+case class InterpreterOption(perNote: Option[String] = Some(InstantiationType.SHARED.toString),
+                             perUser: Option[String] = Some(InstantiationType.SHARED.toString)) {
+  def isGlobally: Boolean = {
+    perNoteAsEnum == InstantiationType.SHARED && perUserAsEnum == InstantiationType.SHARED
+  }
+
+  def perNoteAsEnum: InstantiationType.Value = {
+    getValue(perNote)
+  }
+
+  def perUserAsEnum: InstantiationType.Value = {
+    getValue(perUser)
+  }
+
+  private def getValue(value: Option[String]) = {
+    val raw = value.getOrElse("")
+    val enumValue = Try {
+      InstantiationType.withName(raw)
+    }.getOrElse(InstantiationType.SHARED)
+    enumValue
+  }
+
+  def perNoteAsString: String = {
+    perNoteAsEnum.toString
+  }
+
+  def perUserAsString: String = {
+    perUserAsEnum.toString
+  }
+}
 
 case class Interpreter(id: String,
                        name: String,
@@ -31,7 +71,7 @@ case class Interpreter(id: String,
                        dependencies: List[Dependency],
                        status: InterpreterStatus,
                        properties: JsObject,
-                       option: JsObject,
+                       option: InterpreterOption,
                        interpreterGroup: List[JsObject],
                        errorReason: Option[String])
 
@@ -82,6 +122,7 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val NewNotebookFormat: RootJsonFormat[NewNotebook] = jsonFormat1(NewNotebook)
   implicit val DependencyFormat: RootJsonFormat[Dependency] = jsonFormat3(Dependency)
   implicit val InterpreterStatusFormat: RootJsonFormat[api.InterpreterStatus.Value] = enumFormat(InterpreterStatus)
+  implicit val InterpreterOptionFormat: RootJsonFormat[InterpreterOption] = jsonFormat2(InterpreterOption)
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
   implicit val InterpreterBindingFormat: RootJsonFormat[InterpreterBinding] = jsonFormat2(InterpreterBinding)
   implicit val InterpreterBindingsFormat: RootJsonFormat[InterpreterBindings] = jsonFormat3(InterpreterBindings)

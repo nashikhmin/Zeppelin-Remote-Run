@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.toolwindow
+package jetbrains.zeppelin.ui.toolwindow
 
 
 import com.intellij.execution.impl.ConsoleViewImpl
@@ -12,7 +12,7 @@ import jetbrains.zeppelin.utils.ZeppelinOutput
   * @param project - owner of this console
   */
 class ZeppelinConsole(project: Project) extends ConsoleViewImpl(project, true) with ZeppelinOutput {
-  def printMessage(msg: String): Unit = print(msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT)
-
   def printError(msg: String): Unit = print(msg + "\n", ConsoleViewContentType.ERROR_OUTPUT)
+
+  def printMessage(msg: String): Unit = print(msg + "\n", ConsoleViewContentType.NORMAL_OUTPUT)
 }

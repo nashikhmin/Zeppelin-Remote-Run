@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import jetbrains.zeppelin.api.User
 import jetbrains.zeppelin.service.ZeppelinActionService
 import jetbrains.zeppelin.settings.{RemoteRunApplicationSettings, ZeppelinSettings}
-import jetbrains.zeppelin.toolwindow.{InterpretersView, ZeppelinConsole}
+import jetbrains.zeppelin.ui.toolwindow.{InterpretersView, ZeppelinConsole}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**

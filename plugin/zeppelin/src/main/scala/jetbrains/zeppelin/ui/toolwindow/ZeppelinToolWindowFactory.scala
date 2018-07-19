@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.toolwindow
+package jetbrains.zeppelin.ui.toolwindow
 
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.project.Project
@@ -7,17 +7,13 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
 import jetbrains.zeppelin.components.ZeppelinConnection
-import jetbrains.zeppelin.toolwindow.actions.{RefreshInterpretersAction, RunCodeAction, SetDefaultInterpretersAction, UpdateJarOnZeppelin}
+import jetbrains.zeppelin.ui.toolwindow.actions._
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**
   * Factory that creates a Zeppelin tool window
   */
 class ZeppelinToolWindowFactory extends ToolWindowFactory {
-  override def init(toolWindow: ToolWindow): Unit = {
-    toolWindow.setStripeTitle("Zeppelin")
-  }
-
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     toolWindow.getContentManager.addContent(createLogPanel(project))
     toolWindow.getContentManager.addContent(createInterpretersPanel(project))
@@ -39,7 +35,6 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     val group = new DefaultActionGroup
     group.add(new ClearLogActionConsole(console))
     group.add(new RunCodeAction(project))
-    group.add(new UpdateJarOnZeppelin())
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(console.getComponent)
     toolbar
@@ -57,10 +52,15 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     content
   }
 
+  override def init(toolWindow: ToolWindow): Unit = {
+    toolWindow.setStripeTitle("Zeppelin")
+  }
+
   private def createInterpretersToolbar(project: Project, interpreters: InterpretersView) = {
     val group = new DefaultActionGroup
     group.add(new RefreshInterpretersAction())
     group.add(new SetDefaultInterpretersAction())
+    group.add(new OpenInterpreterSettingsAction())
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(interpreters.getComponent)
     toolbar

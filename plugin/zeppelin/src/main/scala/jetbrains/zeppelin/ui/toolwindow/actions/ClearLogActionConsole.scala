@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.toolwindow
+package jetbrains.zeppelin.ui.toolwindow.actions
 
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.icons.AllIcons
@@ -13,12 +13,12 @@ import com.intellij.openapi.project.DumbAwareAction
 class ClearLogActionConsole(var console: ConsoleView) extends
   DumbAwareAction("Clear All", "Clear the contents of the zeppelin logs", AllIcons
     .Actions.GC) {
+  override def actionPerformed(e: AnActionEvent): Unit = {
+    console.clear()
+  }
+
   override def update(e: AnActionEvent): Unit = {
     val editor = e.getData(CommonDataKeys.EDITOR)
     e.getPresentation.setEnabled(editor != null && editor.getDocument.getTextLength > 0)
-  }
-
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    console.clear()
   }
 }

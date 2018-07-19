@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.api
+package jetbrains.zeppelin
 
 import java.util.concurrent.{Executors, TimeUnit}
 

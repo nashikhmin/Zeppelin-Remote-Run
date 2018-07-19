@@ -3,11 +3,12 @@ package jetbrains.zeppelin.service
 import jetbrains.zeppelin.api.Interpreter
 
 class InterpreterException(interpreter: Interpreter) extends Exception {
-  override def getMessage: String = super.getMessage + interpreter.errorReason
+
+  override def getMessage: String = "Reason: " + interpreter.errorReason.getOrElse("unavailable")
 }
 
 class InterpreterNotFoundException(id: String) extends Exception {
-  override def getMessage: String = s"An interpreter with id ${id} is not found"
+  override def getMessage: String = s"An interpreter with id $id is not found"
 }
 
 class NotebookException() extends Exception

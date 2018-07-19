@@ -14,18 +14,6 @@ class RemoteRunApplicationSettings(project: Project) extends PersistentStateComp
   ZeppelinHolder {
   var state = RemoteRunSettingsState()
 
-  override def getState: RemoteRunSettingsState = state
-
-  override def loadState(state: RemoteRunSettingsState): Unit = XmlSerializerUtil.copyBean(state, this.state)
-
-  override def getZeppelinSettings: ZeppelinSettings = state.zeppelinSettings
-
-  override def setZeppelinSettings(settings: ZeppelinSettings): Unit = {
-    ApplicationManager.getApplication.getMessageBus.syncPublisher(SettingsChangedListener.TOPIC)
-      .beforeSettingsChanged(this)
-    state.zeppelinSettings = settings
-  }
-
   trait SettingsChangedListener {
     def beforeSettingsChanged(settings: RemoteRunApplicationSettings): Unit = {}
 
@@ -37,6 +25,17 @@ class RemoteRunApplicationSettings(project: Project) extends PersistentStateComp
       .create("ZeppelinSettingsChanged", classOf[SettingsChangedListener])
   }
 
+  override def getState: RemoteRunSettingsState = state
+
+  override def getZeppelinSettings: ZeppelinSettings = state.zeppelinSettings
+
+  override def setZeppelinSettings(settings: ZeppelinSettings): Unit = {
+    ApplicationManager.getApplication.getMessageBus.syncPublisher(SettingsChangedListener.TOPIC)
+      .beforeSettingsChanged(this)
+    state.zeppelinSettings = settings
+  }
+
+  override def loadState(state: RemoteRunSettingsState): Unit = XmlSerializerUtil.copyBean(state, this.state)
 }
 
 object RemoteRunApplicationSettings {

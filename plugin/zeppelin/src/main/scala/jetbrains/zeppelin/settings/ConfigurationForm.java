@@ -26,6 +26,63 @@ public class ConfigurationForm implements SearchableConfigurable {
         setDefaultValues(project);
     }
 
+    @Override
+    public void apply() {
+        if (!settingForm.isVisible()) {
+            return;
+        }
+
+        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
+
+        ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
+        if (isModified()) {
+            connection.updateSettings(newZeppelinSettings);
+        }
+    }
+
+    @Override
+    public JComponent createComponent() {
+        return settingForm;
+    }
+
+    @Nls
+    @Override
+    public String getDisplayName() {
+        return "Zeppelin Notebook";
+    }
+
+    @Override
+    public String getHelpTopic() {
+        return "";
+    }
+
+    @NotNull
+    @Override
+    public String getId() {
+        return "ZeppelinConfigurable";
+    }
+
+    @Override
+    public boolean isModified() {
+        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
+
+        final ZeppelinSettings zeppelinSettings = connection.getZeppelinSettings();
+        final ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
+
+        return !zeppelinSettings.equals(newZeppelinSettings);
+    }
+
+    @NotNull
+    private ZeppelinSettings getZeppelinSettingsFromForm() {
+        ZeppelinSettings newZeppelinSettings = new ZeppelinSettings();
+        newZeppelinSettings.setAddress(addressField.getText());
+        newZeppelinSettings.setPort(Integer.valueOf(portField.getText()));
+        newZeppelinSettings.setIsAnonymous(anonymousCheckBox.isSelected());
+        newZeppelinSettings.setLogin(usernameField.getText());
+        newZeppelinSettings.setPassword(String.valueOf(passwordField.getPassword()));
+        return newZeppelinSettings;
+    }
+
     private void setDefaultValues(@NotNull Project project) {
         ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(project);
         ZeppelinSettings zeppelinSettings = connection.getZeppelinSettings();
@@ -42,7 +99,6 @@ public class ConfigurationForm implements SearchableConfigurable {
             isAnonymous = !isAnonymous;
             setShowAuthPanel(!isAnonymous);
         });
-
     }
 
     private void setShowAuthPanel(boolean isAuth) {
@@ -50,62 +106,5 @@ public class ConfigurationForm implements SearchableConfigurable {
         usernameField.setVisible(isAuth);
         usernameLabel.setVisible(isAuth);
         passwordLabel.setVisible(isAuth);
-    }
-
-    @Override
-    public void apply() {
-        if (!settingForm.isVisible()) {
-            return;
-        }
-
-        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
-
-        ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
-        if (isModified()) {
-            connection.updateSettings(newZeppelinSettings);
-        }
-    }
-
-    @NotNull
-    private ZeppelinSettings getZeppelinSettingsFromForm() {
-        ZeppelinSettings newZeppelinSettings = new ZeppelinSettings();
-        newZeppelinSettings.setAddress(addressField.getText());
-        newZeppelinSettings.setPort(Integer.valueOf(portField.getText()));
-        newZeppelinSettings.setIsAnonymous(anonymousCheckBox.isSelected());
-        newZeppelinSettings.setLogin(usernameField.getText());
-        newZeppelinSettings.setPassword(String.valueOf(passwordField.getPassword()));
-        return newZeppelinSettings;
-    }
-
-    @Nls
-    @Override
-    public String getDisplayName() {
-        return "Zeppelin Notebook";
-    }
-
-    @Override
-    public String getHelpTopic() {
-        return "";
-    }
-
-    @Override
-    public JComponent createComponent() {
-        return settingForm;
-    }
-
-    @Override
-    public boolean isModified() {
-        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
-
-        final ZeppelinSettings zeppelinSettings = connection.getZeppelinSettings();
-        final ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
-
-        return !zeppelinSettings.equals(newZeppelinSettings);
-    }
-
-    @NotNull
-    @Override
-    public String getId() {
-        return "ZeppelinConfigurable";
     }
 }

@@ -1,3 +1,4 @@
+<!--suppress PluginXmlValidity -->
 <idea-plugin>
     <id>org.jetbrains.scala.zeppelin</id>
     <name>Zeppelin Remote Run</name>
@@ -37,7 +38,7 @@
                              nonDefaultProject="true"/>
         <toolWindow id="zeppelin-shell-toolwindow" anchor="bottom"
                     icon="/images/ZeppelinLogo.png"
-                    factoryClass="jetbrains.zeppelin.toolwindow.ZeppelinToolWindowFactory"/>
+                    factoryClass="jetbrains.zeppelin.ui.toolwindow.ZeppelinToolWindowFactory"/>
 
         <projectService serviceImplementation="jetbrains.zeppelin.settings.RemoteRunApplicationSettings"/>
     </extensions>
