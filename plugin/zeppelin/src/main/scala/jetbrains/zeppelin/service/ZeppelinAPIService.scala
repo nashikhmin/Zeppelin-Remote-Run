@@ -13,7 +13,17 @@ import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
   */
 class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                                  val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: Option[User]) {
+  private val MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE = 15
   private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
+
+  /**
+    * Get a list of the available interpreters
+    *
+    * @return the list of interpreters
+    */
+  def allInterpreters: List[Interpreter] = {
+    zeppelinRestApi.getInterpreters
+  }
 
   /**
     * Close the Zeppelin connection if it is opened
@@ -48,6 +58,15 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
+    * Delete all notebooks by prefix of a name
+    *
+    * @param prefix - a name prefix
+    */
+  def deleteAllNotebooksByPrefix(prefix: String): Unit = {
+    val notebooks = zeppelinRestApi.getNotebooks(prefix)
+    notebooks.foreach(note => zeppelinRestApi.deleteNotebook(note.id))
+  }
+  /**
     * Get default interpreter for a notebook
     *
     * @param noteId - id of the notebook
@@ -61,12 +80,47 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Get a list of the available interpreters
+    * Delete all paragraphs in a notebook
     *
-    * @return the list of interpreters
+    * @param noteId - an id of a notebook
     */
-  def allInterpreters: List[Interpreter] = {
-    zeppelinRestApi.getInterpreters
+  def deleteAllParagraphs(noteId: String): Unit = {
+    val paragraphs = zeppelinWebSocketAPI.getNote(noteId, credentials).paragraphs
+    paragraphs.foreach(it => zeppelinRestApi.deleteParagraph(noteId, it.id))
+  }
+
+  /**
+    * Get from Zeppelin the notebook by the name. If the notebook does not exist the notebook will be created
+    *
+    * Additionally, the method check the count of paragraphs and if it is more than a predefined value, delete all paragraphs
+    *
+    * @param notebookName - the name of the notebook
+    * @return notebook
+    */
+  def getOrCreateNotebook(notebookName: String): Notebook = {
+    val note = zeppelinRestApi.getNotebooks().find(_.name == notebookName)
+      .getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
+
+    var fullInfoNote = zeppelinWebSocketAPI.getNote(note.id, credentials)
+    if (fullInfoNote.paragraphs.length > MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE) {
+      deleteAllParagraphs(fullInfoNote.id)
+      fullInfoNote = zeppelinWebSocketAPI.getNote(note.id, credentials)
+    }
+    fullInfoNote
+  }
+
+  /**
+    * Get an interpreter by ID
+    *
+    * @param id - id of an interpreter
+    * @return interpreter
+    */
+  def interpreterById(id: String): Interpreter = {
+    val interpreter = allInterpreters.find(_.id == id).getOrElse(throw new InterpreterNotFoundException(id))
+    if (interpreter.status == InterpreterStatus.ERROR) {
+      throw new InterpreterException(interpreter)
+    }
+    interpreter
   }
 
   /**
@@ -92,17 +146,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
     val paragraph = notebookWS.paragraphs.find(_.id == paragraphId).get
     zeppelinWebSocketAPI.runParagraph(paragraph, handler, credentials)
-  }
-
-  /**
-    * Get from Zeppelin the notebook by the name. If the notebook does not exist the notebook will be created
-    *
-    * @param notebookName - the name of the notebook
-    * @return notebook
-    */
-  def getOrCreateNotebook(notebookName: String): Notebook = {
-    val note = zeppelinRestApi.getNotebooks().find(_.name == notebookName)
-    note.getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
   }
 
   /**
@@ -147,20 +190,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
       }
     }
     ZeppelinLogger.printMessage(s"The settings of the ${interpreter.name} interpreter have been updated")
-  }
-
-  /**
-    * Get an interpreter by ID
-    *
-    * @param id - id of an interpreter
-    * @return interpreter
-    */
-  def interpreterById(id: String): Interpreter = {
-    val interpreter = allInterpreters.find(_.id == id).getOrElse(throw new InterpreterNotFoundException(id))
-    if (interpreter.status == InterpreterStatus.ERROR) {
-      throw new InterpreterException(interpreter)
-    }
-    interpreter
   }
 }
 

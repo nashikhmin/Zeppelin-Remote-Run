@@ -33,24 +33,6 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
   }
 
   /**
-    * Get Notebooks by prefix
-    *
-    * @param prefix - prefix of a notebook name
-    * @return the notebooks with the names which start from the prefix
-    */
-  def getNotebooks(prefix: String = ""): List[Notebook] = {
-    val response = restApi.performGetRequest("/notebook", sessionToken)
-    if (response.code != 200) {
-      throw RestApiException("Cannot get list of notebooks", response.code)
-    }
-
-    val arrayList = response.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
-    arrayList.convertTo[List[Map[String, String]]]
-      .map(it => Notebook(it.getOrElse("id", ""), it.getOrElse("name", "")))
-      .filter(it => !it.name.startsWith("~Trash") && it.name.startsWith(prefix))
-  }
-
-  /**
     * Create a paragraph in Zeppelin
     *
     * @param noteId        - id of a notebook
@@ -69,25 +51,30 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     Paragraph(paragraphId)
   }
 
-  def updateInterpreterSettings(interpreter: Interpreter): Unit = {
-    val response: HttpResponse[String] = restApi
-      .performPutData(s"/interpreter/setting/${interpreter.id} ", interpreter.toJson, sessionToken)
-
+  /**
+    * Delete a notebook in Zeppelin
+    *
+    * @param noteId - an id of a notebook
+    */
+  def deleteNotebook(noteId: String): Unit = {
+    val response: HttpResponse[String] = restApi.performDeleteData(s"/notebook/$noteId", sessionToken)
     if (response.code != 200) {
-      throw RestApiException("Cannot interpreter settings.", response.code)
+      throw RestApiException(s"Cannot delete a paragraph", response.code)
     }
   }
 
-  def login(userName: String, password: String): Credentials = {
+  /**
+    * Delete a paragraph in Zeppelin
+    *
+    * @param noteId      - an id of a notebook
+    * @param paragraphId - an id of a paragraph
+    */
+  def deleteParagraph(noteId: String, paragraphId: String): Unit = {
     val response: HttpResponse[String] = restApi
-      .performPostForm("/login", Map("userName" -> userName, "password" -> password))
+      .performDeleteData(s"/notebook/$noteId/paragraph/$paragraphId", sessionToken)
     if (response.code != 200) {
-      throw RestApiException("Cannot login.", response.code)
+      throw RestApiException(s"Cannot delete a paragraph", response.code)
     }
-    val json = response.body.parseJson.asJsObject.fields.getOrElse("body", JsObject())
-    sessionToken = response.cookies.reverseIterator.find(_.getName == "JSESSIONID")
-    loginStatus = LoginStatus.LOGGED
-    json.convertTo[Credentials]
   }
 
   /**
@@ -104,6 +91,45 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     val arrayList = response.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
     arrayList.convertTo[List[Interpreter]]
   }
+
+  /**
+    * Get Notebooks by prefix
+    *
+    * @param prefix - prefix of a notebook name
+    * @return the notebooks with the names which start from the prefix
+    */
+  def getNotebooks(prefix: String = ""): List[Notebook] = {
+    val response = restApi.performGetRequest("/notebook", sessionToken)
+    if (response.code != 200) {
+      throw RestApiException("Cannot get list of notebooks", response.code)
+    }
+
+    val arrayList = response.body.parseJson.asJsObject.fields.getOrElse("body", JsArray())
+    arrayList.convertTo[List[Map[String, String]]]
+      .map(it => Notebook(it.getOrElse("id", ""), it.getOrElse("name", "")))
+      .filter(it => !it.name.startsWith("~Trash") && it.name.startsWith(prefix))
+  }
+
+  def login(userName: String, password: String): Credentials = {
+    val response: HttpResponse[String] = restApi
+      .performPostForm("/login", Map("userName" -> userName, "password" -> password))
+    if (response.code != 200) {
+      throw RestApiException("Cannot login.", response.code)
+    }
+    val json = response.body.parseJson.asJsObject.fields.getOrElse("body", JsObject())
+    sessionToken = response.cookies.reverseIterator.find(_.getName == "JSESSIONID")
+    loginStatus = LoginStatus.LOGGED
+    json.convertTo[Credentials]
+  }
+
+  def updateInterpreterSettings(interpreter: Interpreter): Unit = {
+    val response: HttpResponse[String] = restApi
+      .performPutData(s"/interpreter/setting/${interpreter.id} ", interpreter.toJson, sessionToken)
+
+    if (response.code != 200) {
+      throw RestApiException("Cannot interpreter settings.", response.code)
+    }
+  }
 }
 
 object ZeppelinRestApi {
@@ -111,5 +137,3 @@ object ZeppelinRestApi {
     new ZeppelinRestApi(new RestAPI(host, port))
   }
 }
-
-

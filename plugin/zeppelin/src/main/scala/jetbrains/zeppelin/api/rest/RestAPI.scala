@@ -32,6 +32,18 @@ class RestAPI(host: String, port: Int, https: Boolean = false) {
     result
   }
 
+
+  def performDeleteData(uri: String, cookie: Option[HttpCookie]): HttpResponse[String] = {
+    var request = Http(apiUrl + uri).method("DELETE")
+      .header("Content-Type", "application/json")
+      .header("Charset", "UTF-8")
+      .option(HttpOptions.readTimeout(10000))
+
+    cookie.foreach(c => request = request.cookie(c))
+    val result = request.asString
+    result
+  }
+
   def performPostForm(uri: String, params: Map[String, String]): HttpResponse[String] = {
     val paramString = if (params.nonEmpty) "?" + params.map(_.productIterator.mkString("=")).mkString("&")
     val result = Http(s"http://$host:$port/api/login" + paramString).postForm

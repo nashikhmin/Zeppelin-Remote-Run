@@ -1,7 +1,6 @@
 package jetbrains.zeppelin.api
 
 import jetbrains.zeppelin.AbstractScalaTest
-import jetbrains.zeppelin.api.rest.ZeppelinRestApi
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.service.ZeppelinAPIService
 
@@ -17,9 +16,10 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   private val runCodeTestNotebook = s"${folder}runCode"
   private val interpreterIdTest = "md"
   private val interpreterSparkId = "spark"
+  private val adminUser = Some(User(login, password))
 
   test("Zeppelin.RunWihWrongAddress") {
-    val zeppelinService = ZeppelinAPIService(url, port + 666, Some(User(login, password)))
+    val zeppelinService = ZeppelinAPIService(url, port + 666, adminUser)
     assertThrows[ZeppelinConnectionException](zeppelinService.connect())
     assert(!zeppelinService.isConnected)
   }
@@ -31,7 +31,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.CreateNotebookAndRunParagraphWithLogin") {
-    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
+    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
     performSimpleExecuteTest(zeppelinService)
   }
 
@@ -41,17 +41,39 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
     performSimpleExecuteTest(zeppelinService)
   }
 
+  test("Zeppelin.CreateAndDeleteParagraphs") {
+    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    zeppelinService.connect()
+    val originalNotebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
+    val noteId = originalNotebook.id
+
+
+    zeppelinService.deleteAllParagraphs(noteId)
+    assert(zeppelinService.getOrCreateNotebook(runCodeTestNotebook).paragraphs.isEmpty)
+
+    val paragraph = zeppelinService.zeppelinRestApi.createParagraph(noteId, "Hello")
+    assert(zeppelinService.getOrCreateNotebook(runCodeTestNotebook).paragraphs.length == 1)
+
+    zeppelinService.zeppelinRestApi.deleteParagraph(noteId, paragraph.id)
+    assert(zeppelinService.getOrCreateNotebook(runCodeTestNotebook).paragraphs.isEmpty)
+  }
+
   test("Zeppelin.GetNotebooks") {
-    val zeppelinRestApi = ZeppelinRestApi(url, port)
-    zeppelinRestApi.login(login, password)
+    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    zeppelinService.connect()
+
+    val zeppelinRestApi = zeppelinService.zeppelinRestApi
     val notes = zeppelinRestApi.getNotebooks(folder)
     zeppelinRestApi.createNotebook(NewNotebook(s"${folder}testAdd"))
     val notesAfterAdd = zeppelinRestApi.getNotebooks(folder)
     assert(notesAfterAdd.length - notes.length == 1)
+
+    zeppelinService.deleteAllNotebooksByPrefix(folder)
+    assert(zeppelinRestApi.getNotebooks(folder).isEmpty)
   }
 
   test("Zeppelin.GetDefaultInterpreter") {
-    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
+    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
     zeppelinService.connect()
     val notebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
     val interpreters = zeppelinService.allInterpreters.map(_.id)
@@ -64,7 +86,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.InterpreterInstantiation") {
-    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
+    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
     zeppelinService.connect()
     val interpreter = zeppelinService.interpreterById(interpreterIdTest)
     val globalInterpreter = interpreter.copy(option = InterpreterOption())
@@ -79,7 +101,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.UploadJar") {
-    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login, password)))
+    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
     zeppelinService.connect()
 
     val interpreterWithoutDependencies = zeppelinService.interpreterById(interpreterSparkId)
