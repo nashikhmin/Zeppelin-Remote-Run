@@ -13,6 +13,7 @@ class RunCodeAction(project: Project) extends DumbAwareAction with IdeaEditorApi
   val templatePresentation: Presentation = getTemplatePresentation
   templatePresentation.setIcon(AllIcons.Actions.Execute)
   templatePresentation.setText("Execute selected code")
+  templatePresentation.setDescription("Execution selected code in Zeppelin")
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val editor = currentEditor(event)

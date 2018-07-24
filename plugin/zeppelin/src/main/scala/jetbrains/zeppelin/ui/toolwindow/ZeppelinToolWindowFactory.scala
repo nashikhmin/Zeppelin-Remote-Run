@@ -77,6 +77,8 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     val group = new DefaultActionGroup
     group.add(new ClearLogActionConsole(console))
     group.add(new RunCodeAction(project))
+    group.addSeparator()
+    group.add(new OpenGlobalSettingsFormAction())
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(console.getComponent)
     toolbar
