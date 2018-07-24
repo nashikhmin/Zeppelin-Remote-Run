@@ -1,6 +1,7 @@
 package jetbrains.zeppelin.ui.toolwindow
 
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
+import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
@@ -14,9 +15,50 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
   * Factory that creates a Zeppelin tool window
   */
 class ZeppelinToolWindowFactory extends ToolWindowFactory {
+
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
     toolWindow.getContentManager.addContent(createLogPanel(project))
     toolWindow.getContentManager.addContent(createInterpretersPanel(project))
+
+    addAutoUpdate(project)
+  }
+
+  override def init(toolWindow: ToolWindow): Unit = {
+    toolWindow.setStripeTitle("Zeppelin")
+  }
+
+  private def addAutoUpdate(project: Project): Unit = {
+    ZeppelinComponent.connectionFor(project).updateInterpreterList()
+
+    val connection = project.getMessageBus.connect(project)
+    connection
+      .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
+        override def selectionChanged(event: FileEditorManagerEvent): Unit = {
+          ZeppelinComponent.connectionFor(project).updateInterpreterList()
+        }
+      })
+  }
+
+  private def createInterpretersPanel(project: Project): Content = {
+    val panel = new SimpleToolWindowPanel(false, true)
+
+    val interpretersView = ZeppelinComponent.connectionFor(project).interpretersView
+    panel.setContent(interpretersView)
+    val toolbar = createInterpretersToolbar(project, interpretersView)
+    panel.setToolbar(toolbar.getComponent)
+    val content = ContentFactory.SERVICE.getInstance.createContent(panel, "Interpreters", true)
+    Disposer.register(project, interpretersView)
+    content
+  }
+
+  private def createInterpretersToolbar(project: Project, interpreters: InterpretersView) = {
+    val group = new DefaultActionGroup
+    group.add(new RefreshInterpretersAction())
+    group.add(new SetDefaultInterpretersAction())
+    group.add(new OpenInterpreterSettingsAction())
+    val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
+    toolbar.setTargetComponent(interpreters.getComponent)
+    toolbar
   }
 
   private def createLogPanel(project: Project): Content = {
@@ -37,32 +79,6 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     group.add(new RunCodeAction(project))
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(console.getComponent)
-    toolbar
-  }
-
-  private def createInterpretersPanel(project: Project): Content = {
-    val panel = new SimpleToolWindowPanel(false, true)
-
-    val interpretersView = ZeppelinComponent.connectionFor(project).interpretersView
-    panel.setContent(interpretersView)
-    val toolbar = createInterpretersToolbar(project, interpretersView)
-    panel.setToolbar(toolbar.getComponent)
-    val content = ContentFactory.SERVICE.getInstance.createContent(panel, "Interpreters", true)
-    Disposer.register(project, interpretersView)
-    content
-  }
-
-  override def init(toolWindow: ToolWindow): Unit = {
-    toolWindow.setStripeTitle("Zeppelin")
-  }
-
-  private def createInterpretersToolbar(project: Project, interpreters: InterpretersView) = {
-    val group = new DefaultActionGroup
-    group.add(new RefreshInterpretersAction())
-    group.add(new SetDefaultInterpretersAction())
-    group.add(new OpenInterpreterSettingsAction())
-    val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
-    toolbar.setTargetComponent(interpreters.getComponent)
     toolbar
   }
 }

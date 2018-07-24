@@ -58,8 +58,10 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     * Update list of  interpreters for the notebook
     */
   def updateInterpreterList(): Unit = {
-    val interpretersNames = service.interpreterList().map(_.name)
-    interpretersView.updateInterpretersList(interpretersNames)
+    if (interpretersView.isShowing) {
+      val interpretersNames = service.interpreterList().map(_.name)
+      interpretersView.updateInterpretersList(interpretersNames)
+    }
   }
 
   /**
