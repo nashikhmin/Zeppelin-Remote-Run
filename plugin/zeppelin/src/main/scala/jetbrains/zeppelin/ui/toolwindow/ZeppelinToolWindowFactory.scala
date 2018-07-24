@@ -28,7 +28,7 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
   }
 
   private def addAutoUpdate(project: Project): Unit = {
-    ZeppelinComponent.connectionFor(project).updateInterpreterList()
+    ZeppelinComponent.connectionFor(project).updateInterpreterList(force = true)
 
     val connection = project.getMessageBus.connect(project)
     connection
@@ -81,4 +81,8 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     toolbar.setTargetComponent(console.getComponent)
     toolbar
   }
+}
+
+object ZeppelinToolWindowFactory {
+  val ID = "zeppelin-shell-toolwindow"
 }

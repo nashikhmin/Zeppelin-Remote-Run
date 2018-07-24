@@ -26,12 +26,6 @@
     -->
     <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
 
-    <extensionPoints>
-        <extensionPoint name="compileProject" interface="jetbrains.zeppelin.external.compile.LanguageCompiler"
-                        area="IDEA_PROJECT"/>
-    </extensionPoints>
-
-
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable groupId="language" instance="jetbrains.zeppelin.settings.ConfigurationForm"
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"

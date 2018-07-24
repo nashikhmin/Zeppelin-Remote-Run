@@ -2,10 +2,11 @@ package jetbrains.zeppelin.components
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindowManager
 import jetbrains.zeppelin.api.User
 import jetbrains.zeppelin.service.ZeppelinActionService
 import jetbrains.zeppelin.settings.{RemoteRunApplicationSettings, ZeppelinSettings}
-import jetbrains.zeppelin.ui.toolwindow.{InterpretersView, ZeppelinConsole}
+import jetbrains.zeppelin.ui.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**
@@ -16,6 +17,17 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
 class ZeppelinComponent(val project: Project) extends ProjectComponent {
   val interpretersView: InterpretersView = new InterpretersView
   private var zeppelinActionService: Option[ZeppelinActionService] = None
+
+
+  /**
+    * Open the LogTab
+    */
+  def focusToLog(): Unit = {
+    val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(ZeppelinToolWindowFactory.ID)
+    toolWindow.show(null)
+    val content = toolWindow.getContentManager.getContent(0)
+    toolWindow.getContentManager.setSelectedContent(content)
+  }
 
   /**
     * Get saved zeppelin settings
@@ -57,8 +69,8 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
   /**
     * Update list of  interpreters for the notebook
     */
-  def updateInterpreterList(): Unit = {
-    if (interpretersView.isShowing) {
+  def updateInterpreterList(force: Boolean = false): Unit = {
+    if (force || interpretersView.isShowing) {
       val interpretersNames = service.interpreterList().map(_.name)
       interpretersView.updateInterpretersList(interpretersNames)
     }

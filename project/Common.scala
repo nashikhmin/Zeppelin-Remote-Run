@@ -4,8 +4,6 @@ import sbt._
 import scala.language.{implicitConversions, postfixOps}
 
 object Common {
-  lazy val homePrefix = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
-
   def newProject(projectName: String, base: File): Project = {
     Project(projectName, base).settings(
       name := projectName,
