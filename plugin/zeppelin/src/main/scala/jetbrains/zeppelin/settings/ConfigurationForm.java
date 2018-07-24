@@ -2,8 +2,8 @@ package jetbrains.zeppelin.settings;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
-import jetbrains.zeppelin.components.ZeppelinConnection;
-import jetbrains.zeppelin.components.ZeppelinConnection$;
+import jetbrains.zeppelin.components.ZeppelinComponent;
+import jetbrains.zeppelin.components.ZeppelinComponent$;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +32,7 @@ public class ConfigurationForm implements SearchableConfigurable {
             return;
         }
 
-        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
+        final ZeppelinComponent connection = ZeppelinComponent$.MODULE$.connectionFor(myProject);
 
         ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
         if (isModified()) {
@@ -64,7 +64,7 @@ public class ConfigurationForm implements SearchableConfigurable {
 
     @Override
     public boolean isModified() {
-        final ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(myProject);
+        final ZeppelinComponent connection = ZeppelinComponent$.MODULE$.connectionFor(myProject);
 
         final ZeppelinSettings zeppelinSettings = connection.getZeppelinSettings();
         final ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
@@ -84,7 +84,7 @@ public class ConfigurationForm implements SearchableConfigurable {
     }
 
     private void setDefaultValues(@NotNull Project project) {
-        ZeppelinConnection connection = ZeppelinConnection$.MODULE$.connectionFor(project);
+        ZeppelinComponent connection = ZeppelinComponent$.MODULE$.connectionFor(project);
         ZeppelinSettings zeppelinSettings = connection.getZeppelinSettings();
         passwordField.setText(zeppelinSettings.password());
         usernameField.setText(zeppelinSettings.login());

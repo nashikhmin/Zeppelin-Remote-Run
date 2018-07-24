@@ -47,7 +47,7 @@
     </actions>
     <project-components>
         <component>
-            <implementation-class>jetbrains.zeppelin.components.ZeppelinConnection</implementation-class>
+            <implementation-class>jetbrains.zeppelin.components.ZeppelinComponent</implementation-class>
         </component>
     </project-components>
 </idea-plugin>

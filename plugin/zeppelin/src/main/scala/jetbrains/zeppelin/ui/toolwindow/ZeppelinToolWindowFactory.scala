@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
-import jetbrains.zeppelin.components.ZeppelinConnection
+import jetbrains.zeppelin.components.ZeppelinComponent
 import jetbrains.zeppelin.ui.toolwindow.actions._
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
@@ -43,7 +43,7 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
   private def createInterpretersPanel(project: Project): Content = {
     val panel = new SimpleToolWindowPanel(false, true)
 
-    val interpretersView = ZeppelinConnection.connectionFor(project).interpretersView
+    val interpretersView = ZeppelinComponent.connectionFor(project).interpretersView
     panel.setContent(interpretersView)
     val toolbar = createInterpretersToolbar(project, interpretersView)
     panel.setToolbar(toolbar.getComponent)

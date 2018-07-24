@@ -8,14 +8,15 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
   * API for working with current Editor
   */
 trait IdeaEditorApi {
-  def currentEditor(anActionEvent: AnActionEvent): Editor = {
-    FileEditorManagerEx.getInstanceEx(anActionEvent.getProject).getSelectedTextEditor
+  def currentEditor(anActionEvent: AnActionEvent): Option[Editor] = {
+    Option(FileEditorManagerEx.getInstanceEx(anActionEvent.getProject).getSelectedTextEditor)
   }
 
-  def currentSelectedText(editor: Editor): String = {
-    val selectionModel = editor.getSelectionModel
+  def currentSelectedText(editor: Option[Editor]): String = {
+    if (editor.isEmpty) return ""
+    val selectionModel = editor.head.getSelectionModel
     val blockStarts = selectionModel.getBlockSelectionStarts
     val blockEnds = selectionModel.getBlockSelectionEnds
-    editor.getDocument.getCharsSequence.subSequence(blockStarts(0), blockEnds(0)).toString
+    editor.head.getDocument.getCharsSequence.subSequence(blockStarts(0), blockEnds(0)).toString
   }
 }

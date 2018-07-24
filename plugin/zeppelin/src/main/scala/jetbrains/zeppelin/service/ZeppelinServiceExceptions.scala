@@ -16,3 +16,7 @@ class NotebookException() extends Exception
 class ServiceIsUnavailableException() extends Exception {
   override def getMessage: String = "Service is unavailable, please restart the service"
 }
+
+class NoSelectedFilesException() extends Exception {
+  override def getMessage: String = "Please, select the file for this operation"
+}

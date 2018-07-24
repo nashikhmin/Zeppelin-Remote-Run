@@ -2,26 +2,75 @@ package jetbrains.zeppelin.service
 
 import java.util.concurrent.Executors
 
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.project.Project
 import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import scala.util.Try
 
 /**
   * Main class that implement logic of the actions for the communication with Zeppelin
   */
-class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
+class ZeppelinActionService(project: Project, address: String, port: Int, user: Option[User]) {
   var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(address, port, user)
+
+  /**
+    * Method that close all connections and free resources
+    */
+  def destroy(): Unit = {
+    zeppelinService.close()
+  }
+
+  /**
+    * Get interpreter settings by interpreter id
+    *
+    * @param interpreterId - an id of an interpreter
+    * @return an interpreter model
+    */
+  def getInterpreterById(interpreterId: String): Interpreter = {
+    zeppelinService.interpreterById(interpreterId)
+  }
+
+  /**
+    * Get interpreter settings for a notebook by name
+    *
+    * @param interpreterName - a name of an interpreter
+    * @return an interpreter model
+    */
+  def getInterpreterByName(interpreterName: String): Interpreter = {
+    val interpreter = interpreterList().find(_.name == interpreterName.split(" ").head).get
+    interpreter
+  }
+
+  /**
+    * Get a list of available interpreters for the notebook
+    *
+    * @return the list with interpreters
+    */
+  def interpreterList(): List[Interpreter] = {
+    if (!checkPreconditions()) return List()
+
+    val allInterpreters = zeppelinService.allInterpreters
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
+    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
+  }
 
   /**
     * Run code on the Zeppelin server
     *
-    * @param code         - code, that be executed
-    * @param notebookName - name of notebook where te paragraph will be created
+    * @param code - code, that be executed
     */
-  def runCode(code: String, notebookName: String): Unit = {
-    if (!connectIfNotYet()) return
+  def runCode(code: String): Unit = {
+    if (!checkPreconditions()) return
+
+    if (code.isEmpty) {
+      ZeppelinLogger.printMessage("The selected text is empty, please select a piece of code")
+      return
+    }
 
     ZeppelinLogger.printMessage(s"Run paragraph with text: $code")
     val handler = new OutputHandler {
@@ -30,9 +79,7 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
       }
 
       override def handle(result: OutputResult, isAppend: Boolean): Unit = {
-        if (result.data.isEmpty) {
-          return
-        }
+        if (result.data.isEmpty) return
         ZeppelinLogger.printMessage(result.data)
       }
 
@@ -52,40 +99,12 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   /**
     * Set the selected interpreter as a default interpreter for the notebook
     *
-    * @param notebookName    - a name of a notebook
     * @param interpreterName - an interpreter name
     */
-  def setDefaultInterpreter(notebookName: String, interpreterName: String): Unit = {
-    val interpreter: Interpreter = getInterpreterByName(notebookName, interpreterName)
+  def setDefaultInterpreter(interpreterName: String): Unit = {
+    val interpreter: Interpreter = getInterpreterByName(interpreterName)
     val notebook = zeppelinService.getOrCreateNotebook(notebookName)
     zeppelinService.setDefaultInterpreter(notebook.id, interpreter.id)
-  }
-
-  /**
-    * Get interpreter settings for a notebook by name
-    *
-    * @param notebookName    - a name of a notebook
-    * @param interpreterName - a name of an interpreter
-    * @return an interpreter model
-    */
-  def getInterpreterByName(notebookName: String,
-                           interpreterName: String): Interpreter = {
-    val interpreter = interpreterList(notebookName).find(_.name == interpreterName.split(" ").head).get
-    interpreter
-  }
-
-  /**
-    * Get a list of available interpreters for the notebook
-    *
-    * @param notebookName - a name of the notebook
-    * @return the list with interpreters
-    */
-  def interpreterList(notebookName: String): List[Interpreter] = {
-    if (!connectIfNotYet()) return List()
-    val allInterpreters = zeppelinService.allInterpreters
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
-    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
-    defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
   }
 
   /**
@@ -94,7 +113,7 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
     * @param interpreter - a model of an interpreter
     */
   def updateInterpreterSettings(interpreter: Interpreter): Unit = {
-    if (!connectIfNotYet()) return
+    if (!checkPreconditions()) return
 
     val oldInterpreterSettings = getInterpreterById(interpreter.id)
     val oldDependencies = oldInterpreterSettings.dependencies
@@ -141,10 +160,8 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
     *
     * @return the server is connected
     */
-  private def connectIfNotYet(): Boolean = {
-    if (zeppelinService.isConnected) {
-      return true
-    }
+  private def checkConnection: Boolean = {
+    if (zeppelinService.isConnected) return true
     try {
       zeppelinService.close()
       zeppelinService = ZeppelinAPIService(address, port, user)
@@ -161,26 +178,47 @@ class ZeppelinActionService(address: String, port: Int, user: Option[User]) {
   }
 
   /**
-    * Get interpreter settings by interpreter id
+    * Check that an user open any file for the notebook
     *
-    * @param interpreterId - an id of an interpreter
-    * @return an interpreter model
+    * @return a file is open or not
     */
-  def getInterpreterById(interpreterId: String): Interpreter = {
-    zeppelinService.interpreterById(interpreterId)
+  private def checkOpenFile: Boolean = {
+    try {
+      notebookName
+      true
+    }
+    catch {
+      case _: NoSelectedFilesException => {
+        ZeppelinLogger.printError("Please, open any file, a notebook will be created for a specific file")
+        false
+      }
+    }
   }
 
+  /**
+    * Check preconditions before the performing a request
+    *
+    * @return a request can be performed or not
+    */
+  private def checkPreconditions(): Boolean = {
+    checkConnection && checkOpenFile
+  }
 
   /**
-    * Method that close all connections and free resources
+    * Get a notebook name for the current file
+    *
+    * @return a name of a file
     */
-  def destroy(): Unit = {
-    zeppelinService.close()
+  private def notebookName: String = {
+    val prefix = s"IdeaRemoteRunPlugin/${project.getName}/"
+    val name = Try(FileEditorManager.getInstance(project).getSelectedEditor.getFile.getName)
+      .getOrElse(throw new NoSelectedFilesException())
+    prefix + name
   }
 }
 
 object ZeppelinActionService {
-  def apply(address: String, port: Int, user: Option[User]): ZeppelinActionService = {
-    new ZeppelinActionService(address, port, user)
+  def apply(project: Project, address: String, port: Int, user: Option[User]): ZeppelinActionService = {
+    new ZeppelinActionService(project, address, port, user)
   }
 }

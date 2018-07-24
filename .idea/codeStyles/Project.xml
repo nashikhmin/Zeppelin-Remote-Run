@@ -347,6 +347,20 @@
       <option name="PARAMETER_ANNOTATION_WRAP" value="5" />
       <option name="VARIABLE_ANNOTATION_WRAP" value="5" />
       <arrangement>
+        <groups>
+          <group>
+            <type>SCALA_KEEP_JAVA_GETTERS_SETTERS_TOGETHER</type>
+            <order>KEEP</order>
+          </group>
+          <group>
+            <type>SCALA_KEEP_SCALA_GETTERS_SETTERS_TOGETHER</type>
+            <order>KEEP</order>
+          </group>
+          <group>
+            <type>SCALA_SPLIT_BY_IMPLICITS</type>
+            <order>KEEP</order>
+          </group>
+        </groups>
         <rules>
           <section>
             <rule>
@@ -1012,42 +1026,6 @@
               <match>
                 <CONSTRUCTOR />
               </match>
-            </rule>
-          </section>
-          <section>
-            <rule>
-              <match>
-                <AND>
-                  <PUBLIC>true</PUBLIC>
-                  <SCALA_FUNCTION />
-                  <SCALA_OVERRIDE />
-                </AND>
-              </match>
-              <order>BY_NAME</order>
-            </rule>
-          </section>
-          <section>
-            <rule>
-              <match>
-                <AND>
-                  <PROTECTED>true</PROTECTED>
-                  <SCALA_FUNCTION />
-                  <SCALA_OVERRIDE />
-                </AND>
-              </match>
-              <order>BY_NAME</order>
-            </rule>
-          </section>
-          <section>
-            <rule>
-              <match>
-                <AND>
-                  <PRIVATE>true</PRIVATE>
-                  <SCALA_FUNCTION />
-                  <SCALA_OVERRIDE />
-                </AND>
-              </match>
-              <order>BY_NAME</order>
             </rule>
           </section>
           <section>

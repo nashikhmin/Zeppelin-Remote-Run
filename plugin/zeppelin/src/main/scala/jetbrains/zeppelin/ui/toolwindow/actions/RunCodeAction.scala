@@ -4,10 +4,10 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnActionEvent, Presentation}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import jetbrains.zeppelin.api.idea.IdeaEditorApi
-import jetbrains.zeppelin.components.ZeppelinConnection
+import jetbrains.zeppelin.components.ZeppelinComponent
 
 /**
-  * Starts or restarts sbt shell depending on running state.
+  * Execute selected code on Zeppelin
   */
 class RunCodeAction(project: Project) extends DumbAwareAction with IdeaEditorApi {
   val templatePresentation: Presentation = getTemplatePresentation
@@ -18,7 +18,8 @@ class RunCodeAction(project: Project) extends DumbAwareAction with IdeaEditorApi
     val editor = currentEditor(event)
     val selectedText = currentSelectedText(editor)
 
-    val zeppelinService = ZeppelinConnection.connectionFor(event.getProject).service
-    zeppelinService.runCode(selectedText, s"${event.getProject.getName}")
+    val connection = ZeppelinComponent.connectionFor(event.getProject)
+    val zeppelinService = connection.service
+    zeppelinService.runCode(selectedText)
   }
 }

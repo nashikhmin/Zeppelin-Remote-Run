@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import javax.swing.{JComponent, SwingConstants}
 import jetbrains.zeppelin.api.{Dependency, InstantiationType, Interpreter, InterpreterOption}
-import jetbrains.zeppelin.components.ZeppelinConnection
+import jetbrains.zeppelin.components.ZeppelinComponent
 
 import scala.collection.JavaConverters._
 
@@ -24,7 +24,7 @@ class InterpreterSettingsDialog(project: Project, var interpreter: Interpreter) 
 
     interpreter = interpreter.copy(dependencies = newDependencies, option = newOptions)
 
-    val connection = ZeppelinConnection.connectionFor(project)
+    val connection = ZeppelinComponent.connectionFor(project)
     val actionService = connection.service
     actionService.updateInterpreterSettings(interpreter)
 
