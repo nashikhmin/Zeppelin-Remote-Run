@@ -39,5 +39,5 @@ lazy val scalaIntegration =
     .dependsOn(zeppelin % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      ideaExternalPlugins += scalaPlugin,
+      ideaExternalPlugins += scalaPlugin
     )
