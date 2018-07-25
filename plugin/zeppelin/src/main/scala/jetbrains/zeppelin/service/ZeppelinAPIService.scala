@@ -58,15 +58,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
-    * Delete all notebooks by prefix of a name
-    *
-    * @param prefix - a name prefix
-    */
-  def deleteAllNotebooksByPrefix(prefix: String): Unit = {
-    val notebooks = zeppelinRestApi.getNotebooks(prefix)
-    notebooks.foreach(note => zeppelinRestApi.deleteNotebook(note.id))
-  }
-  /**
     * Get default interpreter for a notebook
     *
     * @param noteId - id of the notebook
@@ -77,6 +68,16 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
       .getOrElse(throw new Exception)
       .name
     this.allInterpreters.find(_.id == defaultInterpreterId).get
+  }
+
+  /**
+    * Delete all notebooks by prefix of a name
+    *
+    * @param prefix - a name prefix
+    */
+  def deleteAllNotebooksByPrefix(prefix: String): Unit = {
+    val notebooks = zeppelinRestApi.getNotebooks(prefix)
+    notebooks.foreach(note => zeppelinRestApi.deleteNotebook(note.id))
   }
 
   /**
@@ -112,12 +113,13 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   /**
     * Get an interpreter by ID
     *
-    * @param id - id of an interpreter
+    * @param id                     - id of an interpreter
+    * @param ignoreInterpreterError - ignore interpreters errors
     * @return interpreter
     */
-  def interpreterById(id: String): Interpreter = {
+  def interpreterById(id: String, ignoreInterpreterError: Boolean = false): Interpreter = {
     val interpreter = allInterpreters.find(_.id == id).getOrElse(throw new InterpreterNotFoundException(id))
-    if (interpreter.status == InterpreterStatus.ERROR) {
+    if (interpreter.status == InterpreterStatus.ERROR && !ignoreInterpreterError) {
       throw new InterpreterException(interpreter)
     }
     interpreter

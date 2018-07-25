@@ -27,11 +27,12 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   /**
     * Get interpreter settings by interpreter id
     *
-    * @param interpreterId - an id of an interpreter
+    * @param interpreterId          - an id of an interpreter
+    * @param ignoreInterpreterError - ignore interpreters errors
     * @return an interpreter model
     */
-  def getInterpreterById(interpreterId: String): Interpreter = {
-    zeppelinService.interpreterById(interpreterId)
+  def getInterpreterById(interpreterId: String, ignoreInterpreterError: Boolean = false): Interpreter = {
+    zeppelinService.interpreterById(interpreterId, ignoreInterpreterError)
   }
 
   /**
@@ -115,7 +116,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   def updateInterpreterSettings(interpreter: Interpreter): Unit = {
     if (!checkPreconditions()) return
 
-    val oldInterpreterSettings = getInterpreterById(interpreter.id)
+    val oldInterpreterSettings = getInterpreterById(interpreter.id, ignoreInterpreterError = true)
     val oldDependencies = oldInterpreterSettings.dependencies
     val newDependencies = interpreter.dependencies
 

@@ -1,23 +1,25 @@
 import Common._
 import org.jetbrains.sbtidea.Keys.{ideaExternalPlugins, updateIdea}
 
+//@formatter:off
+onLoad in Global := ((s: State) => {
+  "updateIdea" :: s
+}) compose (onLoad in Global).value
+
 
 ideaDownloadDirectory in ThisBuild := homePrefixDir / ".RemoteRunPlugin" / "sdk"
+ideaExternalPlugins += scalaPlugin
+ideaBuild := Versions.ideaVersion
+
+
 lazy val scalaIntegration =
   newProject("scala-integration", file("plugin/integration/scala-plugin"))
     .dependsOn(zeppelin % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      ideaExternalPlugins += scalaPlugin
+      ideaExternalPlugins += scalaPlugin,
     )
-ideaExternalPlugins += scalaPlugin
 val homePrefixDir = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
-
-ideaBuild := Versions.ideaVersion
-
-onLoad in Global := ((s: State) => {
-  "updateIdea" :: s
-}) compose (onLoad in Global).value
 
 
 lazy val root = newProject("RemoteRunPlugin", file("."))
@@ -39,3 +41,4 @@ lazy val zeppelin = newProject("zeppelin", file("plugin/zeppelin"))
   )
   .enablePlugins(SbtIdeaPlugin)
 val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.559.zip"))
+//@formatter:on
