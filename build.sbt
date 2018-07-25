@@ -8,8 +8,7 @@ lazy val scalaIntegration =
     .dependsOn(zeppelin % "test->test;compile->compile")
     .enablePlugins(SbtIdeaPlugin)
     .settings(
-      ideaExternalPlugins += scalaPlugin,
-      ideaInternalPlugins := Seq(propertiesPlugin)
+      ideaExternalPlugins += scalaPlugin
     )
 ideaExternalPlugins += scalaPlugin
 val homePrefixDir = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
@@ -40,4 +39,3 @@ lazy val zeppelin = newProject("zeppelin", file("plugin/zeppelin"))
   )
   .enablePlugins(SbtIdeaPlugin)
 val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.559.zip"))
-val propertiesPlugin = "properties"
