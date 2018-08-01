@@ -27,6 +27,7 @@
     <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectTemplatesFactory implementation="jetbrains.zeppelin.wizard.ZeppelinProjectTemplatesFactory"/>
         <projectConfigurable groupId="language" instance="jetbrains.zeppelin.settings.ConfigurationForm"
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
                              nonDefaultProject="true"/>
