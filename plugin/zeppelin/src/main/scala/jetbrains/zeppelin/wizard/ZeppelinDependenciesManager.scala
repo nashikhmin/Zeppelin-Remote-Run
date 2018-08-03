@@ -2,6 +2,9 @@ package jetbrains.zeppelin.wizard
 
 import java.io.File
 
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.roots.libraries.LibraryTable
+import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFileManager}
 import coursier.maven.MavenRepository
 import coursier.{Cache, Dependency, Fetch, FileError, Module, Resolution}
@@ -23,6 +26,32 @@ object ZeppelinDependenciesManager {
       .constructUrl(JarFileSystem.PROTOCOL, srcFilePath) + JarFileSystem.JAR_SEPARATOR
   }
 
+  def addAdditionalLibrary(module: com.intellij.openapi.module.Module, jars: List[String]): Unit = {
+    val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
+    val table: LibraryTable = moduleModel.getModuleLibraryTable
+    val oldLibrary = Option(table.getLibraryByName("AdditionalDependencies"))
+    oldLibrary.foreach(it => table.removeLibrary(it))
+    if (oldLibrary.nonEmpty) {
+      moduleModel.commit()
+      return
+    }
+
+
+    val library = table.createLibrary("AdditionalDependencies")
+    val libraryModel = library.getModifiableModel
+
+    val urls = jars.map(it => constructUrlString(it))
+    urls.foreach(it => {
+      libraryModel.addRoot(it, OrderRootType.CLASSES)
+      libraryModel.addRoot(it, OrderRootType.SOURCES)
+    })
+    ApplicationManager.getApplication.runWriteAction(new Runnable() {
+      override def run(): Unit = {
+        libraryModel.commit()
+        moduleModel.commit()
+      }
+    })
+  }
 
   private def downloadDefaultDependencies(version: String): List[String] = {
     if (version != "0.8.0") throw new Exception("This version of Zeppelin is not supported")
