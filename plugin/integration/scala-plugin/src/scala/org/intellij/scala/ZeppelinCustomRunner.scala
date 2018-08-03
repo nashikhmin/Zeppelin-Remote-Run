@@ -4,7 +4,6 @@ import jetbrains.zeppelin.components.ZeppelinComponent
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompilerUtil, WorksheetCustomRunner}
 
 class ZeppelinCustomRunner extends WorksheetCustomRunner {
-
   override def canHandle(request: WorksheetCompilerUtil.RunCustom): Boolean = {
     request.id ==
       ZeppelinCustomRunner.RUNNER_ID
