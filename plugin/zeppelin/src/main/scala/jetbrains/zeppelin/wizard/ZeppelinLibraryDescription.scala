@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescri
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.JComponent
+import jetbrains.zeppelin.utils.dependency.LibraryDescriptor
 
 /**
   * Object which implements methods that add required libraries for Zeppelin module
@@ -20,7 +21,7 @@ object ZeppelinLibraryDescription extends CustomLibraryDescription {
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
     val dialog = new ZeppelinSDKSelectionDialog(parentComponent)
-    val description = Option[ZeppelinSdkDescriptor](dialog.open())
+    val description = Option[LibraryDescriptor](dialog.open())
     description.map(_.createNewLibraryConfiguration).orNull
   }
 

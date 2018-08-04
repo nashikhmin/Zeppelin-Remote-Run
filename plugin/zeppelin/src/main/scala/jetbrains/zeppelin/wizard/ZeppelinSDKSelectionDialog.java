@@ -4,6 +4,8 @@ import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import jetbrains.zeppelin.utils.dependency.LibraryDescriptor;
+import jetbrains.zeppelin.utils.dependency.ZeppelinDependenciesManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,12 +21,12 @@ public class ZeppelinSDKSelectionDialog extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JButton buttonDownload;
-    private TableView<ZeppelinSdkDescriptor> sdkTable;
+    private TableView<LibraryDescriptor> sdkTable;
     private JComponent parent;
 
-    private ZeppelinSdkDescriptor selectedSdk;
+    private LibraryDescriptor selectedSdk;
 
-    private List<ZeppelinSdkDescriptor> sdks = new ArrayList<>();
+    private List<LibraryDescriptor> sdks = new ArrayList<>();
 
     public ZeppelinSDKSelectionDialog(JComponent parent) {
         super((Window) parent.getTopLevelAncestor());
@@ -52,7 +54,7 @@ public class ZeppelinSDKSelectionDialog extends JDialog {
         updateTable();
     }
 
-    public ZeppelinSdkDescriptor open() {
+    public LibraryDescriptor open() {
         pack();
         setLocationRelativeTo(parent.getTopLevelAncestor());
         setVisible(true);

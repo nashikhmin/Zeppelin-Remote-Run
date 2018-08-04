@@ -56,6 +56,7 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
     group.add(new RefreshInterpretersAction())
     group.add(new SetDefaultInterpretersAction())
     group.add(new OpenInterpreterSettingsAction())
+    group.add(new UpdateDependenciesAction())
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(interpreters.getComponent)
     toolbar

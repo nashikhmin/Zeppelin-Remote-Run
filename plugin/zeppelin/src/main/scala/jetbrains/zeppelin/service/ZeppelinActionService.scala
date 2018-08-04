@@ -25,6 +25,16 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   }
 
   /**
+    * Get a default interpreter for the current notebook
+    *
+    * @return an interpreter
+    */
+  def getDefaultInterpreter: Interpreter = {
+    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    zeppelinService.defaultInterpreter(notebook.id)
+  }
+
+  /**
     * Get interpreter settings by interpreter id
     *
     * @param interpreterId          - an id of an interpreter
@@ -55,8 +65,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     if (!checkPreconditions()) return List()
 
     val allInterpreters = zeppelinService.allInterpreters
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
-    val defaultInterpreter = zeppelinService.defaultInterpreter(notebook.id)
+    val defaultInterpreter = getDefaultInterpreter
     defaultInterpreter +: allInterpreters.filter(_.id != defaultInterpreter.id)
   }
 
