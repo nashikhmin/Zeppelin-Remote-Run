@@ -11,7 +11,7 @@ object Credentials {
 object Versions {
   val pluginVersion = "0.1.0-SNAPSHOT"
   val scalaVersion: String = "2.12.6"
-  val ideaVersion = "182.3684.40"
+  val ideaVersion = "182.2949.2"
 
   val sbtIdeaPluginVersion = "1.1.0"
 

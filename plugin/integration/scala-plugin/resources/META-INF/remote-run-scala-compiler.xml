@@ -19,5 +19,6 @@
     <extensions defaultExtensionNs="org.intellij.scala">
         <worksheetExternalRunType implementation="org.intellij.scala.ZeppelinRunType"/>
         <worksheetCustomRunner implementation="org.intellij.scala.ZeppelinCustomRunner"/>
+        <fileDeclarationsContributor implementation="org.intellij.scala.ZeppelinFileDeclarationContributor"/>
     </extensions>
 </idea-plugin>
