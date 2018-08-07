@@ -41,22 +41,19 @@ class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
     holder match {
       case zeppelinFile: ScalaFile => {
         DEFAULT_BUILTINS.foreach {
-          case (name: String, txt: String) => {
-            val string = "class A { val " + name + ": " + txt + " = null }"
+          case (name, txt) => {
             ScalaPsiElementFactory
-              .createElementFromText(string)(zeppelinFile.projectContext)
+              .createElementFromText(s"class A { val $name:$txt = null }")(zeppelinFile.projectContext)
               .processDeclarations(processor, state, null, zeppelinFile)
           }
         }
 
         DEFAULT_IMPORTS.foreach {
-          imp: String => {
-            val string = "import " + imp
-            val importStmt = ScalaPsiElementFactory.createImportFromText(string)(zeppelinFile.projectContext)
+          imp => {
+            val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp")(zeppelinFile.projectContext)
             importStmt.processDeclarations(processor, state, null, zeppelinFile)
           }
         }
-
         importSqlContextImplicits(processor, holder, state, zeppelinFile)
       }
       case _ =>

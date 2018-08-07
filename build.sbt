@@ -13,7 +13,7 @@ ideaBuild := Versions.ideaVersion
 
 val homePrefixDir = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
 //val scalaPlugin = IdeaPlugin.Id("Scala", "org.intellij.scala", Option("nightly"))
-val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.645.zip"))
+val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.668.zip"))
 lazy val root = newProject("RemoteRunPlugin", file("."))
   .dependsOn(
     zeppelin % "test->test;compile->compile",
