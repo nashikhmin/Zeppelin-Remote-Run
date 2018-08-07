@@ -5,7 +5,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import jetbrains.zeppelin.utils.dependency.LibraryDescriptor;
-import jetbrains.zeppelin.utils.dependency.ZeppelinDependenciesManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,9 +14,9 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ZeppelinSDKSelectionDialog extends JDialog {
+public abstract class ZeppelinSDKSelectionDialogBase extends JDialog {
     private final SdkTableModel sdkTableModel = new SdkTableModel();
-    private JPanel contentPane;
+    protected JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
     private JButton buttonDownload;
@@ -26,9 +25,9 @@ public class ZeppelinSDKSelectionDialog extends JDialog {
 
     private LibraryDescriptor selectedSdk;
 
-    private List<LibraryDescriptor> sdks = new ArrayList<>();
+    protected List<LibraryDescriptor> sdks = new ArrayList<>();
 
-    public ZeppelinSDKSelectionDialog(JComponent parent) {
+    public ZeppelinSDKSelectionDialogBase(JComponent parent) {
         super((Window) parent.getTopLevelAncestor());
         this.parent = parent;
 
@@ -116,10 +115,7 @@ public class ZeppelinSDKSelectionDialog extends JDialog {
         dispose();
     }
 
-    private void onDownload() {
-        sdks.add(ZeppelinDependenciesManager.getZeppelinSdkDescriptor("0.8.0"));
-        updateTable();
-    }
+    protected abstract void onDownload();
 
     private void onOK() {
         if (sdkTable.getSelectedRowCount() > 0) {
@@ -128,7 +124,7 @@ public class ZeppelinSDKSelectionDialog extends JDialog {
         dispose();
     }
 
-    private void updateTable() {
+    protected void updateTable() {
         sdkTableModel.setItems(sdks);
         sdkTable.setModelAndUpdateColumns(sdkTableModel);
         if (!sdks.isEmpty()) {
