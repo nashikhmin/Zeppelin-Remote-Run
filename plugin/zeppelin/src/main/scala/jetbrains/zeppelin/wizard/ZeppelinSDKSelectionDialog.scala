@@ -8,10 +8,11 @@ import jetbrains.zeppelin.utils.dependency.{LibraryDescriptor, ZeppelinDependenc
 import scala.util.{Failure, Success, Try}
 
 class ZeppelinSDKSelectionDialog(parent: JComponent) extends ZeppelinSDKSelectionDialogBase(parent) {
-  override protected def onDownload(): Unit = {
+  override protected def onOK(): Unit = {
+    val selectedVersion: String = versionList.getSelectedItem.toString
     val result: Try[LibraryDescriptor] = ThreadRun
       .withProgressSynchronouslyTry(s"Downloading Zeppelin Dependencies...") { _ => {
-        ZeppelinDependenciesManager.getZeppelinSdkDescriptor("0.8.0")
+        ZeppelinDependenciesManager.getZeppelinSdkDescriptor(selectedVersion)
       }
       }
     result match {
@@ -19,10 +20,10 @@ class ZeppelinSDKSelectionDialog(parent: JComponent) extends ZeppelinSDKSelectio
         showErrorDialog(contentPane, exception.getMessage, "Error Downloading Zeppelin Dependencies")
       }
       case Success(library) => {
-        sdks.add(library)
-        updateTable()
+        selectedSdk = library
       }
     }
+    dispose()
   }
 }
 

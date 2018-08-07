@@ -1,16 +1,22 @@
 package jetbrains.zeppelin.utils.dependency
 
+import java.util
+
 import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFileManager}
 import coursier.{Dependency, Module}
 
+import scala.collection.JavaConverters._
+
 /**
   * A manager which downloads dependencies and creates descriptors
   */
 object ZeppelinDependenciesManager {
+  val ZEPPELIN_SUPPORTED_VERSIONS = List("0.8.0")
   private val USER_LIBRARY = "UserInterpreterDependencies"
 
+  def getSupportedZeppelinVersionsAsJava(): util.List[String] = ZEPPELIN_SUPPORTED_VERSIONS.asJava
   /**
     * Get default Zeppelin dependencies
     *
