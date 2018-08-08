@@ -4,9 +4,10 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import jetbrains.zeppelin.api.User
+import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
+import jetbrains.zeppelin.idea.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
 import jetbrains.zeppelin.service.ZeppelinActionService
-import jetbrains.zeppelin.settings.{RemoteRunApplicationSettings, ZeppelinSettings}
-import jetbrains.zeppelin.ui.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
+import jetbrains.zeppelin.settings.RemoteRunApplicationSettings
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 /**

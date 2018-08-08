@@ -27,13 +27,13 @@
     <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <projectTemplatesFactory implementation="jetbrains.zeppelin.wizard.ZeppelinProjectTemplatesFactory"/>
-        <projectConfigurable groupId="language" instance="jetbrains.zeppelin.settings.ConfigurationForm"
+        <projectTemplatesFactory implementation="jetbrains.zeppelin.idea.wizard.ZeppelinProjectTemplatesFactory"/>
+        <projectConfigurable groupId="language" instance="jetbrains.zeppelin.idea.settings.plugin.ConfigurationForm"
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
                              nonDefaultProject="true"/>
         <toolWindow id="zeppelin-shell-toolwindow" anchor="bottom"
                     icon="/images/ZeppelinLogo.png"
-                    factoryClass="jetbrains.zeppelin.ui.toolwindow.ZeppelinToolWindowFactory"/>
+                    factoryClass="jetbrains.zeppelin.idea.toolwindow.ZeppelinToolWindowFactory"/>
 
         <projectService serviceImplementation="jetbrains.zeppelin.settings.RemoteRunApplicationSettings"/>
     </extensions>

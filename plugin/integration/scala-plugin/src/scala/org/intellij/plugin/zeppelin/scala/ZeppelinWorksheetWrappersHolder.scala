@@ -7,8 +7,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import jetbrains.zeppelin.api.Interpreter
 import jetbrains.zeppelin.components.ZeppelinComponent
-import jetbrains.zeppelin.utils.dependency.ImportZeppelinInterpreterDependencies
-import jetbrains.zeppelin.wizard.ZeppelinModuleUtils
+import jetbrains.zeppelin.dependency.ImportZeppelinInterpreterDependencies
+import jetbrains.zeppelin.idea.wizard.ZeppelinModuleUtils
 
 class ZeppelinWorksheetWrappersHolder(project: Project) extends AbstractProjectComponent(project) {
   var currentInterpreter: Option[Interpreter] = None
