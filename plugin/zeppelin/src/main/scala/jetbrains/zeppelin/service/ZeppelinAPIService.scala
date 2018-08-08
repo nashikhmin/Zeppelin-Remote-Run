@@ -63,11 +63,11 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     * @param noteId - id of the notebook
     * @return default interpreter
     */
-  def defaultInterpreter(noteId: String): Interpreter = {
+  def defaultInterpreter(noteId: String): Option[Interpreter] = {
     val defaultInterpreterId = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).headOption
       .getOrElse(throw new Exception)
       .name
-    this.allInterpreters.find(_.id == defaultInterpreterId).get
+    this.allInterpreters.find(_.id == defaultInterpreterId)
   }
 
   /**

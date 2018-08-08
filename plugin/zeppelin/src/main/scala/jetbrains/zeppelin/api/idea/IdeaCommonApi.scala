@@ -18,7 +18,6 @@ object IdeaCommonApi {
     */
   def getCurrentModule(project: Project): Module = {
     val currentFile: VirtualFile = FileEditorManagerEx.getInstanceEx(project).getCurrentFile
-    FileIndexFacade.getInstance(project)
-      .getModuleForFile(currentFile)
+    FileIndexFacade.getInstance(project).getModuleForFile(currentFile)
   }
 }

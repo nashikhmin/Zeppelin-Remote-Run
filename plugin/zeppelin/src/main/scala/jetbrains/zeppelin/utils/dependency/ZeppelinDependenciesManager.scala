@@ -16,7 +16,7 @@ object ZeppelinDependenciesManager {
   val ZEPPELIN_SUPPORTED_VERSIONS = List("0.8.0")
   private val USER_LIBRARY = "UserInterpreterDependencies"
 
-  def getSupportedZeppelinVersionsAsJava(): util.List[String] = ZEPPELIN_SUPPORTED_VERSIONS.asJava
+  def getSupportedZeppelinVersionsAsJava: util.List[String] = ZEPPELIN_SUPPORTED_VERSIONS.asJava
   /**
     * Get default Zeppelin dependencies
     *

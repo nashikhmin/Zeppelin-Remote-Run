@@ -1,4 +1,4 @@
-package org.intellij.scala
+package org.intellij.plugin.zeppelin.scala.runner
 
 import jetbrains.zeppelin.components.ZeppelinComponent
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompilerUtil, WorksheetCustomRunner}

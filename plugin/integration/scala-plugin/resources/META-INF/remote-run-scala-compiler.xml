@@ -17,8 +17,16 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin>
     <extensions defaultExtensionNs="org.intellij.scala">
-        <worksheetExternalRunType implementation="org.intellij.scala.ZeppelinRunType"/>
-        <worksheetCustomRunner implementation="org.intellij.scala.ZeppelinCustomRunner"/>
-        <fileDeclarationsContributor implementation="org.intellij.scala.ZeppelinFileDeclarationContributor"/>
+        <worksheetExternalRunType implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType"/>
+        <worksheetCustomRunner implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinCustomRunner"/>
+        <fileDeclarationsContributor
+                implementation="org.intellij.plugin.zeppelin.scala.ZeppelinFileDeclarationContributor"/>
     </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>org.intellij.plugin.zeppelin.scala.ZeppelinWorksheetWrappersHolder
+            </implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>

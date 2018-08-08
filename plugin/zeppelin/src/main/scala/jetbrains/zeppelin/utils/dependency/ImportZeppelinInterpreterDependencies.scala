@@ -16,6 +16,7 @@ class ImportZeppelinInterpreterDependencies(project: Project) {
   def invoke(): Unit = {
     val manager = ProgressManager.getInstance
     val module = IdeaCommonApi.getCurrentModule(project)
+    if (module == null) return
     val task = new Task.Backgroundable(project, "Adding interpreter dependencies", false) {
       override def run(indicator: ProgressIndicator): Unit = {
         indicator.setText("Zeppelin: loading list of user dependencies...")
@@ -37,7 +38,7 @@ class ImportZeppelinInterpreterDependencies(project: Project) {
   private def getInterpreterUserDependenciesList = {
     val connection = ZeppelinComponent.connectionFor(project)
     val service = connection.service
-    val interpreter = service.getDefaultInterpreter
+    val interpreter = service.getDefaultInterpreter.get
     val jars = interpreter.dependencies.map(_.groupArtifactVersion)
     jars
   }

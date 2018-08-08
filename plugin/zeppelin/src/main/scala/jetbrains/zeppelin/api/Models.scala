@@ -44,8 +44,16 @@ case class InterpreterOption(perNote: Option[String] = Some(InstantiationType.SH
     getValue(perNote)
   }
 
+  def perNoteAsString: String = {
+    perNoteAsEnum.toString
+  }
+
   def perUserAsEnum: InstantiationType.Value = {
     getValue(perUser)
+  }
+
+  def perUserAsString: String = {
+    perUserAsEnum.toString
   }
 
   private def getValue(value: Option[String]) = {
@@ -54,14 +62,6 @@ case class InterpreterOption(perNote: Option[String] = Some(InstantiationType.SH
       InstantiationType.withName(raw)
     }.getOrElse(InstantiationType.SHARED)
     enumValue
-  }
-
-  def perNoteAsString: String = {
-    perNoteAsEnum.toString
-  }
-
-  def perUserAsString: String = {
-    perUserAsEnum.toString
   }
 }
 
@@ -102,6 +102,20 @@ case class NewNotebook(name: String)
 
 
 object ZeppelinAPIProtocol extends DefaultJsonProtocol {
+
+  implicit object ExecutionResultsMsgFormat extends RootJsonFormat[ExecutionResultsMsg] {
+    def read(value: JsValue): ExecutionResultsMsg = {
+      value.asJsObject.getFields("type", "data") match {
+        case Seq(JsString(resultType), JsString(data)) => ExecutionResultsMsg(resultType, data)
+        case _ => throw DeserializationException("Response message expected")
+      }
+    }
+
+    def write(r: ExecutionResultsMsg): JsValue = {
+      throw throw DeserializationException("Non implemented")
+    }
+  }
+
   implicit def enumFormat[T <: Enumeration](implicit enu: T): RootJsonFormat[T#Value] = {
     new RootJsonFormat[T#Value] {
       def write(obj: T#Value): JsValue = JsString(obj.toString)
@@ -126,21 +140,6 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
   implicit val InterpreterBindingFormat: RootJsonFormat[InterpreterBinding] = jsonFormat2(InterpreterBinding)
   implicit val InterpreterBindingsFormat: RootJsonFormat[InterpreterBindings] = jsonFormat3(InterpreterBindings)
-
-
-  implicit object ExecutionResultsMsgFormat extends RootJsonFormat[ExecutionResultsMsg] {
-    def write(r: ExecutionResultsMsg): JsValue = {
-      throw throw DeserializationException("Non implemented")
-    }
-
-    def read(value: JsValue): ExecutionResultsMsg = {
-      value.asJsObject.getFields("type", "data") match {
-        case Seq(JsString(resultType), JsString(data)) => ExecutionResultsMsg(resultType, data)
-        case _ => throw DeserializationException("Response message expected")
-      }
-    }
-  }
-
   implicit val ExecutionResultsFormat: RootJsonFormat[ExecutionResults] = jsonFormat2(ExecutionResults)
 }
 
@@ -161,19 +160,25 @@ object LoginStatus extends Enumeration {
   val LOGGED, NOT_LOGGED = Value
 }
 
+class ZeppelinException() extends Exception {
+  override def getMessage: String = {
+    s"Error during Zeppelin Exception."
+  }
+}
 
-case class ZeppelinConnectionException(uri: String) extends Exception {
+case class ZeppelinConnectionException(uri: String) extends ZeppelinException {
   override def getMessage: String = {
     s"Cannot connect to the Zeppelin app. " +
       s"Check the availability of web socket connection to the service $uri"
   }
 }
 
-case class ZeppelinLoginException() extends Exception {
+case class ZeppelinLoginException() extends ZeppelinException {
   override def getMessage: String = {
     s"Cannot login to the Zeppelin app. " +
       s"The login or the password is wrong."
   }
 }
+
 
 case class User(login: String, password: String)

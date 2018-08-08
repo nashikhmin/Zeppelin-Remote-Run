@@ -1,4 +1,4 @@
-package org.intellij.scala
+package org.intellij.plugin.zeppelin.scala
 
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -6,7 +6,6 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
-import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 
 class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
   private val DEFAULT_IMPORTS: List[String] = List(
@@ -24,15 +23,7 @@ class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
 
   override def accept(holder: PsiElement): Boolean = {
     val originalFile = holder.getFirstChild.getContainingFile.getOriginalFile
-    originalFile match {
-      case file: PsiFile => {
-        WorksheetFileSettings.getRunType(file) match {
-          case _: ZeppelinRunType => true
-          case _ => false
-        }
-      }
-      case _ => false
-    }
+    Utils.isZeppelinWorksheet(originalFile)
   }
 
   override def processAdditionalDeclarations(processor: PsiScopeProcessor,

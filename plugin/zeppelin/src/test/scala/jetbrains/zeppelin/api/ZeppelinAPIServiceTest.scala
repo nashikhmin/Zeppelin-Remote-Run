@@ -81,7 +81,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
     val randomInterpreter = interpreters(rnd.nextInt(interpreters.length))
     zeppelinService.setDefaultInterpreter(notebook.id, randomInterpreter)
 
-    val result = zeppelinService.defaultInterpreter(notebook.id)
+    val result = zeppelinService.defaultInterpreter(notebook.id).get
     assert(result.id == randomInterpreter)
   }
 

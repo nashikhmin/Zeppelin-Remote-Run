@@ -27,7 +27,6 @@ public abstract class ZeppelinSDKSelectionDialogBase extends JDialog {
         $$$setupUI$$$();
         setTitle("Select Library for new Zeppelin SDK");
 
-
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -42,15 +41,7 @@ public abstract class ZeppelinSDKSelectionDialogBase extends JDialog {
         });
 
         updateAvailableZeppelinVersions();
-
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return contentPane;
     }
 
     public LibraryDescriptor open() {
@@ -88,6 +79,13 @@ public abstract class ZeppelinSDKSelectionDialogBase extends JDialog {
         contentPane.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         versionList = new JComboBox();
         panel2.add(versionList, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return contentPane;
     }
 
     private void onCancel() {

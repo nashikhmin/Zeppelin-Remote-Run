@@ -1,4 +1,4 @@
-package org.intellij.scala
+package org.intellij.plugin.zeppelin.scala.runner
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
