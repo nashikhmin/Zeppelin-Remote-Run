@@ -5,7 +5,7 @@ import java.util
 import com.intellij.facet.impl.ui.libraries.{LibraryCompositionSettings, LibraryOptionsPanel}
 import com.intellij.framework.library.FrameworkLibraryVersionFilter
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SettingsStep}
-import com.intellij.openapi.module.{JavaModuleType, Module}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainerFactory
@@ -17,7 +17,7 @@ import javax.swing.{JComponent, JPanel}
 
 class ZeppelinModuleSettingStep(moduleBuilder: ModuleBuilder, settingsStep: SettingsStep) extends ModuleWizardStep {
   private val basePath = moduleBuilder.getContentEntryPath
-  private val myJavaStep = JavaModuleType.getModuleType.modifyProjectTypeStep(settingsStep, moduleBuilder)
+  private val myJavaStep = ZeppelinModuleType.getModuleType.modifyProjectTypeStep(settingsStep, moduleBuilder)
   private val project = settingsStep.getContext.getProject
   private val librariesContainer = LibrariesContainerFactory.createContainer(project)
   private val customLibraryDescription = ZeppelinLibraryDescription

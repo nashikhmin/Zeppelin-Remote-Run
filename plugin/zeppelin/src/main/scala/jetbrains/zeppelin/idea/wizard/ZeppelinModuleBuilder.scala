@@ -11,7 +11,7 @@ class ZeppelinModuleBuilder extends JavaModuleBuilder {
     ModuleWizardStep.EMPTY_ARRAY
   }
 
-  override def getModuleType: ModuleType[_ <: ModuleBuilder] = ZeppelinModuleType.instance
+  override def getModuleType: ModuleType[_ <: ModuleBuilder] = ZeppelinModuleType.getModuleType
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
     new ZeppelinModuleSettingStep(this, settingsStep)
