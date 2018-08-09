@@ -32,6 +32,7 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
+        <moduleType id="ZEPPELIN_MODULE" implementationClass="jetbrains.zeppelin.idea.wizard.ZeppelinModuleType"/>
         <projectTemplatesFactory implementation="jetbrains.zeppelin.idea.wizard.ZeppelinProjectTemplatesFactory"/>
         <projectConfigurable groupId="language" instance="jetbrains.zeppelin.idea.settings.plugin.ConfigurationForm"
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"

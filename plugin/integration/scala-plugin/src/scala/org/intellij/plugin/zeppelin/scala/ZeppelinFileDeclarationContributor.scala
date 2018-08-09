@@ -54,10 +54,11 @@ class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
   private def importSqlContextImplicits(processor: PsiScopeProcessor,
                                         holder: PsiElement,
                                         state: ResolveState,
-                                        zeppelinFile: ScalaFile) = {
+                                        zeppelinFile: ScalaFile): Unit = {
     //TODO: change scope to module
     val clazz = JavaPsiFacade.getInstance(holder.getProject)
       .findClass("org.apache.spark.sql.SQLContext", GlobalSearchScope.allScope(holder.getProject))
+    if (clazz == null) return
     clazz.getInnerClasses.toList.head.processDeclarations(processor, state, null, zeppelinFile)
   }
 }
