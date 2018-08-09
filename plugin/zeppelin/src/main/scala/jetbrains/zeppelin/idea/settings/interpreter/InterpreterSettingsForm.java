@@ -134,15 +134,24 @@ public class InterpreterSettingsForm extends JDialog {
         dependenciesList = new JBList<>();
         dependenciesList.setEmptyText("There aren't dependencies");
 
-        dependenciesPanel = ToolbarDecorator.createDecorator(dependenciesList).setAddAction(anActionButton -> {
-            String newValue = new AddDependencyButton(contentPane).getValue();
-            modelList.add(newValue);
-            updateModelList();
-        }).setRemoveAction(anActionButton -> {
-            int selectedIndex = dependenciesList.getSelectedIndex();
-            modelList.remove(selectedIndex);
-            updateModelList();
-        }).createPanel();
+        dependenciesPanel = ToolbarDecorator.createDecorator(dependenciesList)
+                .setAddAction(anActionButton -> {
+                    String newValue = new AddDependencyButton(contentPane).getValue();
+                    modelList.add(newValue);
+                    updateModelList();
+                }).setRemoveAction(anActionButton -> {
+                    int selectedIndex = dependenciesList.getSelectedIndex();
+                    modelList.remove(selectedIndex);
+                    updateModelList();
+                }).setEditAction(anActionButton -> {
+                    int selectedItemId = dependenciesList.getSelectedIndex();
+                    String oldValue = modelList.get(selectedItemId);
+                    String newValue = new AddDependencyButton(contentPane, oldValue).getValue();
+                    if (newValue == null) return;
+                    modelList.set(selectedItemId, newValue);
+                    updateModelList();
+                })
+                .createPanel();
     }
 
     private void initComboBox(JComboBox<String> comboBox, List<String> values, String defaultValue) {
