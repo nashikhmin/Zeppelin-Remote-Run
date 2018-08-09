@@ -1,14 +1,13 @@
 package jetbrains.zeppelin.idea.wizard
 
 
-import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType}
 import javax.swing.Icon
 import jetbrains.zeppelin.constants.ZeppelinConstants
 import jetbrains.zeppelin.idea.wizard.ZeppelinModuleType._
 
-class ZeppelinModuleType extends ModuleType[EmptyModuleBuilder](Id) {
-  def createModuleBuilder() = new EmptyModuleBuilder()
+class ZeppelinModuleType extends ModuleType[ZeppelinModuleBuilder](Id) {
+  def createModuleBuilder() = new ZeppelinModuleBuilder
 
   override def getDescription: String = ZeppelinConstants.MODULE_DESCRIPTION
 

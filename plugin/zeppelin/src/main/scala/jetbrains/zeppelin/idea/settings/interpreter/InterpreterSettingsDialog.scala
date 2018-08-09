@@ -28,27 +28,8 @@ class InterpreterSettingsDialog(project: Project, var interpreter: Interpreter) 
     val actionService = connection.service
     actionService.updateInterpreterSettings(interpreter)
 
+    UpdateInterpreterHandler.getAll.foreach(_.updateInterpreter(project))
     super.doOKAction()
-  }
-
-  private def getNewOptions = {
-    if (myPanel.isGlobally) {
-      InterpreterOption()
-    } else {
-      InterpreterOption(Some(myPanel.getPerNoteValue), Some(myPanel.getPerUserValue))
-    }
-  }
-
-  private def getNewDependencies = {
-    val dependenciesNames = myPanel.getModelList.asScala.toList
-    val originalDependencies = interpreter.dependencies
-    val newDependencies = dependenciesNames
-      .map(it => {
-        originalDependencies
-          .find(_.groupArtifactVersion == it)
-          .getOrElse(Dependency(it))
-      })
-    newDependencies
   }
 
   override def init(): Unit = {
@@ -57,14 +38,35 @@ class InterpreterSettingsDialog(project: Project, var interpreter: Interpreter) 
     updateInstantiationType()
   }
 
+  def updateDependencyList(): Unit = {
+    val dependencies = interpreter.dependencies.map(_.groupArtifactVersion)
+    myPanel.initDataModel(dependencies.asJava)
+  }
+
   def updateInstantiationType(): Unit = {
     val options = interpreter.option
     val values: List[String] = InstantiationType.values.toList.map(_.toString)
     myPanel.initInstantiationTypes(values.asJava, options)
   }
 
-  def updateDependencyList(): Unit = {
-    val dependencies = interpreter.dependencies.map(_.groupArtifactVersion)
-    myPanel.initDataModel(dependencies.asJava)
+  private def getNewDependencies = {
+    val dependenciesNames = myPanel.getModelList.asScala.toList
+    val originalDependencies = interpreter.dependencies
+    val newDependencies = dependenciesNames
+      .filter(_ != null)
+      .map(it => {
+        originalDependencies
+          .find(_.groupArtifactVersion == it)
+          .getOrElse(Dependency(it))
+      })
+    newDependencies
+  }
+
+  private def getNewOptions = {
+    if (myPanel.isGlobally) {
+      InterpreterOption()
+    } else {
+      InterpreterOption(Some(myPanel.getPerNoteValue), Some(myPanel.getPerUserValue))
+    }
   }
 }

@@ -23,6 +23,11 @@
                 implementation="org.intellij.plugin.zeppelin.scala.ZeppelinFileDeclarationContributor"/>
     </extensions>
 
+    <extensions defaultExtensionNs="org.jetbrains.scala.zeppelin">
+        <updateInterpreterHandler
+                implementation="org.intellij.plugin.zeppelin.scala.WorksheetUpdateInterpreterHandler"/>
+    </extensions>
+
     <project-components>
         <component>
             <implementation-class>org.intellij.plugin.zeppelin.scala.ZeppelinWorksheetWrappersHolder

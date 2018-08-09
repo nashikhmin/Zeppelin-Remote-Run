@@ -26,6 +26,11 @@
     -->
     <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
 
+    <extensionPoints>
+        <extensionPoint name="updateInterpreterHandler"
+                        interface="jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <projectTemplatesFactory implementation="jetbrains.zeppelin.idea.wizard.ZeppelinProjectTemplatesFactory"/>
         <projectConfigurable groupId="language" instance="jetbrains.zeppelin.idea.settings.plugin.ConfigurationForm"

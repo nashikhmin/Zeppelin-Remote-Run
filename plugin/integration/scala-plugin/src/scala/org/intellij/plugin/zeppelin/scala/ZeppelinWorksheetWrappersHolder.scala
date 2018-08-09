@@ -22,12 +22,8 @@ class ZeppelinWorksheetWrappersHolder(project: Project) extends AbstractProjectC
       })
   }
 
-  private def isZeppelinWorksheet(virtualFile: VirtualFile): Boolean = {
-    val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
-    Utils.isZeppelinWorksheet(psiFile)
-  }
-
-  private def updateDependencies(virtualFile: VirtualFile): Unit = {
+  def updateDependencies(virtualFile: VirtualFile): Unit = {
+    if (virtualFile == null) return
     if (!ZeppelinModuleUtils.isZeppelinModule(project, virtualFile)) return
     if (!isZeppelinWorksheet(virtualFile)) return
 
@@ -36,5 +32,17 @@ class ZeppelinWorksheetWrappersHolder(project: Project) extends AbstractProjectC
     if (currentInterpreter == newInterpreter) return
     ImportZeppelinInterpreterDependencies(project).invoke()
     currentInterpreter = newInterpreter
+  }
+
+  private def isZeppelinWorksheet(virtualFile: VirtualFile): Boolean = {
+    val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
+    Utils.isZeppelinWorksheet(psiFile)
+  }
+}
+
+object ZeppelinWorksheetWrappersHolder {
+  def connectionFor(project: Project): ZeppelinWorksheetWrappersHolder = {
+    project
+      .getComponent(classOf[ZeppelinWorksheetWrappersHolder])
   }
 }

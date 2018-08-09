@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnActionEvent, Presentation}
 import com.intellij.openapi.project.DumbAwareAction
 import jetbrains.zeppelin.components.ZeppelinComponent
+import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 
 /**
   * Set a new default interpreter for the Zeppelin
@@ -20,5 +21,6 @@ class SetDefaultInterpretersAction extends DumbAwareAction {
     val service = connection.service
     service.setDefaultInterpreter(interpreterName)
     connection.updateInterpreterList()
+    UpdateInterpreterHandler.getAll.foreach(_.updateInterpreter(event.getProject))
   }
 }
