@@ -6,7 +6,8 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
-import jetbrains.zeppelin.utils.ZeppelinLogger
+import jetbrains.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
+import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Try
@@ -71,6 +72,29 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
 
     if (defaultInterpreter.isEmpty) throw new ZeppelinException()
     defaultInterpreter.get +: allInterpreters.filter(_.id != defaultInterpreter.get.id)
+  }
+
+  /**
+    * Open interpreter settings
+    *
+    * @param interpreterName - a name of an interpreter
+    */
+  def openSettingsForm(interpreterName: String): Unit = {
+    val interpreter = getInterpreterByName(interpreterName)
+    new InterpreterSettingsDialog(project, interpreter).show()
+  }
+
+  /**
+    * Restart an interpreter
+    *
+    * @param interpreterName - a name of an interpreter
+    */
+  def restartInterpreter(interpreterName: String): Unit = {
+    ThreadRun.withProgressSynchronouslyTry(s"Restart an $interpreterName interpreter")(_ => {
+      val interpreter: Interpreter = getInterpreterByName(interpreterName)
+      val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+      zeppelinService.restartInterpreter(interpreter.id, notebook.id)
+    })
   }
 
   /**

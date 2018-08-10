@@ -136,6 +136,17 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
+    * Restart an interpreter
+    *
+    * @param interpreterId - an interpreter
+    * @param noteId        - an id of the notebook, where interpreter will be restarted
+    */
+  def restartInterpreter(interpreterId: String, noteId: String): Unit = {
+    val interpreter = interpreterById(interpreterId)
+    zeppelinRestApi.restartInterpreter(interpreter, noteId)
+  }
+
+  /**
     * Run the code on the zeppelin application
     *
     * @param code         - the code, which must be executed

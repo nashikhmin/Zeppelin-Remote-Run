@@ -122,6 +122,22 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     json.convertTo[Credentials]
   }
 
+  /**
+    * Restart the selected interpreter
+    *
+    * @param interpreter - an interpreter which must be restarted
+    * @param noteId      - an id of the selected notebook
+    */
+  def restartInterpreter(interpreter: Interpreter, noteId: String = ""): Unit = {
+    val data: Map[String, String] = if (noteId.nonEmpty) Map("noteId" -> noteId) else Map()
+    val response: HttpResponse[String] = restApi
+      .performPutData(s"/interpreter/setting/restart/${interpreter.id} ", data.toJson, sessionToken)
+
+    if (response.code != 200) {
+      throw RestApiException("Cannot interpreter settings.", response.code)
+    }
+  }
+
   def updateInterpreterSettings(interpreter: Interpreter): Unit = {
     val response: HttpResponse[String] = restApi
       .performPutData(s"/interpreter/setting/${interpreter.id} ", interpreter.toJson, sessionToken)

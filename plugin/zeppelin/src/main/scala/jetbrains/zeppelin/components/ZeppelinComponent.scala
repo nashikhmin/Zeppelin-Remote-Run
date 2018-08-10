@@ -4,6 +4,7 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import jetbrains.zeppelin.api.User
+import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
 import jetbrains.zeppelin.idea.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
 import jetbrains.zeppelin.service.ZeppelinActionService
@@ -16,7 +17,7 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
   * @param project - an owner project
   */
 class ZeppelinComponent(val project: Project) extends ProjectComponent {
-  val interpretersView: InterpretersView = new InterpretersView
+  val interpretersView: InterpretersView = new InterpretersView(project)
   private var zeppelinActionService: Option[ZeppelinActionService] = None
 
 
@@ -74,6 +75,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     if (force || interpretersView.isShowing) {
       val interpretersNames = service.interpreterList().map(_.name)
       interpretersView.updateInterpretersList(interpretersNames)
+      UpdateInterpreterHandler.getAll.foreach(_.updateInterpreter(project))
     }
   }
 
