@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.components.{JBList, JBScrollPane}
 import javax.swing.{JComponent, JMenuItem, JPopupMenu, SwingUtilities}
 import jetbrains.zeppelin.components.ZeppelinComponent
+import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 
 /**
   * Console that handle all zeppelin messages
@@ -19,6 +20,7 @@ class InterpretersView(project: Project) extends JBScrollPane with Disposable {
     val RESTART_INTERPRETER: PopupItem.Value = Value("Restart")
     val SETTINGS: PopupItem.Value = Value("Settings")
     val SET_DEFAULT: PopupItem.Value = Value("Set default")
+    val SYNCHRONIZE: PopupItem.Value = Value("Synchronize")
   }
 
   override def dispose(): Unit = {}
@@ -45,8 +47,8 @@ class InterpretersView(project: Project) extends JBScrollPane with Disposable {
   }
 
   private def initPopupItemMenu(): Unit = {
-    val refreshItem = new JMenuItem(PopupItem.RESTART_INTERPRETER.toString)
-    refreshItem.addActionListener((e: ActionEvent) => popupElementAction(e))
+    val restartItem = new JMenuItem(PopupItem.RESTART_INTERPRETER.toString)
+    restartItem.addActionListener((e: ActionEvent) => popupElementAction(e))
 
     val settingsItem = new JMenuItem(PopupItem.SETTINGS.toString)
     settingsItem.addActionListener((e: ActionEvent) => popupElementAction(e))
@@ -54,9 +56,13 @@ class InterpretersView(project: Project) extends JBScrollPane with Disposable {
     val makeDefaultItem = new JMenuItem(PopupItem.SET_DEFAULT.toString)
     makeDefaultItem.addActionListener((e: ActionEvent) => popupElementAction(e))
 
+    val synchronizeInterpreterItem = new JMenuItem(PopupItem.SYNCHRONIZE.toString)
+    synchronizeInterpreterItem.addActionListener((e: ActionEvent) => popupElementAction(e))
+
     val popupMenu = new JPopupMenu
-    popupMenu.add(refreshItem)
+    popupMenu.add(restartItem)
     popupMenu.add(makeDefaultItem)
+    popupMenu.add(synchronizeInterpreterItem)
     popupMenu.add(new JPopupMenu.Separator())
     popupMenu.add(settingsItem)
 
@@ -81,6 +87,7 @@ class InterpretersView(project: Project) extends JBScrollPane with Disposable {
       case PopupItem.RESTART_INTERPRETER => restartInterpreter()
       case PopupItem.SETTINGS => openSettingsForm()
       case PopupItem.SET_DEFAULT => setDefaultInterpreter()
+      case PopupItem.SYNCHRONIZE => synchronizeInterpreter()
       case _ => throw new Exception("Not implemented popup element")
     }
   }
@@ -94,5 +101,9 @@ class InterpretersView(project: Project) extends JBScrollPane with Disposable {
     val connection = ZeppelinComponent.connectionFor(project)
     connection.service.setDefaultInterpreter(interpreterName)
     connection.updateInterpreterList()
+  }
+
+  private def synchronizeInterpreter(): Unit = {
+    UpdateInterpreterHandler.getAll.foreach(_.updateInterpreter(project))
   }
 }

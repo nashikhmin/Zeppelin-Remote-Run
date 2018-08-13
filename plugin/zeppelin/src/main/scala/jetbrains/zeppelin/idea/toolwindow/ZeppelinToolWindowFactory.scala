@@ -73,10 +73,12 @@ class ZeppelinToolWindowFactory extends ToolWindowFactory {
 
   private def createLogToolbar(project: Project, console: ZeppelinConsole) = {
     val group = new DefaultActionGroup
-    group.add(new ClearLogActionConsole(console))
+    group.add(new RefreshInterpretersAction())
     group.add(new RunCodeAction(project))
     group.addSeparator()
     group.add(new OpenGlobalSettingsFormAction())
+    group.addSeparator()
+    group.add(new ClearLogActionConsole(console))
     val toolbar = ActionManager.getInstance.createActionToolbar("left", group, false)
     toolbar.setTargetComponent(console.getComponent)
     toolbar
