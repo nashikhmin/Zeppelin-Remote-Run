@@ -18,11 +18,11 @@ class ZeppelinSettings {
 
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("Login")
-  var login: String = ""
+  var login: String = "admin"
 
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("Password")
-  var password: String = ""
+  var password: String = "password"
 
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("Port")
