@@ -1,8 +1,8 @@
 package jetbrains.zeppelin.service
 
-import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.rest.{RestApiException, ZeppelinRestApi}
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
+import jetbrains.zeppelin.models._
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 /**

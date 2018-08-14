@@ -2,6 +2,7 @@ package jetbrains.zeppelin.api
 
 import jetbrains.zeppelin.AbstractScalaTest
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
+import jetbrains.zeppelin.models._
 import jetbrains.zeppelin.service.ZeppelinAPIService
 
 import scala.util.Random

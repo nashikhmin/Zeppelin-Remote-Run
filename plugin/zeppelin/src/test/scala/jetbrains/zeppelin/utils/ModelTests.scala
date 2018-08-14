@@ -1,7 +1,7 @@
 package jetbrains.zeppelin.utils
 
 import jetbrains.zeppelin.AbstractScalaTest
-import jetbrains.zeppelin.api.{InstantiationType, InterpreterOption}
+import jetbrains.zeppelin.models.{InstantiationType, InterpreterOption}
 
 class ModelTests extends AbstractScalaTest {
   test("zeppelin.model.interpreter.option") {

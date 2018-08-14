@@ -1,8 +1,8 @@
 package jetbrains.zeppelin.api.websocket
 
-import jetbrains.zeppelin.api
-import jetbrains.zeppelin.api.ZeppelinAPIProtocol._
-import jetbrains.zeppelin.api._
+import jetbrains.zeppelin.models
+import jetbrains.zeppelin.models.ZeppelinAPIProtocol._
+import jetbrains.zeppelin.models._
 import spray.json.{JsObject, _}
 
 /**
@@ -16,7 +16,7 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
       .foreach(code => webSocketAPI.registerHandler(code.toString, (_: ResponseMessage) => Unit))
   }
 
-  def connectionStatus: api.ConnectionStatus.Value = webSocketAPI.status
+  def connectionStatus: models.ConnectionStatus.Value = webSocketAPI.status
 
   /**
     * Close the connection

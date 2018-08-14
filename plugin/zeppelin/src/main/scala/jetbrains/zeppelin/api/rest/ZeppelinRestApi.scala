@@ -2,8 +2,8 @@ package jetbrains.zeppelin.api.rest
 
 import java.net.HttpCookie
 
-import jetbrains.zeppelin.api.ZeppelinAPIProtocol._
-import jetbrains.zeppelin.api._
+import jetbrains.zeppelin.models.ZeppelinAPIProtocol._
+import jetbrains.zeppelin.models._
 import scalaj.http.HttpResponse
 import spray.json._
 

@@ -4,9 +4,9 @@ import java.util.concurrent.Executors
 
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
+import jetbrains.zeppelin.models.{Interpreter, User, _}
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}

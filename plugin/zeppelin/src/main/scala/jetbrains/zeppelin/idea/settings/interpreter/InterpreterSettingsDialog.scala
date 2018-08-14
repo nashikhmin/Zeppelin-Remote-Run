@@ -3,8 +3,8 @@ package jetbrains.zeppelin.idea.settings.interpreter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import javax.swing.{JComponent, SwingConstants}
-import jetbrains.zeppelin.api.{Dependency, InstantiationType, Interpreter, InterpreterOption}
 import jetbrains.zeppelin.components.ZeppelinComponent
+import jetbrains.zeppelin.models.{Dependency, InstantiationType, Interpreter, InterpreterOption}
 
 import scala.collection.JavaConverters._
 

@@ -3,10 +3,10 @@ package jetbrains.zeppelin.components
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
-import jetbrains.zeppelin.api.User
 import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
 import jetbrains.zeppelin.idea.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
+import jetbrains.zeppelin.models.{SparkVersion, User}
 import jetbrains.zeppelin.service.ZeppelinActionService
 import jetbrains.zeppelin.settings.RemoteRunApplicationSettings
 import jetbrains.zeppelin.utils.ZeppelinLogger
@@ -19,7 +19,7 @@ import jetbrains.zeppelin.utils.ZeppelinLogger
 class ZeppelinComponent(val project: Project) extends ProjectComponent {
   val interpretersView: InterpretersView = new InterpretersView(project)
   private var zeppelinActionService: Option[ZeppelinActionService] = None
-
+  var sparkVersion: SparkVersion = SparkVersion.ZEPPELIN_DEFAULT_VERSION
 
   /**
     * Open the LogTab
@@ -54,6 +54,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     zeppelinActionService.foreach(_.destroy())
 
     val zeppelinSettings = getZeppelinSettings
+    sparkVersion = SparkVersion(zeppelinSettings.sparkVersion)
     val user = if (zeppelinSettings.isAnonymous) None else Some(User(zeppelinSettings.login, zeppelinSettings.password))
     zeppelinActionService = Some(ZeppelinActionService(project, zeppelinSettings.address, zeppelinSettings.port, user))
     zeppelinActionService.get

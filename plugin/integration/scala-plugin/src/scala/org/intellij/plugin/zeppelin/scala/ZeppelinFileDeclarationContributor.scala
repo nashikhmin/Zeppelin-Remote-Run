@@ -3,6 +3,7 @@ package org.intellij.plugin.zeppelin.scala
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import jetbrains.zeppelin.components.ZeppelinComponent
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
@@ -29,6 +30,8 @@ class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
   override def processAdditionalDeclarations(processor: PsiScopeProcessor,
                                              holder: PsiElement,
                                              state: ResolveState): Unit = {
+    val component = ZeppelinComponent.connectionFor(holder.getProject)
+    val version = component.sparkVersion
     holder match {
       case zeppelinFile: ScalaFile => {
         DEFAULT_BUILTINS.foreach {

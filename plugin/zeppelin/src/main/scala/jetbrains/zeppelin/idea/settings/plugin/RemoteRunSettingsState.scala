@@ -1,12 +1,17 @@
 package jetbrains.zeppelin.idea.settings.plugin
 
 import com.intellij.util.xmlb.annotations.{Attribute, Property}
+import jetbrains.zeppelin.models.SparkVersion
 
 case class RemoteRunSettingsState() {
   @Property(surroundWithTag = false) var zeppelinSettings: ZeppelinSettings = ZeppelinSettings()
 }
 
 class ZeppelinSettings {
+  @SuppressWarnings(Array("FieldMayBeFinal"))
+  @Attribute("sparkVersion")
+  var sparkVersion: String = SparkVersion.ZEPPELIN_DEFAULT_VERSION.toString
+
   @SuppressWarnings(Array("Address"))
   @Attribute("UriEnabled")
   var address: String = "localhost"
@@ -45,6 +50,10 @@ class ZeppelinSettings {
 
   def setPort(value: Int): Unit = {
     port = value
+  }
+
+  def setSparkVersion(value: String): Unit = {
+    sparkVersion = value
   }
 }
 

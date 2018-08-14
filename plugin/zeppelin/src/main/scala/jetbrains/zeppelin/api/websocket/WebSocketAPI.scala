@@ -2,10 +2,10 @@ package jetbrains.zeppelin.api.websocket
 
 import java.net.URI
 
-import jetbrains.zeppelin.api
-import jetbrains.zeppelin.api.ConnectionStatus.ConnectionStatus
-import jetbrains.zeppelin.api._
 import jetbrains.zeppelin.api.websocket.WebSocketApiProtocol._
+import jetbrains.zeppelin.models
+import jetbrains.zeppelin.models.ConnectionStatus.ConnectionStatus
+import jetbrains.zeppelin.models._
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.annotations._
 import org.eclipse.jetty.websocket.client.{ClientUpgradeRequest, WebSocketClient}
@@ -22,7 +22,7 @@ class WebSocketAPI(uri: String) {
   var defaultHandler: MessageHandler = (_: ResponseMessage) => {
     println("Default Handler is called")
   }
-  var status: api.ConnectionStatus.Value = ConnectionStatus.DISCONNECTED
+  var status: models.ConnectionStatus.Value = ConnectionStatus.DISCONNECTED
   private var session: Session = _
 
   @OnWebSocketClose

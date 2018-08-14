@@ -1,9 +1,8 @@
 package jetbrains.zeppelin.service
 
-import jetbrains.zeppelin.api.Interpreter
+import jetbrains.zeppelin.models.Interpreter
 
 class InterpreterException(interpreter: Interpreter) extends Exception {
-
   override def getMessage: String = "Reason: " + interpreter.errorReason.getOrElse("unavailable")
 }
 

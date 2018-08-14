@@ -1,7 +1,7 @@
-package jetbrains.zeppelin.api
+package jetbrains.zeppelin.models
 
-import jetbrains.zeppelin.api
-import jetbrains.zeppelin.api.InterpreterStatus.InterpreterStatus
+import jetbrains.zeppelin.models
+import jetbrains.zeppelin.models.InterpreterStatus.InterpreterStatus
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
 import scala.util.Try
@@ -29,9 +29,9 @@ case class InterpreterBinding(
 
 object InstantiationType extends Enumeration {
   type InstantiationType = Value
-  val SHARED: api.InstantiationType.Value = Value("shared")
-  val SCOPED: api.InstantiationType.Value = Value("scoped")
-  val ISOLATED: api.InstantiationType.Value = Value("isolated")
+  val SHARED: models.InstantiationType.Value = Value("shared")
+  val SCOPED: models.InstantiationType.Value = Value("scoped")
+  val ISOLATED: models.InstantiationType.Value = Value("isolated")
 }
 
 case class InterpreterOption(perNote: Option[String] = Some(InstantiationType.SHARED.toString),
@@ -135,7 +135,7 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val CredentialsFormat: RootJsonFormat[Credentials] = jsonFormat3(Credentials)
   implicit val NewNotebookFormat: RootJsonFormat[NewNotebook] = jsonFormat1(NewNotebook)
   implicit val DependencyFormat: RootJsonFormat[Dependency] = jsonFormat3(Dependency)
-  implicit val InterpreterStatusFormat: RootJsonFormat[api.InterpreterStatus.Value] = enumFormat(InterpreterStatus)
+  implicit val InterpreterStatusFormat: RootJsonFormat[models.InterpreterStatus.Value] = enumFormat(InterpreterStatus)
   implicit val InterpreterOptionFormat: RootJsonFormat[InterpreterOption] = jsonFormat2(InterpreterOption)
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
   implicit val InterpreterBindingFormat: RootJsonFormat[InterpreterBinding] = jsonFormat2(InterpreterBinding)

@@ -1,6 +1,6 @@
 package jetbrains.zeppelin.api.websocket
 
-import jetbrains.zeppelin.api.{Credentials, ExecutionResults}
+import jetbrains.zeppelin.models.{Credentials, ExecutionResults}
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
 

@@ -4,7 +4,7 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import jetbrains.zeppelin.api.InterpreterOption;
+import jetbrains.zeppelin.models.InterpreterOption;
 
 import javax.swing.*;
 import java.awt.*;
