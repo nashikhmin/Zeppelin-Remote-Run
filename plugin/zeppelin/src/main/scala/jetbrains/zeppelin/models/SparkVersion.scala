@@ -15,6 +15,8 @@ class SparkVersion(var versionString: String) {
 
   def isSecretSocketSupported: Boolean = this.newerThanEquals(SparkVersion.SPARK_2_3_1)
 
+  def isSpark2: Boolean = this.newerThanEquals(SparkVersion.SPARK_2_0_0)
+
   def isSparkRSupported: Boolean = this.newerThanEquals(SparkVersion.SPARK_1_4_0)
 
   def isUnsupportedVersion: Boolean = {
