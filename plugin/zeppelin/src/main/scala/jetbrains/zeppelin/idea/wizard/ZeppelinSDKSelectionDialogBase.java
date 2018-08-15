@@ -3,8 +3,8 @@ package jetbrains.zeppelin.idea.wizard;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import jetbrains.zeppelin.dependency.DefaultZeppelinDependencies;
 import jetbrains.zeppelin.dependency.LibraryDescriptor;
-import jetbrains.zeppelin.dependency.ZeppelinDependenciesManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -94,7 +94,7 @@ public abstract class ZeppelinSDKSelectionDialogBase extends JDialog {
     }
 
     private void updateAvailableZeppelinVersions() {
-        String[] array = ZeppelinDependenciesManager.getSupportedZeppelinVersionsAsJava().toArray(new String[0]);
+        String[] array = DefaultZeppelinDependencies.getSupportedZeppelinVersionsAsJava().toArray(new String[0]);
         versionList.setModel(new DefaultComboBoxModel<>(array));
     }
 }

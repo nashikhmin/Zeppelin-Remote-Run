@@ -36,7 +36,6 @@ object Downloader {
 
     localArtifacts.map(_.getOrElse(throw new Exception()).getAbsolutePath)
       .filter(_.endsWith(".jar"))
-      .filter(it => !it.contains("slf4j") && !it.contains("log4j"))
       .toList
   }
 }

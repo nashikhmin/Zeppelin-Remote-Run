@@ -20,7 +20,7 @@ class ZeppelinModuleSettingStep(moduleBuilder: ModuleBuilder, settingsStep: Sett
   private val myJavaStep = ZeppelinModuleType.getModuleType.modifyProjectTypeStep(settingsStep, moduleBuilder)
   private val project = settingsStep.getContext.getProject
   private val librariesContainer = LibrariesContainerFactory.createContainer(project)
-  private val customLibraryDescription = ZeppelinLibraryDescription
+  private val customLibraryDescription = ZeppelinLibraryDescription(project)
 
   private var libraryCompositionSettings: LibraryCompositionSettings = _
   private var libraryOptionsPanel: LibraryOptionsPanel = _

@@ -1,18 +1,22 @@
 package jetbrains.zeppelin.idea.wizard
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import javax.swing.JComponent
+import jetbrains.zeppelin.components.ZeppelinComponent
 import jetbrains.zeppelin.dependency.{LibraryDescriptor, ZeppelinDependenciesManager}
 import jetbrains.zeppelin.utils.ThreadRun
 
 import scala.util.{Failure, Success, Try}
 
-class ZeppelinSDKSelectionDialog(parent: JComponent) extends ZeppelinSDKSelectionDialogBase(parent) {
+class ZeppelinSDKSelectionDialog(parent: JComponent, project: Project) extends ZeppelinSDKSelectionDialogBase(parent) {
   override protected def onOK(): Unit = {
-    val selectedVersion: String = versionList.getSelectedItem.toString
+    val selectedZeppelinVersion: String = versionList.getSelectedItem.toString
+    val sparkVersion = ZeppelinComponent.connectionFor(project).sparkVersion
+
     val result: Try[LibraryDescriptor] = ThreadRun
       .withProgressSynchronouslyTry(s"Downloading Zeppelin Dependencies...") { _ => {
-        ZeppelinDependenciesManager.getZeppelinSdkDescriptor(selectedVersion)
+        ZeppelinDependenciesManager.getZeppelinSdkDescriptor(selectedZeppelinVersion, sparkVersion)
       }
       }
     result match {
@@ -28,5 +32,8 @@ class ZeppelinSDKSelectionDialog(parent: JComponent) extends ZeppelinSDKSelectio
 }
 
 object ZeppelinSDKSelectionDialog {
-  def apply(parent: JComponent): ZeppelinSDKSelectionDialog = new ZeppelinSDKSelectionDialog(parent)
+  def apply(parent: JComponent, project: Project): ZeppelinSDKSelectionDialog = {
+    new ZeppelinSDKSelectionDialog(parent,
+      project)
+  }
 }

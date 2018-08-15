@@ -1,32 +1,32 @@
 package jetbrains.zeppelin.dependency
 
-import java.util
-
 import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFileManager}
 import coursier.{Dependency, Module}
-
-import scala.collection.JavaConverters._
+import jetbrains.zeppelin.models.SparkVersion
 
 /**
   * A manager which downloads dependencies and creates descriptors
   */
 object ZeppelinDependenciesManager {
-  val ZEPPELIN_SUPPORTED_VERSIONS = List("0.8.0")
   private val USER_LIBRARY = "UserInterpreterDependencies"
 
-  def getSupportedZeppelinVersionsAsJava: util.List[String] = ZEPPELIN_SUPPORTED_VERSIONS.asJava
   /**
     * Get default Zeppelin dependencies
     *
-    * @param version - a version of Zeppelin
+    * @param zeppelinVersion - a version of Zeppelin
     * @return a library descriptor with a default Zeppelin dependencies
     */
-  def getZeppelinSdkDescriptor(version: String): LibraryDescriptor = {
-    val depPaths = getDefaultZeppelinDependencies(version)
-    val urls = depPaths.map(it => constructUrlString(it))
-    LibraryDescriptor(version, urls)
+  def getZeppelinSdkDescriptor(zeppelinVersion: String, sparkVersion: SparkVersion): LibraryDescriptor = {
+    if (zeppelinVersion != "0.8.0") throw new Exception("This version of Zeppelin is not supported")
+
+    val version = ZeppelinDependenciesVersions("2.11", sparkVersion.versionString)
+
+    val dependencies = DefaultZeppelinDependencies.getDefaultZeppelinDependencies(version)
+    val downloadedJars = Downloader.downloadDependencies(dependencies)
+    val urls = downloadedJars.map(it => constructUrlString(it))
+    LibraryDescriptor(zeppelinVersion, classes = urls)
   }
 
   /**
@@ -36,7 +36,6 @@ object ZeppelinDependenciesManager {
     * @param dependencies - dependencies, which must be imported
     */
   def importUserInterpreterLibrary(module: com.intellij.openapi.module.Module, dependencies: List[String]): Unit = {
-    val jars = resolveDependencies(dependencies)
     val moduleModel = ModuleRootManager.getInstance(module).getModifiableModel
     val table: LibraryTable = moduleModel.getModuleLibraryTable
     val oldLibrary = Option(table.getLibraryByName(USER_LIBRARY))
@@ -47,8 +46,8 @@ object ZeppelinDependenciesManager {
     val library = table.createLibrary(USER_LIBRARY)
     val libraryModel = library.getModifiableModel
 
-    val urls = jars.map(it => constructUrlString(it))
-    urls.foreach(it => {
+    val jars = resolveDependencies(dependencies)
+    jars.foreach(it => {
       libraryModel.addRoot(it, OrderRootType.CLASSES)
     })
 
@@ -59,20 +58,6 @@ object ZeppelinDependenciesManager {
   private def constructUrlString(srcFilePath: String): String = {
     VirtualFileManager
       .constructUrl(JarFileSystem.PROTOCOL, srcFilePath) + JarFileSystem.JAR_SEPARATOR
-  }
-
-  private def getDefaultZeppelinDependencies(version: String): List[String] = {
-    if (version != "0.8.0") throw new Exception("This version of Zeppelin is not supported")
-
-    val dependencies = Set(
-      Dependency(
-        Module("org.apache.zeppelin", "zeppelin-spark-dependencies"), version
-      ),
-      Dependency(
-        Module("org.apache.zeppelin", "spark-interpreter"), version
-      )
-    )
-    Downloader.downloadDependencies(dependencies)
   }
 
   private def isFromRepo(dependency: String): Boolean = {
@@ -93,6 +78,7 @@ object ZeppelinDependenciesManager {
 
     }).toSet
     val downloadedJars = Downloader.downloadDependencies(dependenciesForDownloading)
-    downloadedJars ++ dependencies.filter(it => !isFromRepo(it))
+    val jars = downloadedJars ++ dependencies.filter(it => !isFromRepo(it))
+    jars.map(it => constructUrlString(it))
   }
 }
