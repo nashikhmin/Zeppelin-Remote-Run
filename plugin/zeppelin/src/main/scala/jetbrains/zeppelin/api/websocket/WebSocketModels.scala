@@ -22,9 +22,9 @@ private object ZeppelinWebSocketProtocol extends DefaultJsonProtocol {
 trait OutputHandler {
   def handle(data: OutputResult, isAppend: Boolean)
 
-  def onSuccess(msg: ExecutionResults = ExecutionResults())
+  def onSuccess(msg: ExecutionResults)
 
-  def onError()
+  def onError(msg: ExecutionResults)
 }
 
 

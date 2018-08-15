@@ -112,8 +112,10 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
 
     ZeppelinLogger.printMessage(s"Run paragraph with text: $code")
     val handler = new OutputHandler {
-      override def onError(): Unit = {
-        ZeppelinLogger.printError("Paragraph Run Error")
+      override def onError(result: ExecutionResults = ExecutionResults()): Unit = {
+        ZeppelinLogger.printError("Error during execution of a paragraph")
+        result.msg.foreach(it => ZeppelinLogger.printError(it.data))
+
       }
 
       override def handle(result: OutputResult, isAppend: Boolean): Unit = {

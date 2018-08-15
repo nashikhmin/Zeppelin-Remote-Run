@@ -127,7 +127,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
     var waitResult = true
     var result = "none"
     val handler = new OutputHandler {
-      override def onError(): Unit = {
+      override def onError(exResult: ExecutionResults): Unit = {
         monitor.synchronized {
           waitResult = false
           result = "fail"
