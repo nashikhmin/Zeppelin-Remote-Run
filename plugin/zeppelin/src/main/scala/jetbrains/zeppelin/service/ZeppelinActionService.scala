@@ -126,7 +126,10 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
       override def onSuccess(executionResults: ExecutionResults = ExecutionResults()): Unit = {
         executionResults.msg.foreach(it => {
           it.resultType match {
-            case "TABLE" => ZeppelinLogger.printMessage(it.data)
+            case "TABLE" => {
+              val handler = TableOutputHandler.getAll.headOption.getOrElse(DefaultTableOutputHandler)
+              handler.invoke(it.data)
+            }
             case _ => Unit
           }
         })

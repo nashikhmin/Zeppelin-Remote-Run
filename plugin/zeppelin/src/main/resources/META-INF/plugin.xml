@@ -25,10 +25,13 @@
     <depends>com.intellij.modules.lang</depends>
     -->
     <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
+    <depends optional="true" config-file="remote-run-dataviz-compiler.xml">org.intellij.scala</depends>
 
     <extensionPoints>
         <extensionPoint name="updateInterpreterHandler"
                         interface="jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler"/>
+        <extensionPoint name="tableOutputHandler"
+                        interface="jetbrains.zeppelin.service.TableOutputHandler"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">

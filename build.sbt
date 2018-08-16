@@ -6,21 +6,28 @@ onLoad in Global := ((s: State) => {
 }) compose (onLoad in Global).value
 
 
+val homePrefixDir = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
+
+val scalaPlugin = IdeaPlugin.Id("Scala", "org.intellij.scala", Option("nightly"))
+val dataVizPlugin = IdeaPlugin.Zip("DataViz", url("file:///home/nashikhmin/Downloads/Data-Vis-1.0-SNAPSHOT.zip"))
+
+
 ideaDownloadDirectory in ThisBuild := homePrefixDir / ".RemoteRunPlugin" / "sdk"
 ideaExternalPlugins += scalaPlugin
+ideaExternalPlugins += dataVizPlugin
 ideaBuild := Versions.ideaVersion
 
 
-val homePrefixDir = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
-val scalaPlugin = IdeaPlugin.Id("Scala", "org.intellij.scala", Option("nightly"))
-//val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.668.zip"))
+
 lazy val root = newProject("RemoteRunPlugin", file("."))
   .dependsOn(
     zeppelin % "test->test;compile->compile",
-    scalaIntegration % "test->test;compile->compile")
+    scalaIntegration % "test->test;compile->compile",
+    dataVizIntegration % "test->test;compile->compile")
   .aggregate(
     zeppelin,
-    scalaIntegration)
+    scalaIntegration,
+    dataVizIntegration)
   .settings(
     aggregate.in(updateIdea) := false)
 
@@ -40,3 +47,12 @@ lazy val scalaIntegration =
     .settings(
       ideaExternalPlugins += scalaPlugin
     )
+
+lazy val dataVizIntegration =
+  newProject("dataviz-integration", file("plugin/integration/dataviz-plugin"))
+    .dependsOn(zeppelin % "test->test;compile->compile")
+    .enablePlugins(SbtIdeaPlugin)
+    .settings(
+      ideaExternalPlugins += dataVizPlugin
+    )
+
