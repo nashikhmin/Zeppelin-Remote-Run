@@ -26,4 +26,10 @@ class ZeppelinRunType extends WorksheetExternalRunType {
     ImportZeppelinInterpreterDependencies(file
       .getProject).invoke()
   }
+
+  override def showAdditionalSettingsPanel(): Option[() => Unit] = {
+    Some(() => {
+      //    new NotebookExploreDialog()
+    })
+  }
 }

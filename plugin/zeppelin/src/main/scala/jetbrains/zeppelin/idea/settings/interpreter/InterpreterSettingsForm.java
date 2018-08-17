@@ -22,6 +22,8 @@ public class InterpreterSettingsForm extends JDialog {
 
 
     private JPanel contentPane;
+
+    private CopyOnWriteArrayList<String> modelList;
     private JBList<String> dependenciesList;
     @SuppressWarnings("unused")
     private JPanel dependenciesPanel;
@@ -31,7 +33,6 @@ public class InterpreterSettingsForm extends JDialog {
     private JComboBox<String> perUserBox;
     private JPanel customInstantiationPanel;
 
-    private CopyOnWriteArrayList<String> modelList;
 
     public InterpreterSettingsForm() {
         $$$setupUI$$$();
