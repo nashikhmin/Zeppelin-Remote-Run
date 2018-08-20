@@ -8,7 +8,7 @@ class DatavizOutputHandler extends TableOutputHandler {
   override def invoke(msg: String): Unit = {
     val id = "zeppelin-result"
     val name = "result"
-    val dataProvider = DataProvider.INSTANCE
+    val dataProvider: DataProvider = DataProvider.INSTANCE
     try {
       if (dataProvider.isExist(id)) {
         dataProvider.removeData(id)

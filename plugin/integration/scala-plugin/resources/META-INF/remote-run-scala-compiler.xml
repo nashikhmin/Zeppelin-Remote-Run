@@ -14,8 +14,9 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin>
+
+
     <extensions defaultExtensionNs="org.intellij.scala">
         <worksheetExternalRunType implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType"/>
         <worksheetCustomRunner implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinCustomRunner"/>
