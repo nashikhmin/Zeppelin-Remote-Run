@@ -25,6 +25,16 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     zeppelinRestApi.getInterpreters
   }
 
+
+  /**
+    * Get a list of the available notebooks
+    *
+    * @return the list of notebooks
+    */
+  def allNotebooks: List[Notebook] = {
+    zeppelinRestApi.getNotebooks()
+  }
+
   /**
     * Close the Zeppelin connection if it is opened
     */

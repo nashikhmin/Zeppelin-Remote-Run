@@ -18,11 +18,17 @@ class NotebookExploreDialog(project: Project) extends DialogWrapper(project) {
   override def createCenterPanel(): JComponent = myPanel.getContentPane
 
   override def doOKAction(): Unit = {
-    val connection = ZeppelinComponent.connectionFor(project)
-    val actionService = connection.service
-
-    val names = myPanel.getNotebookNames
+    //TODO: add remove action
     super.doOKAction()
+  }
+
+  def getResult(): String = {
+    if (showAndGet()) {
+      myPanel.getSelectedValue
+    }
+    else {
+      null
+    }
   }
 
   override def init(): Unit = {
@@ -31,6 +37,9 @@ class NotebookExploreDialog(project: Project) extends DialogWrapper(project) {
   }
 
   def updateNotebooksList(): Unit = {
-    myPanel.initDataModel(List("Nama", "Dadada", "Rustavelli").asJava)
+    val connection = ZeppelinComponent.connectionFor(project)
+    val actionService = connection.service
+    val list = actionService.getNotebooksList().map(_.name)
+    myPanel.initDataModel(list.asJava)
   }
 }

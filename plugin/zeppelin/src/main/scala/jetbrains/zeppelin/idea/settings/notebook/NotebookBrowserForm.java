@@ -35,6 +35,10 @@ public class NotebookBrowserForm extends JDialog {
         return notebookNames;
     }
 
+    public String getSelectedValue() {
+        return notebookList.getSelectedValue();
+    }
+
     @Override
     public JPanel getContentPane() {
         return contentPane;
@@ -76,7 +80,6 @@ public class NotebookBrowserForm extends JDialog {
                 })
                 .createPanel();
     }
-
 
     private void updateModelList() {
         String[] array = notebookNames.toArray(new String[0]);

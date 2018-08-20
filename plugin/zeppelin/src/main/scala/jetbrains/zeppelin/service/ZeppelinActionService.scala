@@ -60,6 +60,15 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   }
 
   /**
+    * Get list of notebooks
+    *
+    * @return a list of notebooks
+    */
+  def getNotebooksList(): List[Notebook] = {
+    zeppelinService.allNotebooks
+  }
+
+  /**
     * Get a list of available interpreters for the notebook
     *
     * @return the list with interpreters
