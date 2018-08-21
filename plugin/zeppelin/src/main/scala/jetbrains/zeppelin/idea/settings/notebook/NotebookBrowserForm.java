@@ -5,6 +5,7 @@ import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import jetbrains.zeppelin.models.Notebook;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +17,7 @@ import static com.intellij.ui.components.JBList.createDefaultListModel;
 public class NotebookBrowserForm extends JDialog {
     private JPanel notebookPanel;
     private JPanel contentPane;
-    private List<String> notebookNames = new ArrayList<>();
+    private List<Notebook> notebooks = new ArrayList<>();
     private JBList<String> notebookList;
 
     public NotebookBrowserForm() {
@@ -25,23 +26,29 @@ public class NotebookBrowserForm extends JDialog {
         setModal(true);
     }
 
-
-    public void initDataModel(List<String> notebookNames) {
-        this.notebookNames = notebookNames;
-        updateModelList();
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return contentPane;
     }
 
-    public List<String> getNotebookNames() {
-        return notebookNames;
+    @Override
+    public JPanel getContentPane() {
+        return contentPane;
+    }
+
+    public List<Notebook> getNotebooks() {
+        return notebooks;
     }
 
     public String getSelectedValue() {
         return notebookList.getSelectedValue();
     }
 
-    @Override
-    public JPanel getContentPane() {
-        return contentPane;
+    public void initDataModel(List<Notebook> notebooks) {
+        this.notebooks = notebooks;
+        updateModelList();
     }
 
     /**
@@ -63,13 +70,6 @@ public class NotebookBrowserForm extends JDialog {
         contentPane.add(notebookPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return contentPane;
-    }
-
     private void createUIComponents() {
         notebookList = new JBList<>();
         notebookList.setEmptyText("There aren't notebooks");
@@ -82,7 +82,7 @@ public class NotebookBrowserForm extends JDialog {
     }
 
     private void updateModelList() {
-        String[] array = notebookNames.toArray(new String[0]);
+        String[] array = notebooks.stream().map(Notebook::name).toArray(String[]::new);
         final DefaultListModel<String> model = createDefaultListModel(array);
         notebookList.setModel(model);
     }

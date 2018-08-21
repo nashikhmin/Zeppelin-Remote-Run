@@ -16,7 +16,7 @@ class RefreshInterpretersAction extends DumbAwareAction {
 
   override def actionPerformed(event: AnActionEvent): Unit = {
     val dialog = new NotebookExploreDialog(event.getProject)
-    val value = Option(dialog.getResult())
+    val value = Option(dialog.openAndGetResult())
     val connection = ZeppelinComponent.connectionFor(event.getProject)
     connection.updateInterpreterList()
   }
