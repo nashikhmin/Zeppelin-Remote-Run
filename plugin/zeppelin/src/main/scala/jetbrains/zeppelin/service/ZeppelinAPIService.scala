@@ -1,5 +1,6 @@
 package jetbrains.zeppelin.service
 
+import com.intellij.openapi.diagnostic.Logger
 import jetbrains.zeppelin.api.rest.{RestApiException, ZeppelinRestApi}
 import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.models._
@@ -13,6 +14,7 @@ import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
   */
 class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                                  val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: Option[User]) {
+  private val LOG = Logger.getInstance(getClass)
   private val MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE = 15
   private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
 
@@ -24,7 +26,6 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   def allInterpreters: List[Interpreter] = {
     zeppelinRestApi.getInterpreters
   }
-
 
   /**
     * Get a list of the available notebooks
@@ -40,6 +41,7 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     */
   def close(): Unit = {
     zeppelinWebSocketAPI.close()
+    LOG.info("Zeppelin connection is closed")
   }
 
   /**
@@ -65,6 +67,16 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     }
 
     ZeppelinLogger.printMessage("Connected to the Zeppelin")
+  }
+
+  /**
+    * Create a notebook
+    *
+    * @param notebookName - a name of a notebook
+    * @return a created notebook
+    */
+  def createNotebook(notebookName: String): Notebook = {
+    zeppelinRestApi.createNotebook(NewNotebook(notebookName))
   }
 
   /**
@@ -101,6 +113,15 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   }
 
   /**
+    * Delete a notebook
+    *
+    * @param notebook - a notebook model
+    */
+  def deleteNotebook(notebook: Notebook): Unit = {
+    zeppelinRestApi.deleteNotebook(notebook.id)
+  }
+
+  /**
     * Get from Zeppelin the notebook by the name. If the notebook does not exist the notebook will be created
     *
     * Additionally, the method check the count of paragraphs and if it is more than a predefined value, delete all paragraphs
@@ -110,7 +131,7 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     */
   def getOrCreateNotebook(notebookName: String): Notebook = {
     val note = zeppelinRestApi.getNotebooks().find(_.name == notebookName)
-      .getOrElse(zeppelinRestApi.createNotebook(NewNotebook(notebookName)))
+      .getOrElse(createNotebook(notebookName))
 
     var fullInfoNote = zeppelinWebSocketAPI.getNote(note.id, credentials)
     if (fullInfoNote.paragraphs.length > MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE) {

@@ -5,11 +5,16 @@ import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import jetbrains.zeppelin.constants.ZeppelinConstants;
+import jetbrains.zeppelin.idea.common.AddStringValueButton;
 import jetbrains.zeppelin.models.Notebook;
+import jetbrains.zeppelin.models.ZeppelinModelFactory;
+import org.apache.commons.lang.ArrayUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.intellij.ui.components.JBList.createDefaultListModel;
@@ -47,7 +52,7 @@ public class NotebookBrowserForm extends JDialog {
     }
 
     public void initDataModel(List<Notebook> notebooks) {
-        this.notebooks = notebooks;
+        this.notebooks = new ArrayList<>(notebooks);
         updateModelList();
     }
 
@@ -76,6 +81,25 @@ public class NotebookBrowserForm extends JDialog {
 
         notebookPanel = ToolbarDecorator.createDecorator(notebookList)
                 .setAddAction(anActionButton -> {
+                    String newValue = new AddStringValueButton(
+                            contentPane,
+                            ZeppelinConstants.ADD_NOTEBOOK_TITLE(),
+                            ZeppelinConstants.NOTEBOOK_NAME_LABEL()
+                    ).getValue();
+
+                    int selectedIndex = notebookList.getSelectedIndex();
+                    Notebook notebook = ZeppelinModelFactory.createNotebook(newValue);
+                    notebooks.add(selectedIndex + 1, notebook);
+
+                    updateModelList();
+                }).setRemoveAction(anActionButton -> {
+                    int[] selectedIndices = notebookList.getSelectedIndices();
+                    Arrays.sort(selectedIndices);
+                    ArrayUtils.reverse(selectedIndices);
+                    for (int i : selectedIndices) {
+                        notebooks.remove(i);
+                    }
+
                     updateModelList();
                 })
                 .createPanel();

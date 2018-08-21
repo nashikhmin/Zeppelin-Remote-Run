@@ -4,6 +4,8 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import jetbrains.zeppelin.constants.ZeppelinConstants;
+import jetbrains.zeppelin.idea.common.AddStringValueButton;
 import jetbrains.zeppelin.models.InterpreterOption;
 
 import javax.swing.*;
@@ -137,7 +139,11 @@ public class InterpreterSettingsForm extends JDialog {
 
         dependenciesPanel = ToolbarDecorator.createDecorator(dependenciesList)
                 .setAddAction(anActionButton -> {
-                    String newValue = new AddDependencyButton(contentPane).getValue();
+                    String newValue = new AddStringValueButton(
+                            contentPane,
+                            ZeppelinConstants.ADD_DEPENDENCY_TITLE(),
+                            ZeppelinConstants.DEPENDENCY_NAME_LABEL()
+                    ).getValue();
                     modelList.add(newValue);
                     updateModelList();
                 }).setRemoveAction(anActionButton -> {
@@ -147,7 +153,14 @@ public class InterpreterSettingsForm extends JDialog {
                 }).setEditAction(anActionButton -> {
                     int selectedItemId = dependenciesList.getSelectedIndex();
                     String oldValue = modelList.get(selectedItemId);
-                    String newValue = new AddDependencyButton(contentPane, oldValue).getValue();
+
+                    String newValue = new AddStringValueButton(
+                            contentPane,
+                            ZeppelinConstants.EDIT_DEPENDENCY_TITLE(),
+                            ZeppelinConstants.DEPENDENCY_NAME_LABEL(),
+                            oldValue
+                    ).getValue();
+
                     if (newValue == null) return;
                     modelList.set(selectedItemId, newValue);
                     updateModelList();

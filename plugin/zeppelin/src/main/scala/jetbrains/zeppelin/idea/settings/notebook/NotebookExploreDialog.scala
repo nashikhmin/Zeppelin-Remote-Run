@@ -12,6 +12,7 @@ class NotebookExploreDialog(project: Project) extends DialogWrapper(project) {
   val title = s"Notebook browser"
   private val LOG = Logger.getInstance(getClass)
   private val myPanel = new NotebookBrowserForm()
+  private val actionService = ZeppelinComponent.connectionFor(project).service
 
   setTitle(title)
   setButtonsAlignment(SwingConstants.CENTER)
@@ -20,14 +21,12 @@ class NotebookExploreDialog(project: Project) extends DialogWrapper(project) {
   override def createCenterPanel(): JComponent = myPanel.getContentPane
 
   override def doOKAction(): Unit = {
-    val originalNotebooks = getOriginalNotebooks.toSet
-    val currentNotebooks = myPanel.getNotebooks.asScala.toSet
-
-    val deletedNotebooks = originalNotebooks.diff(currentNotebooks)
-    val addedNotebooks = currentNotebooks.diff(originalNotebooks)
+    val (deletedNotebooks, addedNotebooks) = getNotebookListChanges
 
     val msg = s"${addedNotebooks.size} notebooks will be added, ${deletedNotebooks.size} will be removed"
     LOG.info(msg)
+    actionService.addAndDeleteNotebooks(addedNotebooks, deletedNotebooks)
+
     super.doOKAction()
   }
 
@@ -50,9 +49,14 @@ class NotebookExploreDialog(project: Project) extends DialogWrapper(project) {
     }
   }
 
-  private def getOriginalNotebooks = {
-    val connection = ZeppelinComponent.connectionFor(project)
-    val actionService = connection.service
-    actionService.getNotebooksList()
+  private def getNotebookListChanges = {
+    val originalNotebooks = getOriginalNotebooks.toSet
+    val currentNotebooks = myPanel.getNotebooks.asScala.toSet
+
+    val deletedNotebooks = originalNotebooks.diff(currentNotebooks)
+    val addedNotebooks = currentNotebooks.diff(originalNotebooks)
+    (deletedNotebooks.toList, addedNotebooks.toList)
   }
+
+  private def getOriginalNotebooks = actionService.getNotebooksList()
 }

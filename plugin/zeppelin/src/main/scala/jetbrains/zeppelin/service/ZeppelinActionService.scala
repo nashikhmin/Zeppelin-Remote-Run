@@ -19,6 +19,24 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(address, port, user)
 
   /**
+    * Add and remove notebooks on Zeppelin
+    *
+    * @param addNotebooks    - notebooks that will be added
+    * @param removeNotebooks - noteboks that will be deleted
+    */
+  def addAndDeleteNotebooks(addNotebooks: List[Notebook], removeNotebooks: List[Notebook]): Unit = {
+    if (!checkPreconditions()) throw ZeppelinConnectionException(address + ":" + port)
+
+    addNotebooks.foreach(it => {
+      zeppelinService.createNotebook(it.name)
+    })
+
+    removeNotebooks.foreach(it => {
+      zeppelinService.deleteNotebook(it)
+    })
+  }
+
+  /**
     * Method that close all connections and free resources
     */
   def destroy(): Unit = {
@@ -65,6 +83,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     * @return a list of notebooks
     */
   def getNotebooksList(): List[Notebook] = {
+    if (!checkPreconditions()) return List()
     zeppelinService.allNotebooks
   }
 
@@ -99,6 +118,8 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     * @param interpreterName - a name of an interpreter
     */
   def restartInterpreter(interpreterName: String): Unit = {
+    if (!checkPreconditions()) return
+
     ThreadRun.withProgressSynchronouslyTry(s"Restart an $interpreterName interpreter")(_ => {
       val interpreter: Interpreter = getInterpreterByName(interpreterName)
       val notebook = zeppelinService.getOrCreateNotebook(notebookName)
