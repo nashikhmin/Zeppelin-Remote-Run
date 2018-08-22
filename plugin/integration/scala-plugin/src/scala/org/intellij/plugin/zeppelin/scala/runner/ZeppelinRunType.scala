@@ -9,6 +9,9 @@ import org.jetbrains.plugins.scala.worksheet.cell.CellDescriptor
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
+/**
+  * Zeppelin Worksheet Run Type
+  */
 class ZeppelinRunType extends WorksheetExternalRunType {
   override def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter] = None
 
@@ -16,7 +19,7 @@ class ZeppelinRunType extends WorksheetExternalRunType {
     Option(new RunZeppelinAction(cellDescriptor))
   }
 
-  override def getName: String = "Zeppelin cells"
+  override def getName: String = "Zeppelin"
 
   override def isReplRunType: Boolean = false
 
@@ -29,7 +32,9 @@ class ZeppelinRunType extends WorksheetExternalRunType {
 
   override def showAdditionalSettingsPanel(): Option[() => Unit] = {
     Some(() => {
-      //    new NotebookExploreDialog()
+      //TODO: implement with new version of Scala
+      //      val dialog = new NotebookExploreDialog(event.getProject)
+      //      val value = Option(dialog.openAndGetResult())
     })
   }
 }

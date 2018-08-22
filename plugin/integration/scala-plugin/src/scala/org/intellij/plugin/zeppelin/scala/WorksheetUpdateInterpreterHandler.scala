@@ -5,7 +5,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 
-
+/**
+  * A handler which handle updating of interpreters in worksheet
+  */
 class WorksheetUpdateInterpreterHandler extends UpdateInterpreterHandler {
   override def updateInterpreter(project: Project): Unit = {
     val currentFile: VirtualFile = FileEditorManagerEx.getInstanceEx(project).getCurrentFile

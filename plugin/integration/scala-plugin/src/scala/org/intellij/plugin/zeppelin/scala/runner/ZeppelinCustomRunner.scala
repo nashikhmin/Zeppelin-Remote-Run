@@ -3,6 +3,9 @@ package org.intellij.plugin.zeppelin.scala.runner
 import jetbrains.zeppelin.components.ZeppelinComponent
 import org.jetbrains.plugins.scala.worksheet.processor.{WorksheetCompilerUtil, WorksheetCustomRunner}
 
+/**
+  * A Zeppelin cell runner
+  */
 class ZeppelinCustomRunner extends WorksheetCustomRunner {
   override def canHandle(request: WorksheetCompilerUtil.RunCustom): Boolean = {
     request.id ==

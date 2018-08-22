@@ -12,10 +12,13 @@ import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 
 import scala.collection._
 
+/**
+  * Add to IDEA special Zeppelin imports and resolve Zeppelin built-in variables (sc, sqlc, etc)
+  */
 class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
   override def accept(holder: PsiElement): Boolean = {
     val originalFile = holder.getFirstChild.getContainingFile.getOriginalFile
-    Utils.isZeppelinWorksheet(originalFile)
+    ZeppelinWorksheetFileSettings.isZeppelinWorksheet(originalFile)
   }
 
   override def processAdditionalDeclarations(processor: PsiScopeProcessor,

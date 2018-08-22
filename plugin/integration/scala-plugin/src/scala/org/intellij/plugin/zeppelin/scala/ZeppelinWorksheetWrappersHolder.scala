@@ -36,7 +36,7 @@ class ZeppelinWorksheetWrappersHolder(project: Project) extends AbstractProjectC
 
   private def isZeppelinWorksheet(virtualFile: VirtualFile): Boolean = {
     val psiFile = PsiManager.getInstance(project).findFile(virtualFile)
-    Utils.isZeppelinWorksheet(psiFile)
+    ZeppelinWorksheetFileSettings.isZeppelinWorksheet(psiFile)
   }
 }
 

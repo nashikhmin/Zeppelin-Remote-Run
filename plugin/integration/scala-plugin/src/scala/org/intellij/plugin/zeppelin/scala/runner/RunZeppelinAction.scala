@@ -6,6 +6,11 @@ import org.jetbrains.plugins.scala.worksheet.cell.{CellDescriptor, RunCellAction
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.RunCustom
 
+/**
+  * Action which run cells in Zeppelin
+  *
+  * @param cellDescriptor - a zeppelin paragraph
+  */
 class RunZeppelinAction(cellDescriptor: CellDescriptor) extends RunCellActionBase(cellDescriptor) {
   var project: Project = _
 
