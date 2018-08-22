@@ -4,13 +4,9 @@ import org.jetbrains.sbtidea.Keys.ideaExternalPlugins
 ideaPluginName in ThisBuild := "RemoteRun"
 ideaBuild := Versions.ideaVersion
 
-//val homePrefixDir = sys.props.get("tc.idea.prefix").map(new File(_)).getOrElse(Path.userHome)
-
-val scalaPlugin = IdeaPlugin.Id("Scala", "org.intellij.scala", Option("nightly"))
 val dataVizPlugin = IdeaPlugin.Zip("DataViz", url("file:///home/nashikhmin/Downloads/Data-Vis-1.0-SNAPSHOT.zip"))
+val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.735.zip"))
 
-
-//ideaDownloadDirectory in ThisBuild := homePrefixDir / ".RemoteRunPlugin" / "sdk"
 ideaExternalPlugins += scalaPlugin
 ideaExternalPlugins += dataVizPlugin
 
@@ -21,9 +17,6 @@ lazy val RemoteRunPlugin: Project = newProject("RemoteRunPlugin", file("."))
     zeppelin % "test->test;compile->compile",
     scalaIntegration % "test->test;compile->compile",
     dataVizIntegration % "test->test;compile->compile")
-//  .settings(
-//    packageLibraryMappings := Seq.empty
-//  )
 
 lazy val zeppelin: Project = newProject("zeppelin", file("plugin/zeppelin"))
   .settings(
@@ -58,7 +51,6 @@ def createRunnerProject(from: ProjectReference, name: String): Project = {
       unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
     )
 }
-
 
 lazy val ideaRunner = createRunnerProject(RemoteRunPlugin, "idea-runner")
 

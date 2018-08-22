@@ -3,12 +3,14 @@ package jetbrains.zeppelin.idea.settings.notebook
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
 import jetbrains.zeppelin.components.ZeppelinComponent
 
 import scala.collection.JavaConverters._
 
-class NotebookExploreDialog(project: Project) extends DialogWrapper(project) {
+class NotebookBrowserDialog(psiFile: PsiFile) extends DialogWrapper(psiFile.getProject) {
+  val project: Project = psiFile.getProject
   val title = s"Notebook browser"
   private val LOG = Logger.getInstance(getClass)
   private val myPanel = new NotebookBrowserForm()
