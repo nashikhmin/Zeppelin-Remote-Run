@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.scala
+package org.intellij.plugin.zeppelin.scala.worksheet.settings
 
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
@@ -16,9 +16,9 @@ class ZeppelinWorksheetFileSettings(file: PsiFile) extends WorksheetFileSettings
 
   import ZeppelinWorksheetFileSettings._
 
-  def getLinkedNotebook: String = getSetting(WORKSHEET_LINKED_NOTEBOOK, "")
+  def getLinkedNotebookId: String = getSetting(WORKSHEET_LINKED_NOTEBOOK_ID, "")
 
-  def setLinkedNotebook(linkedNotebookId: String): Unit = setSetting(WORKSHEET_LINKED_NOTEBOOK, linkedNotebookId)
+  def setLinkedNotebookId(linkedNotebookId: String): Unit = setSetting(WORKSHEET_LINKED_NOTEBOOK_ID, linkedNotebookId)
 
   private def getSetting[T](attr: FileAttribute, orDefault: => T)(implicit ev: SerializableInFileAttribute[T]): T = {
     ev.readAttribute(attr, file).getOrElse(orDefault)
@@ -30,9 +30,9 @@ class ZeppelinWorksheetFileSettings(file: PsiFile) extends WorksheetFileSettings
 }
 
 object ZeppelinWorksheetFileSettings {
-  private val WORKSHEET_LINKED_NOTEBOOK = new FileAttribute("ZeppelinWorksheetLinkedNotebook", 1, true)
+  private val WORKSHEET_LINKED_NOTEBOOK_ID = new FileAttribute("ZeppelinWorksheetLinkedNotebook", 1, true)
 
-  def getLinkedNotebook(file: PsiFile): String = new ZeppelinWorksheetFileSettings(file).getLinkedNotebook
+  def getLinkedNotebookId(file: PsiFile): String = new ZeppelinWorksheetFileSettings(file).getLinkedNotebookId
 
   def isZeppelinWorksheet(file: PsiFile): Boolean = {
     file.isInstanceOf[ScalaFile] &&
@@ -40,8 +40,8 @@ object ZeppelinWorksheetFileSettings {
         .isInstanceOf[ZeppelinRunType]
   }
 
-  def setLinkedNotebook(file: PsiFile, notebookId: String): Unit = {
+  def setLinkedNotebookId(file: PsiFile, notebookId: String): Unit = {
     new ZeppelinWorksheetFileSettings(file)
-      .setLinkedNotebook(notebookId)
+      .setLinkedNotebookId(notebookId)
   }
 }

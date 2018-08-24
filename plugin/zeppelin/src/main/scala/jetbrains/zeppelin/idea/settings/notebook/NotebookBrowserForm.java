@@ -31,13 +31,6 @@ public class NotebookBrowserForm extends JDialog {
         setModal(true);
     }
 
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return contentPane;
-    }
-
     @Override
     public JPanel getContentPane() {
         return contentPane;
@@ -47,8 +40,9 @@ public class NotebookBrowserForm extends JDialog {
         return notebooks;
     }
 
-    public String getSelectedValue() {
-        return notebookList.getSelectedValue();
+    public Notebook getSelectedValue() {
+        int index = notebookList.getSelectedIndex();
+        return notebooks.get(index);
     }
 
     public void initDataModel(List<Notebook> notebooks) {
@@ -73,6 +67,13 @@ public class NotebookBrowserForm extends JDialog {
         final Spacer spacer1 = new Spacer();
         contentPane.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         contentPane.add(notebookPanel, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return contentPane;
     }
 
     private void createUIComponents() {

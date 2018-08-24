@@ -3,14 +3,13 @@ package jetbrains.zeppelin.idea.settings.notebook
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
 import jetbrains.zeppelin.components.ZeppelinComponent
+import jetbrains.zeppelin.models.Notebook
 
 import scala.collection.JavaConverters._
 
-class NotebookBrowserDialog(psiFile: PsiFile) extends DialogWrapper(psiFile.getProject) {
-  val project: Project = psiFile.getProject
+class NotebookBrowserDialog(project: Project, defaultNotebook: Notebook) extends DialogWrapper(project) {
   val title = s"Notebook browser"
   private val LOG = Logger.getInstance(getClass)
   private val myPanel = new NotebookBrowserForm()
@@ -23,7 +22,7 @@ class NotebookBrowserDialog(psiFile: PsiFile) extends DialogWrapper(psiFile.getP
   override def createCenterPanel(): JComponent = myPanel.getContentPane
 
   override def doOKAction(): Unit = {
-    val (deletedNotebooks, addedNotebooks) = getNotebookListChanges
+    val (deletedNotebooks: List[Notebook], addedNotebooks: List[Notebook]) = getNotebookListChanges
 
     val msg = s"${addedNotebooks.size} notebooks will be added, ${deletedNotebooks.size} will be removed"
     LOG.info(msg)
@@ -42,7 +41,7 @@ class NotebookBrowserDialog(psiFile: PsiFile) extends DialogWrapper(psiFile.getP
     myPanel.initDataModel(notebooks.asJava)
   }
 
-  def openAndGetResult(): Option[String] = {
+  def openAndGetResult(): Option[Notebook] = {
     if (showAndGet()) {
       Option(myPanel.getSelectedValue)
     }
@@ -60,5 +59,5 @@ class NotebookBrowserDialog(psiFile: PsiFile) extends DialogWrapper(psiFile.getP
     (deletedNotebooks.toList, addedNotebooks.toList)
   }
 
-  private def getOriginalNotebooks = actionService.getNotebooksList()
+  private def getOriginalNotebooks = actionService.getNotebooksList
 }

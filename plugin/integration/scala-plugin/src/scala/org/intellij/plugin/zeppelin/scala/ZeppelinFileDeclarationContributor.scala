@@ -6,6 +6,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import jetbrains.zeppelin.components.ZeppelinComponent
 import jetbrains.zeppelin.models.SparkVersion
+import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor

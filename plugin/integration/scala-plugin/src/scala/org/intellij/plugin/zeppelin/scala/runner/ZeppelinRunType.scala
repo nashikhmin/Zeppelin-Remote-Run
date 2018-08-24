@@ -4,8 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import jetbrains.zeppelin.dependency.ImportZeppelinInterpreterDependencies
-import jetbrains.zeppelin.idea.settings.notebook.NotebookBrowserDialog
-import org.intellij.plugin.zeppelin.scala.ZeppelinWorksheetFileSettings
+import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetSettingsDialog
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.cell.CellDescriptor
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
@@ -34,12 +33,8 @@ class ZeppelinRunType extends WorksheetExternalRunType {
 
   override def showAdditionalSettingsPanel(): Option[PsiFile => Unit] = {
     Some((psiFile: PsiFile) => {
-      val dialog = new NotebookBrowserDialog(psiFile)
-      val value = dialog.openAndGetResult()
-      val result = ZeppelinWorksheetFileSettings.isZeppelinWorksheet(psiFile)
-      ZeppelinWorksheetFileSettings.setLinkedNotebook(psiFile, value.get)
-      val str = ZeppelinWorksheetFileSettings.getLinkedNotebook(psiFile)
-      val z = 0
+      val dialog = new ZeppelinWorksheetSettingsDialog(psiFile)
+      dialog.showAndGet()
     })
   }
 }

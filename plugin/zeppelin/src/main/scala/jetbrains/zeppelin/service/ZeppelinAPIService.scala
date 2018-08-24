@@ -6,6 +6,8 @@ import jetbrains.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
 import jetbrains.zeppelin.models._
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
+import scala.util.Try
+
 /**
   * Class which implements the logic of communication with different API
   *
@@ -14,6 +16,17 @@ import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
   */
 class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                                  val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: Option[User]) {
+
+  /**
+    * Get a model of a notebook by id
+    *
+    * @param notebookId - an id of a notebook
+    * @return an option with notebook
+    */
+  def getNotebookById(notebookId: String): Option[Notebook] = {
+    Try(zeppelinWebSocketAPI.getNote(notebookId, credentials)).toOption
+  }
+
   private val LOG = Logger.getInstance(getClass)
   private val MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE = 15
   private var credentials: Credentials = Credentials("anonymous", "anonymous", "")

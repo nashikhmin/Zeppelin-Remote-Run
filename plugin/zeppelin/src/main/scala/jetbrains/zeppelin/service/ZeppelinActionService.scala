@@ -78,11 +78,22 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   }
 
   /**
+    * Get a model of a notebook by id
+    *
+    * @param notebookId - an id of a notebook
+    * @return an option with notebook
+    */
+  def getNotebookById(notebookId: String): Option[Notebook] = {
+    if (!checkPreconditions()) return None
+    zeppelinService.getNotebookById(notebookId)
+  }
+
+  /**
     * Get list of notebooks
     *
     * @return a list of notebooks
     */
-  def getNotebooksList(): List[Notebook] = {
+  def getNotebooksList: List[Notebook] = {
     if (!checkPreconditions()) return List()
     zeppelinService.allNotebooks
   }

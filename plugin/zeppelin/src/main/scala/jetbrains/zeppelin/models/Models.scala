@@ -83,7 +83,7 @@ case class Notebook(id: String, name: String = "", paragraphs: List[Paragraph] =
 
 case class Paragraph(id: String, jobName: String = "",
                      status: String = "",
-                     user: String = "",
+                     user: Option[String] = Some(""),
                      config: Config = Config(),
                      title: Option[String] = None,
                      text: Option[String] = None)
@@ -179,6 +179,5 @@ case class ZeppelinLoginException() extends ZeppelinException {
       s"The login or the password is wrong."
   }
 }
-
 
 case class User(login: String, password: String)
