@@ -169,7 +169,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
           it.resultType match {
             case "TABLE" => {
               val handler = TableOutputHandler.getAll.headOption.getOrElse(DefaultTableOutputHandler)
-              handler.invoke(it.data)
+              handler.invoke(project, it.data)
             }
             case _ => Unit
           }

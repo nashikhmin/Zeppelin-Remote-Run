@@ -25,7 +25,7 @@
     <depends>com.intellij.modules.lang</depends>
     -->
     <depends optional="true" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
-    <depends optional="true" config-file="remote-run-dataviz-compiler.xml">org.intellij.scala</depends>
+    <depends optional="true" config-file="remote-run-dataviz-compiler.xml">org.intellij.datavis</depends>
 
     <extensionPoints>
         <extensionPoint name="updateInterpreterHandler"

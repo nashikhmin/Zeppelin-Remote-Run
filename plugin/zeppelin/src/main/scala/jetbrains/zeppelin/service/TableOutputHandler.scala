@@ -1,10 +1,11 @@
 package jetbrains.zeppelin.service
 
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.project.Project
 import jetbrains.zeppelin.utils.ZeppelinLogger
 
 trait TableOutputHandler {
-  def invoke(msg: String)
+  def invoke(project: Project, msg: String)
 }
 
 object TableOutputHandler {
@@ -17,5 +18,5 @@ object TableOutputHandler {
 
 
 object DefaultTableOutputHandler extends TableOutputHandler {
-  override def invoke(msg: String): Unit = ZeppelinLogger.printMessage(msg)
+  override def invoke(project: Project, msg: String): Unit = ZeppelinLogger.printMessage(msg)
 }
