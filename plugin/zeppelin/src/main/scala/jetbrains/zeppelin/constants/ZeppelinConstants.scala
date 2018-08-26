@@ -18,4 +18,7 @@ object ZeppelinConstants {
 
   val ADD_NOTEBOOK_TITLE = "Add a notebook"
   val NOTEBOOK_NAME_LABEL = "Notebook name"
+
+
+  val DEFAULT_NOTEBOOK_NAME = "IDEA_Plugin/default"
 }

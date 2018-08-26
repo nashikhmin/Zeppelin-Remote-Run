@@ -20,6 +20,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
   val interpretersView: InterpretersView = new InterpretersView(project)
   private var zeppelinActionService: Option[ZeppelinActionService] = None
   var sparkVersion: SparkVersion = SparkVersion.ZEPPELIN_DEFAULT_VERSION
+  var defaultNotebook: String = ""
 
   /**
     * Open the LogTab
@@ -55,6 +56,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
 
     val zeppelinSettings = getZeppelinSettings
     sparkVersion = SparkVersion(zeppelinSettings.sparkVersion)
+    defaultNotebook = zeppelinSettings.defaultNotebookName
     val user = if (zeppelinSettings.isAnonymous) None else Some(User(zeppelinSettings.login, zeppelinSettings.password))
     zeppelinActionService = Some(ZeppelinActionService(project, zeppelinSettings.address, zeppelinSettings.port, user))
     zeppelinActionService.get

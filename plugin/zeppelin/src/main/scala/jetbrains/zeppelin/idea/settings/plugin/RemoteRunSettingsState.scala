@@ -1,6 +1,7 @@
 package jetbrains.zeppelin.idea.settings.plugin
 
 import com.intellij.util.xmlb.annotations.{Attribute, Property}
+import jetbrains.zeppelin.constants.ZeppelinConstants
 import jetbrains.zeppelin.models.SparkVersion
 
 case class RemoteRunSettingsState() {
@@ -8,6 +9,10 @@ case class RemoteRunSettingsState() {
 }
 
 class ZeppelinSettings {
+  @SuppressWarnings(Array("FieldMayBeFinal"))
+  @Attribute("defaultName")
+  var defaultNotebookName: String = ZeppelinConstants.DEFAULT_NOTEBOOK_NAME
+
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("sparkVersion")
   var sparkVersion: String = SparkVersion.ZEPPELIN_DEFAULT_VERSION.toString
@@ -54,6 +59,10 @@ class ZeppelinSettings {
 
   def setSparkVersion(value: String): Unit = {
     sparkVersion = value
+  }
+
+  def setDefaultNotebookName(value: String): Unit = {
+    defaultNotebookName = value
   }
 }
 
