@@ -193,12 +193,11 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   /**
     * Run the code on the zeppelin application
     *
-    * @param code         - the code, which must be executed
-    * @param handler      - a handler, that must handle outputs and status
-    * @param notebookName - a name of the notebook which is the place for executing the code
+    * @param code     - the code, which must be executed
+    * @param handler  - a handler, that must handle outputs and status
+    * @param notebook - a model of notebook, where the paragraph will be run
     */
-  def runCode(code: String, handler: OutputHandler, notebookName: String): Unit = {
-    val notebook = getOrCreateNotebook(notebookName)
+  def runCode(code: String, handler: OutputHandler, notebook: Notebook): Unit = {
     val paragraphId = zeppelinRestApi.createParagraph(notebook.id, code).id
     val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
     val paragraph = notebookWS.paragraphs.find(_.id == paragraphId).get

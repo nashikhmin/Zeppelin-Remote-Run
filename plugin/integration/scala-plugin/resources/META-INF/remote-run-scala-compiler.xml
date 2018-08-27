@@ -15,8 +15,6 @@
   -->
 
 <idea-plugin>
-
-
     <extensions defaultExtensionNs="org.intellij.scala">
         <worksheetExternalRunType implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType"/>
         <worksheetCustomRunner implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinCustomRunner"/>
@@ -27,6 +25,8 @@
     <extensions defaultExtensionNs="org.jetbrains.scala.zeppelin">
         <updateInterpreterHandler
                 implementation="org.intellij.plugin.zeppelin.scala.WorksheetUpdateInterpreterHandler"/>
+        <fileNotebookHolder
+                implementation="org.intellij.plugin.zeppelin.scala.worksheet.extensions.WorksheetNotebookHolder"/>
     </extensions>
 
     <project-components>

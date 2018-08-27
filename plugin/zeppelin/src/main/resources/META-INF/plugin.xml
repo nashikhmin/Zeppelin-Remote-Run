@@ -32,6 +32,8 @@
                         interface="jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler"/>
         <extensionPoint name="tableOutputHandler"
                         interface="jetbrains.zeppelin.service.TableOutputHandler"/>
+        <extensionPoint name="fileNotebookHolder"
+                        interface="jetbrains.zeppelin.service.FileNotebookHolder"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">

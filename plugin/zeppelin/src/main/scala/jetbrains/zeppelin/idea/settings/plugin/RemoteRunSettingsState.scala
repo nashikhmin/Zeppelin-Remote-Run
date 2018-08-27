@@ -2,7 +2,7 @@ package jetbrains.zeppelin.idea.settings.plugin
 
 import com.intellij.util.xmlb.annotations.{Attribute, Property}
 import jetbrains.zeppelin.constants.ZeppelinConstants
-import jetbrains.zeppelin.models.SparkVersion
+import jetbrains.zeppelin.models.{SparkVersion, User}
 
 case class RemoteRunSettingsState() {
   @Property(surroundWithTag = false) var zeppelinSettings: ZeppelinSettings = ZeppelinSettings()
@@ -64,6 +64,13 @@ class ZeppelinSettings {
   def setDefaultNotebookName(value: String): Unit = {
     defaultNotebookName = value
   }
+
+  def user: Option[User] = {
+    if (isAnonymous) return None
+    Some(User(login, password))
+  }
+
+  def fullUrl: String = s"$address:$password"
 }
 
 object ZeppelinSettings {

@@ -34,6 +34,10 @@ object ZeppelinWorksheetFileSettings {
 
   def getLinkedNotebookId(file: PsiFile): String = new ZeppelinWorksheetFileSettings(file).getLinkedNotebookId
 
+  def hasNotebookId(file: PsiFile): Boolean = {
+    isZeppelinWorksheet(file) && getLinkedNotebookId(file) != ""
+  }
+
   def isZeppelinWorksheet(file: PsiFile): Boolean = {
     file.isInstanceOf[ScalaFile] &&
       new ZeppelinWorksheetFileSettings(file).getRunType

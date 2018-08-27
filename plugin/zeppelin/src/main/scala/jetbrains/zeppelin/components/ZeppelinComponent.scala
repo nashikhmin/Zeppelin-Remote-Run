@@ -58,7 +58,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     sparkVersion = SparkVersion(zeppelinSettings.sparkVersion)
     defaultNotebook = zeppelinSettings.defaultNotebookName
     val user = if (zeppelinSettings.isAnonymous) None else Some(User(zeppelinSettings.login, zeppelinSettings.password))
-    zeppelinActionService = Some(ZeppelinActionService(project, zeppelinSettings.address, zeppelinSettings.port, user))
+    zeppelinActionService = Some(ZeppelinActionService(project, zeppelinSettings))
     zeppelinActionService.get
   }
 

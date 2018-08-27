@@ -147,7 +147,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
         }
       }
     }
-    zeppelinService.runCode(code, handler, runCodeTestNotebook)
+    zeppelinService.runCode(code, handler, zeppelinService.getOrCreateNotebook(runCodeTestNotebook))
     monitor.synchronized {
       while (waitResult) {
         monitor.wait(20 * 1000)

@@ -21,4 +21,6 @@ object ZeppelinConstants {
 
 
   val DEFAULT_NOTEBOOK_NAME = "IDEA_Plugin/default"
+
+  val PLUGIN_ID = "org.jetbrains.scala.zeppelin"
 }

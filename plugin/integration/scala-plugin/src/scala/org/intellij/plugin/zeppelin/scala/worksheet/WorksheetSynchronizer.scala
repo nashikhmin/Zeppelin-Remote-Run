@@ -16,8 +16,9 @@ object WorksheetSynchronizer {
     * @throws NotebookNotFoundException - if Zeppelin haven't a linked notebook
     */
   def synchronize(psiFile: PsiFile): Unit = {
+
+    if (!ZeppelinWorksheetFileSettings.hasNotebookId(psiFile)) return
     val notebookId = ZeppelinWorksheetFileSettings.getLinkedNotebookId(psiFile)
-    if (notebookId == "") return
     val project = psiFile.getProject
     val service = ZeppelinComponent.connectionFor(project).service
     val notebook = service.getNotebookById(notebookId)

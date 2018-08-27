@@ -4,19 +4,22 @@ import java.util.concurrent.Executors
 
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiManager
 import jetbrains.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import jetbrains.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
-import jetbrains.zeppelin.models.{Interpreter, User, _}
+import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
+import jetbrains.zeppelin.models.{Interpreter, _}
 import jetbrains.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
-import scala.util.Try
 
 /**
   * Main class that implement logic of the actions for the communication with Zeppelin
   */
-class ZeppelinActionService(project: Project, address: String, port: Int, user: Option[User]) {
-  var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(address, port, user)
+class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings) {
+  var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(zeppelinSettings.address,
+    zeppelinSettings.port,
+    zeppelinSettings.user)
 
   /**
     * Add and remove notebooks on Zeppelin
@@ -25,7 +28,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     * @param removeNotebooks - noteboks that will be deleted
     */
   def addAndDeleteNotebooks(addNotebooks: List[Notebook], removeNotebooks: List[Notebook]): Unit = {
-    if (!checkPreconditions()) throw ZeppelinConnectionException(address + ":" + port)
+    if (!checkPreconditions()) throw ZeppelinConnectionException(zeppelinSettings.fullUrl)
 
     addNotebooks.foreach(it => {
       zeppelinService.createNotebook(it.name)
@@ -51,7 +54,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   def getDefaultInterpreter: Option[Interpreter] = {
     if (!checkPreconditions()) return None
 
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val notebook = linkedNotebook
     zeppelinService.defaultInterpreter(notebook.id)
   }
 
@@ -133,7 +136,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
 
     ThreadRun.withProgressSynchronouslyTry(s"Restart an $interpreterName interpreter")(_ => {
       val interpreter: Interpreter = getInterpreterByName(interpreterName)
-      val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+      val notebook = linkedNotebook
       zeppelinService.restartInterpreter(interpreter.id, notebook.id)
     })
   }
@@ -177,7 +180,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
         ZeppelinLogger.printMessage("Paragraph is completed")
       }
     }
-    zeppelinService.runCode(code, handler, notebookName)
+    zeppelinService.runCode(code, handler, linkedNotebook)
   }
 
   /**
@@ -187,7 +190,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     */
   def setDefaultInterpreter(interpreterName: String): Unit = {
     val interpreter: Interpreter = getInterpreterByName(interpreterName)
-    val notebook = zeppelinService.getOrCreateNotebook(notebookName)
+    val notebook = linkedNotebook
     zeppelinService.setDefaultInterpreter(notebook.id, interpreter.id)
   }
 
@@ -248,13 +251,13 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     if (zeppelinService.isConnected) return true
     try {
       zeppelinService.close()
-      zeppelinService = ZeppelinAPIService(address, port, user)
+      zeppelinService = ZeppelinAPIService(zeppelinSettings.address, zeppelinSettings.port, zeppelinSettings.user)
       zeppelinService.connect(false)
     }
     catch {
       case _: ZeppelinConnectionException => {
         ZeppelinLogger
-          .printError(s"Connection error. Check that $address:$port is available")
+          .printError(s"Connection error. Check that ${zeppelinSettings.fullUrl} is available")
       }
       case _: ZeppelinLoginException => ZeppelinLogger.printError(s"Authentication error. Check login and password")
     }
@@ -268,7 +271,7 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
     */
   private def checkOpenFile: Boolean = {
     try {
-      notebookName
+      linkedNotebook
       true
     }
     catch {
@@ -289,20 +292,25 @@ class ZeppelinActionService(project: Project, address: String, port: Int, user: 
   }
 
   /**
-    * Get a notebook name for the current file
+    * Get a notebook for the current opened file
     *
-    * @return a name of a file
+    * @return a id of a file
     */
-  private def notebookName: String = {
-    val prefix = s"IdeaRemoteRunPlugin/${project.getName}/"
-    val name = Try(FileEditorManager.getInstance(project).getSelectedEditor.getFile.getName)
-      .getOrElse(throw new NoSelectedFilesException())
-    prefix + name
+  private def linkedNotebook: Notebook = {
+    val file = FileEditorManager.getInstance(project).getSelectedEditor.getFile
+    val psiFile = PsiManager.getInstance(project).findFile(file)
+    val maybeHolder = FileNotebookHolder.getAll.find(_.contains(psiFile))
+    if (maybeHolder.isDefined) {
+      val noteId = maybeHolder.get.notebookId(psiFile)
+      zeppelinService.getNotebookById(noteId).getOrElse(throw NotebookNotFoundException(noteId))
+    } else {
+      zeppelinService.getOrCreateNotebook(zeppelinSettings.defaultNotebookName)
+    }
   }
 }
 
 object ZeppelinActionService {
-  def apply(project: Project, address: String, port: Int, user: Option[User]): ZeppelinActionService = {
-    new ZeppelinActionService(project, address, port, user)
+  def apply(project: Project, zeppelinSettings: ZeppelinSettings): ZeppelinActionService = {
+    new ZeppelinActionService(project, zeppelinSettings)
   }
 }
