@@ -31,10 +31,10 @@ class ZeppelinWorksheetSettingsDialog(psiFile: PsiFile) extends DialogWrapper(ps
 
   override def init(): Unit = {
     super.init()
-    val linkedNotebookId = ZeppelinWorksheetFileSettings.getLinkedNotebookId(psiFile)
     val isSync = ZeppelinWorksheetFileSettings.hasNotebookId(psiFile)
     myPanel.setSyncNotebook(isSync)
     if (isSync) {
+      val linkedNotebookId = ZeppelinWorksheetFileSettings.getLinkedNotebookId(psiFile)
       val zeppelin = ZeppelinComponent.connectionFor(project).service
       val notebook = zeppelin.getNotebookById(linkedNotebookId)
       notebook.foreach(it => {

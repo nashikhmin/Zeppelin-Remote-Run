@@ -40,6 +40,15 @@ public class NotebookBrowserForm extends JDialog {
         return notebooks;
     }
 
+    public void setNotebooks(List<Notebook> notebooks) {
+        int i = notebookList.getSelectedIndex();
+        this.notebooks = notebooks;
+        if (i >= notebooks.size())
+            i = -1;
+        updateModelList();
+        notebookList.setSelectedIndex(i);
+    }
+
     public Notebook getSelectedValue() {
         int index = notebookList.getSelectedIndex();
         return notebooks.get(index);

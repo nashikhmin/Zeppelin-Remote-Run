@@ -7,6 +7,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import jetbrains.zeppelin.idea.settings.notebook.NotebookBrowserDialog;
 import jetbrains.zeppelin.models.Notebook;
 import scala.Option;
+import scala.Tuple2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +30,11 @@ public class ZeppelinWorksheetSettingsForm extends JDialog {
         });
         browseNotebooksButton.addActionListener(e -> {
             NotebookBrowserDialog notebookBrowserDialog = new NotebookBrowserDialog(project, notebook);
-            Option<Notebook> notebookOption = notebookBrowserDialog.openAndGetResult();
+            Tuple2<Object, Option<Notebook>> result = notebookBrowserDialog.openAndGetResult();
+            Boolean isSelected = (Boolean) result._1;
+            if (!isSelected) return;
+            Option<Notebook> notebookOption = result._2;
+
             Notebook notebook = notebookOption.isDefined() ? notebookOption.get() : null;
             setNotebook(notebook);
         });

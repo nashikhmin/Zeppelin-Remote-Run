@@ -29,7 +29,7 @@ class ZeppelinRestApi private(val restApi: RestAPI) {
     }
 
     val id = response.body.parseJson.convertTo[Map[String, String]].getOrElse("body", "")
-    Notebook(id)
+    Notebook(id, newNotebook.name)
   }
 
   /**

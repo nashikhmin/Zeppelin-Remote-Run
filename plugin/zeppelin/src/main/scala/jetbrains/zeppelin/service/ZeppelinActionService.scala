@@ -22,24 +22,6 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     zeppelinSettings.user)
 
   /**
-    * Add and remove notebooks on Zeppelin
-    *
-    * @param addNotebooks    - notebooks that will be added
-    * @param removeNotebooks - noteboks that will be deleted
-    */
-  def addAndDeleteNotebooks(addNotebooks: List[Notebook], removeNotebooks: List[Notebook]): Unit = {
-    if (!checkPreconditions()) throw ZeppelinConnectionException(zeppelinSettings.fullUrl)
-
-    addNotebooks.foreach(it => {
-      zeppelinService.createNotebook(it.name)
-    })
-
-    removeNotebooks.foreach(it => {
-      zeppelinService.deleteNotebook(it)
-    })
-  }
-
-  /**
     * Method that close all connections and free resources
     */
   def destroy(): Unit = {
@@ -240,6 +222,31 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
         }
       }
     }
+  }
+
+  /**
+    * Update a list of notebooks on Zeppelin
+    *
+    * @param newNotebookList - a list of notebooks which must be on Zeppelin.
+    *                        Some notebooks can be without id, they will be created.
+    * @return added notebooks in Zeppelin
+    */
+  def updateNotebooksTo(newNotebookList: List[Notebook]): List[Notebook] = {
+    if (!checkPreconditions()) throw ZeppelinConnectionException(zeppelinSettings.fullUrl)
+
+    val originalNotebooks = zeppelinService.allNotebooks.toSet
+    val notebooksForRemove = originalNotebooks.diff(newNotebookList.toSet)
+    notebooksForRemove.foreach(it => {
+      zeppelinService.deleteNotebook(it)
+    })
+    newNotebookList.map(note => {
+      if (note.id.nonEmpty) {
+        note
+      }
+      else {
+        zeppelinService.createNotebook(note.name)
+      }
+    })
   }
 
   /**
