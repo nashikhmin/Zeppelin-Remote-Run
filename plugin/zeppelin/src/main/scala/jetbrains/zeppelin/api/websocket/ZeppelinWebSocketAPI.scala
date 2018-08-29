@@ -1,5 +1,6 @@
 package jetbrains.zeppelin.api.websocket
 
+import com.intellij.openapi.diagnostic.Logger
 import jetbrains.zeppelin.models
 import jetbrains.zeppelin.models.ZeppelinAPIProtocol._
 import jetbrains.zeppelin.models._
@@ -11,18 +12,27 @@ import spray.json.{JsObject, _}
   * @param webSocketAPI - web socket client
   */
 class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
+  private val LOG = Logger.getInstance(getClass)
+
   {
     List(ResponseCode.PARAGRAPH_ADDED, ResponseCode.PARAS_INFO, ResponseCode.SAVE_NOTE_FORMS, ResponseCode.NOTES_INFO)
       .foreach(code => webSocketAPI.registerHandler(code.toString, (_: ResponseMessage) => Unit))
   }
 
-  def connectionStatus: models.ConnectionStatus.Value = webSocketAPI.status
+  /**
+    * The response web socket codes
+    */
+  object RequestOperations extends Enumeration {
+    type RequestOperations = Value
+    val GET_NOTE, RUN_PARAGRAPH, GET_INTERPRETER_BINDINGS, SAVE_INTERPRETER_BINDINGS = Value
+  }
 
   /**
     * Close the connection
     */
   def close(): Unit = {
     webSocketAPI.close()
+    if (LOG.isTraceEnabled) LOG.trace("Connection is closed")
   }
 
   /**
@@ -30,6 +40,31 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     */
   def connect(): Unit = {
     webSocketAPI.connect()
+    if (LOG.isTraceEnabled) LOG.trace("Connection is opened")
+  }
+
+  def connectionStatus: models.ConnectionStatus.Value = webSocketAPI.status
+
+  /**
+    * Get list of interpreters that are available for the notebooks
+    *
+    * @param noteId      - id of the notebook
+    * @param credentials - an user credentials
+    * @return
+    */
+  def getBindingInterpreters(noteId: String, credentials: Credentials): List[InterpreterBindings] = {
+    val data = Map("noteId" -> noteId)
+    if (LOG.isTraceEnabled) {
+      LOG
+        .trace(s"Start request 'Get bindings interpreters'. Data : $data, crediantials: $credentials.")
+    }
+    val opRequest = RequestOperations.GET_INTERPRETER_BINDINGS.toString
+    val opResponse = ResponseCode.INTERPRETER_BINDINGS.toString
+    val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
+    val response = webSocketAPI.doRequestSync(requestMessage, opResponse).fields
+      .getOrElse("interpreterBindings", JsArray())
+    if (LOG.isTraceEnabled) LOG.trace(s"End of request 'Get bindings interpreters'. Response: $response.")
+    response.convertTo[List[InterpreterBindings]]
   }
 
   /**
@@ -41,28 +76,33 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     */
   def getNote(noteId: String, credentials: Credentials): Notebook = {
     val data = Map("id" -> noteId)
+    if (LOG.isTraceEnabled) LOG.trace(s"Start request 'Get note'. Data : $data, crediantials: $credentials.")
     val opRequest = RequestOperations.GET_NOTE.toString
     val opResponse = ResponseCode.NOTE.toString
     val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
     val response = webSocketAPI.doRequestSync(requestMessage, opResponse).fields.getOrElse("note", JsObject())
+    if (LOG.isTraceEnabled) LOG.trace(s"End of request 'Get note'. Response: $response.")
     response.convertTo[Notebook]
   }
 
   /**
-    * Get list of interpreters that are available for the notebooks
+    * Run the paragraph in the Zeppelin application
     *
-    * @param noteId      - id of the notebook
-    * @param credentials - an user credentials
-    * @return
+    * @param paragraph     - the paragraph, which must be run
+    * @param outputHandler - the handle to get the result of the run
+    * @param credentials   - the credentials of the user
     */
-  def getBindingInterpreters(noteId: String, credentials: Credentials): List[InterpreterBindings] = {
-    val data = Map("noteId" -> noteId)
-    val opRequest = RequestOperations.GET_INTERPRETER_BINDINGS.toString
-    val opResponse = ResponseCode.INTERPRETER_BINDINGS.toString
+  def runParagraph(paragraph: Paragraph, outputHandler: OutputHandler, credentials: Credentials) {
+    import ZeppelinWebSocketProtocol._
+
+    val data = RunParagraphData(paragraph.id, paragraph.text, paragraph.title)
+    if (LOG.isTraceEnabled) LOG.trace(s"Start request 'Run paragraph'. Data : $data, crediantials: $credentials.")
+    val handlers = runParagraphHandlers(outputHandler: OutputHandler)
+
+    val opRequest = RequestOperations.RUN_PARAGRAPH.toString
+
     val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
-    val response = webSocketAPI.doRequestSync(requestMessage, opResponse).fields
-      .getOrElse("interpreterBindings", JsArray())
-    response.convertTo[List[InterpreterBindings]]
+    webSocketAPI.doRequestAsync(requestMessage, handlers.map { case (key, value) => (key.toString, value) })
   }
 
   /**
@@ -77,28 +117,14 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
                                     credentials: Credentials): Unit = {
     val data: Map[String, JsValue] = Map("noteId" -> noteId.toJson,
       "selectedSettingIds" -> newInterpretersBindings.toJson)
+    if (LOG.isTraceEnabled) {
+      LOG
+        .trace(s"Start request 'Save list of binding interpreters'. Data : $data, crediantials: $credentials.")
+    }
+
     val opRequest = RequestOperations.SAVE_INTERPRETER_BINDINGS.toString
     val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
     webSocketAPI.doRequestWithoutWaitingResult(requestMessage)
-  }
-
-  /**
-    * Run the paragraph in the Zeppelin application
-    *
-    * @param paragraph     - the paragraph, which must be run
-    * @param outputHandler - the handle to get the result of the run
-    * @param credentials   - the credentials of the user
-    */
-  def runParagraph(paragraph: Paragraph, outputHandler: OutputHandler, credentials: Credentials) {
-    import ZeppelinWebSocketProtocol._
-
-    val data = RunParagraphData(paragraph.id, paragraph.text, paragraph.title)
-    val handlers = runParagraphHandlers(outputHandler: OutputHandler)
-
-    val opRequest = RequestOperations.RUN_PARAGRAPH.toString
-
-    val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
-    webSocketAPI.doRequestAsync(requestMessage, handlers.map { case (key, value) => (key.toString, value) })
   }
 
   /**
@@ -153,13 +179,6 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     )
   }
 
-  /**
-    * The response web socket codes
-    */
-  object RequestOperations extends Enumeration {
-    type RequestOperations = Value
-    val GET_NOTE, RUN_PARAGRAPH, GET_INTERPRETER_BINDINGS, SAVE_INTERPRETER_BINDINGS = Value
-  }
 }
 
 object ZeppelinWebSocketAPI {

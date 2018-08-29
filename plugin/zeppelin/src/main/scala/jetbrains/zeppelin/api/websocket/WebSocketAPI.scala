@@ -2,6 +2,7 @@ package jetbrains.zeppelin.api.websocket
 
 import java.net.URI
 
+import com.intellij.openapi.diagnostic.Logger
 import jetbrains.zeppelin.api.websocket.WebSocketApiProtocol._
 import jetbrains.zeppelin.models
 import jetbrains.zeppelin.models.ConnectionStatus.ConnectionStatus
@@ -16,6 +17,7 @@ import scala.collection.mutable
 //noinspection LoopVariableNotUpdated,RedundantBlock
 @WebSocket(maxTextMessageSize = 1024 * 1024)
 class WebSocketAPI(uri: String) {
+  private val LOG = Logger.getInstance(getClass)
   private val client: WebSocketClient = new WebSocketClient()
   private val handlersMap: mutable.Map[String, MessageHandler] = mutable.Map()
   private val monitor = AnyRef
@@ -51,6 +53,7 @@ class WebSocketAPI(uri: String) {
   def onMessage(msg: String) {
     val json = msg.parseJson.asJsObject
     val response = json.convertTo[ResponseMessage]
+    if (LOG.isTraceEnabled) LOG.trace(s"The message is handled $response.")
     val operationCode = response.op
     handlersMap.getOrElse(operationCode, defaultHandler).handle(response)
   }
