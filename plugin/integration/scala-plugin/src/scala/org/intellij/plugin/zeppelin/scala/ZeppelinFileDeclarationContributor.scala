@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import jetbrains.zeppelin.components.ZeppelinComponent
-import jetbrains.zeppelin.models.SparkVersion
+import org.intellij.plugin.zeppelin.components.ZeppelinComponent
+import org.intellij.plugin.zeppelin.models.SparkVersion
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory

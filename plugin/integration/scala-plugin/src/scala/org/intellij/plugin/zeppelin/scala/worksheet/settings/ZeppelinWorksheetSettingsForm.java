@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import jetbrains.zeppelin.idea.settings.notebook.NotebookBrowserDialog;
-import jetbrains.zeppelin.models.Notebook;
+import org.intellij.plugin.zeppelin.idea.settings.notebook.NotebookBrowserDialog;
+import org.intellij.plugin.zeppelin.models.Notebook;
 import scala.Option;
 import scala.Tuple2;
 

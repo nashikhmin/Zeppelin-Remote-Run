@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.psi.PsiFile
 import javax.swing.{JComponent, SwingConstants}
-import jetbrains.zeppelin.components.ZeppelinComponent
+import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.scala.constants.ZeppelinScalaConstants
 
 class ZeppelinWorksheetSettingsDialog(psiFile: PsiFile) extends DialogWrapper(psiFile.getProject) {

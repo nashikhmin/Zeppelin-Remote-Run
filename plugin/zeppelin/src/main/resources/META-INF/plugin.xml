@@ -1,6 +1,6 @@
 <!--suppress PluginXmlValidity -->
 <idea-plugin>
-    <id>org.jetbrains.scala.zeppelin</id>
+    <id>org.intellij.plugin.zeppelin</id>
     <name>Zeppelin Remote Run</name>
     <version>0.1</version>
     <vendor email="veoring@gmail.com" url="https://github.com/veor12">Nikita Ashikhmin</vendor>
@@ -31,9 +31,9 @@
         <extensionPoint name="updateInterpreterHandler"
                         interface="jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler"/>
         <extensionPoint name="tableOutputHandler"
-                        interface="jetbrains.zeppelin.service.TableOutputHandler"/>
+                        interface="org.intellij.plugin.zeppelin.service.TableOutputHandler"/>
         <extensionPoint name="fileNotebookHolder"
-                        interface="jetbrains.zeppelin.service.FileNotebookHolder"/>
+                        interface="org.intellij.plugin.zeppelin.service.FileNotebookHolder"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -53,7 +53,7 @@
     </actions>
     <project-components>
         <component>
-            <implementation-class>jetbrains.zeppelin.components.ZeppelinComponent</implementation-class>
+            <implementation-class>org.intellij.plugin.zeppelin.components.ZeppelinComponent</implementation-class>
         </component>
     </project-components>
 </idea-plugin>

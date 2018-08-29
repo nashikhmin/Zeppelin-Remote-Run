@@ -3,7 +3,7 @@ package org.intellij.plugin.zeppelin.scala.runner
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
-import jetbrains.zeppelin.dependency.ImportZeppelinInterpreterDependencies
+import org.intellij.plugin.zeppelin.dependency.ImportZeppelinInterpreterDependencies
 import org.intellij.plugin.zeppelin.scala.worksheet.WorksheetSynchronizer
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetSettingsDialog
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

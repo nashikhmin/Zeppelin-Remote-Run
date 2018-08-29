@@ -16,8 +16,8 @@
 
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin>
-    <extensions defaultExtensionNs="org.jetbrains.scala.zeppelin">
+    <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
         <tableOutputHandler
-                implementation="org.jetbrains.zeppelin.dataviz.DatavizOutputHandler"/>
+                implementation="org.intellij.plugin.zeppelin.dataviz.DatavizOutputHandler"/>
     </extensions>
 </idea-plugin>

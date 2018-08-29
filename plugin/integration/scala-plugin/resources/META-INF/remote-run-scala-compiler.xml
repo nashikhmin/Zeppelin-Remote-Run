@@ -22,7 +22,7 @@
                 implementation="org.intellij.plugin.zeppelin.scala.ZeppelinFileDeclarationContributor"/>
     </extensions>
 
-    <extensions defaultExtensionNs="org.jetbrains.scala.zeppelin">
+    <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
         <updateInterpreterHandler
                 implementation="org.intellij.plugin.zeppelin.scala.WorksheetUpdateInterpreterHandler"/>
         <fileNotebookHolder

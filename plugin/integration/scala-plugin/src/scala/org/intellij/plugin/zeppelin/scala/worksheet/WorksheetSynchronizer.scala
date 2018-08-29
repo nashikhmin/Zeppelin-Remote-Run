@@ -1,8 +1,8 @@
 package org.intellij.plugin.zeppelin.scala.worksheet
 
 import com.intellij.psi.PsiFile
-import jetbrains.zeppelin.components.ZeppelinComponent
-import jetbrains.zeppelin.models.NotebookNotFoundException
+import org.intellij.plugin.zeppelin.components.ZeppelinComponent
+import org.intellij.plugin.zeppelin.models.NotebookNotFoundException
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
 
 /**
