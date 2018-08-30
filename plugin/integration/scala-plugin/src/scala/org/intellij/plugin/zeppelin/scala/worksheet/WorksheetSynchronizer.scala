@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.worksheet.cell.CellManager
   */
 object WorksheetSynchronizer {
   /**
-    * Syncronize worksheet with linked notebook
+    * Synchronize worksheet with linked notebook
     *
     * @param psiFile - a file with worksheet
     * @throws NotebookNotFoundException - if Zeppelin haven't a linked notebook

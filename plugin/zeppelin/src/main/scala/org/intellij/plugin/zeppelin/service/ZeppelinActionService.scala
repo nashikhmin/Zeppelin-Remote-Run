@@ -4,9 +4,11 @@ import java.util.concurrent.Executors
 
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi.PsiManager
 import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.api.websocket.{OutputHandler, OutputResult}
+import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
 import org.intellij.plugin.zeppelin.models.{Interpreter, _}
 import org.intellij.plugin.zeppelin.utils.{ThreadRun, ZeppelinLogger}
@@ -235,7 +237,27 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     if (!checkPreconditions()) throw ZeppelinConnectionException(zeppelinSettings.fullUrl)
 
     val originalNotebooks = zeppelinService.allNotebooks.toSet
+
     val notebooksForRemove = originalNotebooks.diff(newNotebookList.toSet)
+    val notebooksForAdd = newNotebookList.filter(_.id.isEmpty)
+    if (notebooksForAdd.isEmpty && notebooksForRemove.isEmpty) return originalNotebooks.toList
+
+    val confirmationMsg = s"Do you really want to add ${notebooksForAdd.size} " +
+      s"and remove ${notebooksForRemove.size} notebooks?\n"
+    val deletedMsg = "\nThe next notebooks will be deleted:\n" +
+      notebooksForRemove.map(it => it.name).mkString("\n") + "\n"
+    val addedMsg = "\nThe next notebooks will be added:\n" + notebooksForAdd.map(it => it.name).mkString("\n")
+    val msg = confirmationMsg +
+      (if (notebooksForRemove.nonEmpty) deletedMsg else "") +
+      (if (notebooksForAdd.nonEmpty) addedMsg else "")
+
+    val exitCode = Messages.showYesNoDialog(
+      project,
+      msg,
+      ZeppelinConstants.NOTEBOOK_BROWSER_CHANGE_CONFIRMATION_TITLE,
+      Messages.getQuestionIcon)
+    if (exitCode != DialogWrapper.OK_EXIT_CODE) return originalNotebooks.toList
+
     notebooksForRemove.foreach(it => {
       zeppelinService.deleteNotebook(it)
     })

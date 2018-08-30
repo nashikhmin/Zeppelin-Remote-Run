@@ -23,4 +23,6 @@ object ZeppelinConstants {
   val DEFAULT_NOTEBOOK_NAME = "IDEA_Plugin/default"
 
   val PLUGIN_ID = "org.intellij.plugin.zeppelin"
+
+  val NOTEBOOK_BROWSER_CHANGE_CONFIRMATION_TITLE = "Change notebooks confirmations"
 }
