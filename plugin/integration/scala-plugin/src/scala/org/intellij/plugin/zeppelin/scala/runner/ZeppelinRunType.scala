@@ -27,7 +27,7 @@ class ZeppelinRunType extends WorksheetExternalRunType {
 
   override def isUsesCell: Boolean = true
 
-  override def onSettingsConfirmed(file: PsiFile, isGlobal: Boolean): Unit = {
+  override def onSettingsConfirmed(file: PsiFile): Unit = {
     ImportZeppelinInterpreterDependencies(file.getProject).invoke()
     WorksheetSynchronizer.synchronize(file)
   }
