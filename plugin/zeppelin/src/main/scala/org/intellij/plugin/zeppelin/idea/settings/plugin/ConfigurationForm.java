@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.settings.plugin;
+package org.intellij.plugin.zeppelin.idea.settings.plugin;
 
 import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
@@ -164,8 +164,9 @@ public class ConfigurationForm implements SearchableConfigurable {
         newZeppelinSettings.setAddress(addressField.getText());
         newZeppelinSettings.setPort(Integer.valueOf(portField.getText()));
         newZeppelinSettings.setIsAnonymous(anonymousCheckBox.isSelected());
-        newZeppelinSettings.setLogin(usernameField.getText());
-        newZeppelinSettings.setPassword(String.valueOf(passwordField.getPassword()));
+        String login = usernameField.getText();
+        String password = String.valueOf(passwordField.getPassword());
+        newZeppelinSettings.setCredentials(login, password);
         newZeppelinSettings.setDefaultNotebookName(String.valueOf(defaultNotebookField.getText()));
         return newZeppelinSettings;
     }

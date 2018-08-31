@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.wizard
+package org.intellij.plugin.zeppelin.idea.wizard
 
 import com.intellij.platform.ProjectTemplate
 import javax.swing.Icon

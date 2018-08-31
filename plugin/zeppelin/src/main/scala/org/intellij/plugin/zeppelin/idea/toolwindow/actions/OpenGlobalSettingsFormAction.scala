@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.toolwindow.actions
+package org.intellij.plugin.zeppelin.idea.toolwindow.actions
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent

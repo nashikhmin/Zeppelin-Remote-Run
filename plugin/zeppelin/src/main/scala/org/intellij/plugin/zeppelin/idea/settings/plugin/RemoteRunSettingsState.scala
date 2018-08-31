@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.settings.plugin
+package org.intellij.plugin.zeppelin.idea.settings.plugin
 
 import com.intellij.util.xmlb.annotations.{Attribute, Property}
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
@@ -37,20 +37,21 @@ class ZeppelinSettings {
   @Attribute("IsAnonymous")
   var isAnonymous: Boolean = false
 
+  def fullUrl: String = s"$address:$port"
+
   def setAddress(value: String): Unit = {
     address = value
   }
 
+
+  def setCredentials(login: String, password: String): Unit = ZeppelinCredentialsManager.setCredentials(login, password)
+
+  def setDefaultNotebookName(value: String): Unit = {
+    defaultNotebookName = value
+  }
+
   def setIsAnonymous(value: Boolean): Unit = {
     isAnonymous = value
-  }
-
-  def setLogin(value: String): Unit = {
-    login = value
-  }
-
-  def setPassword(value: String): Unit = {
-    password = value
   }
 
   def setPort(value: Int): Unit = {
@@ -61,16 +62,13 @@ class ZeppelinSettings {
     sparkVersion = value
   }
 
-  def setDefaultNotebookName(value: String): Unit = {
-    defaultNotebookName = value
-  }
-
   def user: Option[User] = {
     if (isAnonymous) return None
+    ZeppelinCredentialsManager.setCredentials("mama", "papa")
+    val login = ZeppelinCredentialsManager.getLogin
+    val password = ZeppelinCredentialsManager.getPlainPassword
     Some(User(login, password))
   }
-
-  def fullUrl: String = s"$address:$password"
 }
 
 object ZeppelinSettings {

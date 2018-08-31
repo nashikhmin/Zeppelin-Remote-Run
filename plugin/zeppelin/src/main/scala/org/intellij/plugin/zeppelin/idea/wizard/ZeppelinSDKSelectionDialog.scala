@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.wizard
+package org.intellij.plugin.zeppelin.idea.wizard
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages.showErrorDialog

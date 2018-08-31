@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.toolwindow
+package org.intellij.plugin.zeppelin.idea.toolwindow
 
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.fileEditor._
@@ -7,10 +7,8 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
-import jetbrains.zeppelin.idea.toolwindow.actions._
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
-import org.intellij.plugin.zeppelin.idea.toolwindow.ZeppelinConsole
-import org.intellij.plugin.zeppelin.idea.toolwindow.actions.RunCodeAction
+import org.intellij.plugin.zeppelin.idea.toolwindow.actions.{RunCodeAction, _}
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
 
 /**

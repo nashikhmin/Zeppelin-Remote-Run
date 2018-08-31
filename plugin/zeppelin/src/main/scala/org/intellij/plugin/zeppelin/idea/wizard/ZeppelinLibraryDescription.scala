@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.wizard
+package org.intellij.plugin.zeppelin.idea.wizard
 
 import java.util
 
@@ -8,8 +8,8 @@ import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescri
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.JComponent
-import jetbrains.zeppelin.idea.wizard.ZeppelinLibraryDescription._
 import org.intellij.plugin.zeppelin.dependency.LibraryDescriptor
+import org.intellij.plugin.zeppelin.idea.wizard.ZeppelinLibraryDescription._
 
 /**
   * Object which implements methods that add required libraries in Zeppelin module

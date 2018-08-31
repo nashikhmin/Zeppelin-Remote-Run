@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.settings.interpreter
+package org.intellij.plugin.zeppelin.idea.settings.interpreter
 
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.project.Project

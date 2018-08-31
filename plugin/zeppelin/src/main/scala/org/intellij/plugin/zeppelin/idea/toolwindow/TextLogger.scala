@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.toolwindow
+package org.intellij.plugin.zeppelin.idea.toolwindow
 
 import org.intellij.plugin.zeppelin.utils.ZeppelinOutput
 

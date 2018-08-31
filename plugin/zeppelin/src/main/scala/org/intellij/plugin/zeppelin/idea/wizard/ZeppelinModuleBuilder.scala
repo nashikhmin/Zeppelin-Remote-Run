@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.wizard
+package org.intellij.plugin.zeppelin.idea.wizard
 
 import com.intellij.ide.util.projectWizard._
 import com.intellij.openapi.module.ModuleType

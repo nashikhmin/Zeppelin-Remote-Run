@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.toolwindow
+package org.intellij.plugin.zeppelin.idea.toolwindow
 
 import java.awt.event.{ActionEvent, MouseAdapter, MouseEvent}
 
@@ -6,8 +6,8 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.{JBList, JBScrollPane}
 import javax.swing.{JComponent, JMenuItem, JPopupMenu, SwingUtilities}
-import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
+import org.intellij.plugin.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 
 /**
   * Console that handle all zeppelin messages

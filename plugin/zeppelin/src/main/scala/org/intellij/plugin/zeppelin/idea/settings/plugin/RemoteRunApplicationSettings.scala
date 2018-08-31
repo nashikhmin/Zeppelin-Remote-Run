@@ -1,11 +1,11 @@
-package jetbrains.zeppelin.settings
+package org.intellij.plugin.zeppelin.settings
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager, State, Storage}
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.XmlSerializerUtil
-import jetbrains.zeppelin.idea.settings.plugin.{RemoteRunSettingsState, ZeppelinHolder, ZeppelinSettings}
+import org.intellij.plugin.zeppelin.idea.settings.plugin.{RemoteRunSettingsState, ZeppelinHolder, ZeppelinSettings}
 
 @State(
   name = "RemoteRunSettings",

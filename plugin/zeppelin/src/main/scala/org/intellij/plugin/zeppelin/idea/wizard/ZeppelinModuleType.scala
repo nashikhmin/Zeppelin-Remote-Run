@@ -1,11 +1,11 @@
-package jetbrains.zeppelin.idea.wizard
+package org.intellij.plugin.zeppelin.idea.wizard
 
 
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModuleType, ModuleTypeManager}
 import javax.swing.Icon
-import jetbrains.zeppelin.idea.wizard.ZeppelinModuleType._
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
+import org.intellij.plugin.zeppelin.idea.wizard.ZeppelinModuleType._
 
 class ZeppelinModuleType extends JavaModuleType(Id) {
   override def getDescription: String = ZeppelinConstants.MODULE_DESCRIPTION
@@ -21,5 +21,6 @@ object ZeppelinModuleType {
   def getModuleType: ModuleType[_ <: ModuleBuilder] = ModuleTypeManager.getInstance.findByID(Id)
 
   val instance: ZeppelinModuleType =
-    Class.forName("jetbrains.zeppelin.idea.wizard.ZeppelinModuleType").newInstance.asInstanceOf[ZeppelinModuleType]
+    Class.forName("org.intellij.plugin.zeppelin.idea.wizard.ZeppelinModuleType").newInstance
+      .asInstanceOf[ZeppelinModuleType]
 }

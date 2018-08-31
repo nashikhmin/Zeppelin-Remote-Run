@@ -3,13 +3,12 @@ package org.intellij.plugin.zeppelin.components
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
-import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
-import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
-import jetbrains.zeppelin.idea.toolwindow.{InterpretersView, ZeppelinToolWindowFactory}
-import jetbrains.zeppelin.settings.RemoteRunApplicationSettings
-import org.intellij.plugin.zeppelin.idea.toolwindow.ZeppelinConsole
-import org.intellij.plugin.zeppelin.models.{SparkVersion, User}
+import org.intellij.plugin.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
+import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
+import org.intellij.plugin.zeppelin.idea.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
+import org.intellij.plugin.zeppelin.models.SparkVersion
 import org.intellij.plugin.zeppelin.service.ZeppelinActionService
+import org.intellij.plugin.zeppelin.settings.RemoteRunApplicationSettings
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
 
 /**
@@ -58,7 +57,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     val zeppelinSettings = getZeppelinSettings
     sparkVersion = SparkVersion(zeppelinSettings.sparkVersion)
     defaultNotebook = zeppelinSettings.defaultNotebookName
-    val user = if (zeppelinSettings.isAnonymous) None else Some(User(zeppelinSettings.login, zeppelinSettings.password))
+    val user = zeppelinSettings.user
     zeppelinActionService = Some(ZeppelinActionService(project, zeppelinSettings))
     zeppelinActionService.get
   }

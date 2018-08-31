@@ -3,7 +3,7 @@ package org.intellij.plugin.zeppelin.scala
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
+import org.intellij.plugin.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 
 /**
   * A handler which handle updating of interpreters in worksheet

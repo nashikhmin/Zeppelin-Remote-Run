@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.toolwindow.actions
+package org.intellij.plugin.zeppelin.idea.toolwindow.actions
 
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.icons.AllIcons

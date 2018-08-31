@@ -3,7 +3,7 @@ package org.intellij.plugin.zeppelin.dependency
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
-import jetbrains.zeppelin.idea.wizard.ZeppelinLibraryDescription.LIBRARY_CAPTION
+import org.intellij.plugin.zeppelin.idea.wizard.ZeppelinLibraryDescription.LIBRARY_CAPTION
 
 case class LibraryDescriptor(version: String,
                              classes: List[String],

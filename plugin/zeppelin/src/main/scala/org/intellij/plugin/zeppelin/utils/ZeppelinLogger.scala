@@ -1,6 +1,6 @@
 package org.intellij.plugin.zeppelin.utils
 
-import jetbrains.zeppelin.idea.toolwindow.TextLogger
+import org.intellij.plugin.zeppelin.idea.toolwindow.TextLogger
 
 
 object ZeppelinLogger {

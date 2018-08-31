@@ -1,4 +1,4 @@
-package jetbrains.zeppelin.idea.common;
+package org.intellij.plugin.zeppelin.idea.common;
 
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.uiDesigner.core.GridConstraints;

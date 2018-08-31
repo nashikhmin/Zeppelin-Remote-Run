@@ -5,9 +5,9 @@ import com.intellij.openapi.fileEditor.{FileEditorManagerEvent, FileEditorManage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import jetbrains.zeppelin.idea.wizard.ZeppelinModuleUtils
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.dependency.ImportZeppelinInterpreterDependencies
+import org.intellij.plugin.zeppelin.idea.wizard.ZeppelinModuleUtils
 import org.intellij.plugin.zeppelin.models.Interpreter
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
 

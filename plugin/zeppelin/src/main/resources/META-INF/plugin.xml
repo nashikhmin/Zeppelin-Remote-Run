@@ -29,7 +29,7 @@
 
     <extensionPoints>
         <extensionPoint name="updateInterpreterHandler"
-                        interface="jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler"/>
+                        interface="org.intellij.plugin.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler"/>
         <extensionPoint name="tableOutputHandler"
                         interface="org.intellij.plugin.zeppelin.service.TableOutputHandler"/>
         <extensionPoint name="fileNotebookHolder"
@@ -37,16 +37,19 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="com.intellij">
-        <moduleType id="ZEPPELIN_MODULE" implementationClass="jetbrains.zeppelin.idea.wizard.ZeppelinModuleType"/>
-        <projectTemplatesFactory implementation="jetbrains.zeppelin.idea.wizard.ZeppelinProjectTemplatesFactory"/>
-        <projectConfigurable groupId="language" instance="jetbrains.zeppelin.idea.settings.plugin.ConfigurationForm"
+        <moduleType id="ZEPPELIN_MODULE"
+                    implementationClass="org.intellij.plugin.zeppelin.idea.wizard.ZeppelinModuleType"/>
+        <projectTemplatesFactory
+                implementation="org.intellij.plugin.zeppelin.idea.wizard.ZeppelinProjectTemplatesFactory"/>
+        <projectConfigurable groupId="language"
+                             instance="org.intellij.plugin.zeppelin.idea.settings.plugin.ConfigurationForm"
                              id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
                              nonDefaultProject="true"/>
         <toolWindow id="zeppelin-shell-toolwindow" anchor="bottom"
                     icon="/images/ZeppelinLogo.png"
-                    factoryClass="jetbrains.zeppelin.idea.toolwindow.ZeppelinToolWindowFactory"/>
+                    factoryClass="org.intellij.plugin.zeppelin.idea.toolwindow.ZeppelinToolWindowFactory"/>
 
-        <projectService serviceImplementation="jetbrains.zeppelin.settings.RemoteRunApplicationSettings"/>
+        <projectService serviceImplementation="org.intellij.plugin.zeppelin.settings.RemoteRunApplicationSettings"/>
     </extensions>
 
     <actions>

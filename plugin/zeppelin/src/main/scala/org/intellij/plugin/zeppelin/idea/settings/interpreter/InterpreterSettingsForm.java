@@ -4,8 +4,8 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import jetbrains.zeppelin.idea.common.AddStringValueButton;
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants;
+import org.intellij.plugin.zeppelin.idea.common.AddStringValueButton;
 import org.intellij.plugin.zeppelin.models.InterpreterOption;
 
 import javax.swing.*;

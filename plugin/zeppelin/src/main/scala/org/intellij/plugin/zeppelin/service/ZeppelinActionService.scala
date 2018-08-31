@@ -6,10 +6,10 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi.PsiManager
-import jetbrains.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
+import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.models.{Interpreter, _}
 import org.intellij.plugin.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 

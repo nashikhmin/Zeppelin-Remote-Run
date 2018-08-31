@@ -3,7 +3,6 @@ package org.intellij.plugin.zeppelin.idea.settings.interpreter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import javax.swing.{JComponent, SwingConstants}
-import jetbrains.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.models.{Dependency, InstantiationType, Interpreter, InterpreterOption}
 
