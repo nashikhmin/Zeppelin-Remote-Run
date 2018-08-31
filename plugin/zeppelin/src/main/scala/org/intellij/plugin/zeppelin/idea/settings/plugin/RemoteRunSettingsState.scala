@@ -8,7 +8,11 @@ case class RemoteRunSettingsState() {
   @Property(surroundWithTag = false) var zeppelinSettings: ZeppelinSettings = ZeppelinSettings()
 }
 
+//noinspection ScalaUnusedSymbol
 class ZeppelinSettings {
+  var login: String = ZeppelinCredentialsManager.getLogin
+  var password: String = ZeppelinCredentialsManager.getPlainPassword
+
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("defaultName")
   var defaultNotebookName: String = ZeppelinConstants.DEFAULT_NOTEBOOK_NAME
@@ -20,19 +24,9 @@ class ZeppelinSettings {
   @SuppressWarnings(Array("Address"))
   @Attribute("UriEnabled")
   var address: String = "localhost"
-
-  @SuppressWarnings(Array("FieldMayBeFinal"))
-  @Attribute("Login")
-  var login: String = "admin"
-
-  @SuppressWarnings(Array("FieldMayBeFinal"))
-  @Attribute("Password")
-  var password: String = "password"
-
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("Port")
   var port: Int = 8080
-
   @SuppressWarnings(Array("FieldMayBeFinal"))
   @Attribute("IsAnonymous")
   var isAnonymous: Boolean = false
@@ -44,7 +38,10 @@ class ZeppelinSettings {
   }
 
 
-  def setCredentials(login: String, password: String): Unit = ZeppelinCredentialsManager.setCredentials(login, password)
+  def setCredentials(login: String, password: String): Unit = {
+    this.login = login
+    this.password = password
+  }
 
   def setDefaultNotebookName(value: String): Unit = {
     defaultNotebookName = value
@@ -64,7 +61,6 @@ class ZeppelinSettings {
 
   def user: Option[User] = {
     if (isAnonymous) return None
-    ZeppelinCredentialsManager.setCredentials("mama", "papa")
     val login = ZeppelinCredentialsManager.getLogin
     val password = ZeppelinCredentialsManager.getPlainPassword
     Some(User(login, password))

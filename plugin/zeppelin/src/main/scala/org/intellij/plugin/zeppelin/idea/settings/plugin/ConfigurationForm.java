@@ -41,9 +41,7 @@ public class ConfigurationForm implements SearchableConfigurable {
         final ZeppelinComponent connection = ZeppelinComponent$.MODULE$.connectionFor(myProject);
 
         ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
-        if (isModified()) {
-            connection.updateSettings(newZeppelinSettings);
-        }
+        connection.updateSettings(newZeppelinSettings);
     }
 
     @Override
@@ -70,12 +68,7 @@ public class ConfigurationForm implements SearchableConfigurable {
 
     @Override
     public boolean isModified() {
-        final ZeppelinComponent connection = ZeppelinComponent$.MODULE$.connectionFor(myProject);
-
-        final ZeppelinSettings zeppelinSettings = connection.getZeppelinSettings();
-        final ZeppelinSettings newZeppelinSettings = getZeppelinSettingsFromForm();
-
-        return !zeppelinSettings.equals(newZeppelinSettings);
+        return true;
     }
 
     {
@@ -164,10 +157,11 @@ public class ConfigurationForm implements SearchableConfigurable {
         newZeppelinSettings.setAddress(addressField.getText());
         newZeppelinSettings.setPort(Integer.valueOf(portField.getText()));
         newZeppelinSettings.setIsAnonymous(anonymousCheckBox.isSelected());
+        newZeppelinSettings.setDefaultNotebookName(String.valueOf(defaultNotebookField.getText()));
+
         String login = usernameField.getText();
         String password = String.valueOf(passwordField.getPassword());
         newZeppelinSettings.setCredentials(login, password);
-        newZeppelinSettings.setDefaultNotebookName(String.valueOf(defaultNotebookField.getText()));
         return newZeppelinSettings;
     }
 

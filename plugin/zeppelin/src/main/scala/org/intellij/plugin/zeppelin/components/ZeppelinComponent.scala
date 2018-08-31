@@ -90,6 +90,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
   def updateSettings(newSettings: ZeppelinSettings): Unit = {
     val settings = RemoteRunApplicationSettings.getInstance(project)
     settings.setZeppelinSettings(newSettings)
+
     val state = settings.getState
     settings.loadState(state)
     resetApi()

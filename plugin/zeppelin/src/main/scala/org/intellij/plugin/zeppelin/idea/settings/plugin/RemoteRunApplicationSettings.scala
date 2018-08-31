@@ -5,7 +5,7 @@ import com.intellij.openapi.components.{PersistentStateComponent, ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.XmlSerializerUtil
-import org.intellij.plugin.zeppelin.idea.settings.plugin.{RemoteRunSettingsState, ZeppelinHolder, ZeppelinSettings}
+import org.intellij.plugin.zeppelin.idea.settings.plugin.{RemoteRunSettingsState, ZeppelinCredentialsManager, ZeppelinHolder, ZeppelinSettings}
 
 @State(
   name = "RemoteRunSettings",
@@ -36,6 +36,7 @@ class RemoteRunApplicationSettings(project: Project) extends PersistentStateComp
     ApplicationManager.getApplication.getMessageBus.syncPublisher(SettingsChangedListener.TOPIC)
       .beforeSettingsChanged(this)
     state.zeppelinSettings = settings
+    ZeppelinCredentialsManager.setCredentials(settings.login, settings.password)
   }
 }
 
