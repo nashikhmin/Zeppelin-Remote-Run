@@ -25,4 +25,9 @@ object ZeppelinConstants {
   val PLUGIN_ID = "org.intellij.plugin.zeppelin"
 
   val NOTEBOOK_BROWSER_CHANGE_CONFIRMATION_TITLE = "Change notebooks confirmations"
+
+  val PARAGRAPH_RUNNED: String = "--------RUN PARAGRAPH--------\n" +
+    "Code:%s\nOutput:\n"
+  val PARAGRAPH_COMPLETED = "-----PARAGRAPH COMPLETED-----\n"
+  val PARAGRAPH_ERROR = "-------PARAGRAPH ERROR-------\n"
 }

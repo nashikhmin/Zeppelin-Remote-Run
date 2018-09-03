@@ -138,10 +138,10 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
       return
     }
 
-    ZeppelinLogger.printMessage(s"Run paragraph with text: $code")
+    ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_RUNNED.format(code))
     val handler = new OutputHandler {
       override def onError(result: ExecutionResults = ExecutionResults()): Unit = {
-        ZeppelinLogger.printError("Error during execution of a paragraph")
+        ZeppelinLogger.printError(ZeppelinConstants.PARAGRAPH_ERROR)
         result.msg.foreach(it => ZeppelinLogger.printError(it.data))
 
       }
@@ -161,7 +161,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
             case _ => Unit
           }
         })
-        ZeppelinLogger.printMessage("Paragraph is completed")
+        ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_COMPLETED)
       }
     }
     zeppelinService.runCode(code, handler, linkedNotebook)

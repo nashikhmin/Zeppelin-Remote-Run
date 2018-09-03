@@ -17,8 +17,9 @@ public class DatavizOutputHandler implements TableOutputHandler {
                 dataProvider.removeData(id);
             }
             dataProvider.addData(id, name, msg, '\t');
+            ZeppelinLogger.printMessage(Constants.PLOTTING_SUCCESS());
         } catch (Exception e) {
-            ZeppelinLogger.printError("Cannot perform show table in dataviz plugin");
+            ZeppelinLogger.printError(Constants.PLOTTING_ERROR());
         }
     }
 }
