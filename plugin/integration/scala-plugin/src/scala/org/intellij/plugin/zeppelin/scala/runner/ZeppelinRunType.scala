@@ -4,7 +4,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import org.intellij.plugin.zeppelin.dependency.ImportZeppelinInterpreterDependencies
-import org.intellij.plugin.zeppelin.scala.worksheet.WorksheetSynchronizer
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetSettingsDialog
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.cell.CellDescriptor
@@ -12,7 +11,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 /**
-  * Zeppelin Worksheet Run Type
+  * Zeppelin Worksheet Run Type extension
   */
 class ZeppelinRunType extends WorksheetExternalRunType {
   override def createPrinter(editor: Editor, file: ScalaFile): Option[WorksheetEditorPrinter] = None
@@ -29,7 +28,7 @@ class ZeppelinRunType extends WorksheetExternalRunType {
 
   override def onSettingsConfirmed(file: PsiFile): Unit = {
     ImportZeppelinInterpreterDependencies(file.getProject).invoke()
-    WorksheetSynchronizer.synchronize(file)
+    //WorksheetSynchronizer.synchronize(file)
   }
 
   override def showAdditionalSettingsPanel(): Option[PsiFile => Unit] = {
