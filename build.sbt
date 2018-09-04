@@ -5,7 +5,7 @@ ideaPluginName in ThisBuild := "RemoteRun"
 ideaBuild := Versions.ideaVersion
 
 val dataVizPlugin = IdeaPlugin.Zip("DataViz", url("file:///home/nashikhmin/Downloads/Data-Vis-1.0-SNAPSHOT.zip"))
-val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.770.zip"))
+val scalaPlugin = IdeaPlugin.Zip("Scala", url("file:///home/nashikhmin/Downloads/scala-intellij-bin-2018.2.806.zip"))
 
 ideaExternalPlugins += scalaPlugin
 ideaExternalPlugins += dataVizPlugin
