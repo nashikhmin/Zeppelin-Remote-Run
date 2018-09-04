@@ -19,10 +19,10 @@ class ImportZeppelinInterpreterDependencies(project: Project) {
     if (module == null) return
     val task = new Task.Backgroundable(project, "Adding interpreter dependencies", false) {
       override def run(indicator: ProgressIndicator): Unit = {
-        indicator.setText("Zeppelin: loading list of user dependencies...")
+        indicator.setText("Loading list of user dependencies...")
         val jars: List[String] = getInterpreterUserDependenciesList
 
-        indicator.setText("Zeppelin: downloading the dependencies from remote repo...")
+        indicator.setText("Downloading the dependencies from remote repo...")
         ThreadRun.invokeLater {
           ThreadRun.inWriteAction {
             ZeppelinDependenciesManager.importUserInterpreterLibrary(module, jars)
@@ -35,11 +35,12 @@ class ImportZeppelinInterpreterDependencies(project: Project) {
     )
   }
 
-  private def getInterpreterUserDependenciesList = {
+  private def getInterpreterUserDependenciesList: List[String] = {
     val connection = ZeppelinComponent.connectionFor(project)
     val service = connection.service
-    val interpreter = service.getDefaultInterpreter.get
-    val jars = interpreter.dependencies.map(_.groupArtifactVersion)
+    val interpreter = service.getDefaultInterpreter
+    if (interpreter.isEmpty) return List()
+    val jars = interpreter.get.dependencies.map(_.groupArtifactVersion)
     jars
   }
 }

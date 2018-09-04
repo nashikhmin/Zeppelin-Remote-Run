@@ -3,6 +3,8 @@ package org.intellij.plugin.zeppelin
 import java.util.concurrent.Executors
 
 import org.scalatest.{FunSuite, Matchers}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 abstract class AbstractScalaTest extends FunSuite with Matchers {
   private val DEFAULT_MAX_EXECUTION_TIME = 5
 
