@@ -3,6 +3,7 @@ package org.intellij.plugin.zeppelin.components
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
+import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.idea.toolwindow.{InterpretersView, ZeppelinConsole, ZeppelinToolWindowFactory}
@@ -52,6 +53,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     * @return new action service
     */
   def resetApi(): ZeppelinActionService = {
+    ZeppelinLogger.printMessage(ZeppelinConstants.RESTART_CONNECTION)
     zeppelinActionService.foreach(_.destroy())
 
     val zeppelinSettings = getZeppelinSettings

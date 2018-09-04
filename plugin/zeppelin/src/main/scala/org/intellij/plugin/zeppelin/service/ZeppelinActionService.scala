@@ -300,8 +300,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     */
   private def checkOpenFile: Boolean = {
     try {
-      linkedNotebook
-      true
+      FileEditorManager.getInstance(project).getSelectedEditor != null
     }
     catch {
       case _: NoSelectedFilesException => {
@@ -326,7 +325,9 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     * @return a id of a file
     */
   private def linkedNotebook: Notebook = {
-    val file = FileEditorManager.getInstance(project).getSelectedEditor.getFile
+    val editor = FileEditorManager.getInstance(project).getSelectedEditor
+    if (editor == null) return zeppelinService.getOrCreateNotebook(zeppelinSettings.defaultNotebookName)
+    val file = editor.getFile
     val psiFile: PsiFile = ThreadRun.inReadAction(PsiManager.getInstance(project).findFile(file))
     val maybeHolder = FileNotebookHolder.getAll.find(_.contains(psiFile))
     if (maybeHolder.isDefined) {
@@ -340,6 +341,8 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
 
 object ZeppelinActionService {
   def apply(project: Project, zeppelinSettings: ZeppelinSettings): ZeppelinActionService = {
-    new ZeppelinActionService(project, zeppelinSettings)
+    val service = new ZeppelinActionService(project, zeppelinSettings)
+    service.checkConnection
+    service
   }
 }

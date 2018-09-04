@@ -36,7 +36,7 @@ class ZeppelinModuleSettingStep(moduleBuilder: ModuleBuilder, settingsStep: Sett
   override def getComponent: JComponent = {
     if (panel == null) {
       panel = new JPanel(new VerticalLayout(0))
-      panel.setBorder(IdeBorderFactory.createTitledBorder("Zeppelin version"))
+      panel.setBorder(IdeBorderFactory.createTitledBorder("Zeppelin settings"))
       panel.add(getLibraryPanel.getMainPanel)
     }
     panel

@@ -15,9 +15,8 @@ import org.intellij.plugin.zeppelin.idea.wizard.ZeppelinLibraryDescription._
   * Object which implements methods that add required libraries in Zeppelin module
   */
 class ZeppelinLibraryDescription(project: Project) extends CustomLibraryDescription {
-
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile): NewLibraryConfiguration = {
-    val dialog = new ZeppelinSDKSelectionDialog(parentComponent, project)
+    val dialog = new ZeppelinSDKSelectionDialog(parentComponent)
     val description = Option[LibraryDescriptor](dialog.open())
     description.map(_.createNewLibraryConfiguration).orNull
   }

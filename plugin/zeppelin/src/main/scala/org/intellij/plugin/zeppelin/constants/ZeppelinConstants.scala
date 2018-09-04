@@ -29,5 +29,6 @@ object ZeppelinConstants {
   val PARAGRAPH_RUNNED: String = "--------RUN PARAGRAPH--------\n" +
     "Code:%s\nOutput:\n"
   val PARAGRAPH_COMPLETED = "-----PARAGRAPH COMPLETED-----\n"
-  val PARAGRAPH_ERROR = "-------PARAGRAPH ERROR-------\n"
+  val PARAGRAPH_ERROR =     "-------PARAGRAPH ERROR-------\n"
+  val RESTART_CONNECTION =  "-----------------------------\nRestart connection to Zeppelin..."
 }
