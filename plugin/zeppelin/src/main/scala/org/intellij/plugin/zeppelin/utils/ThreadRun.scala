@@ -1,10 +1,11 @@
 package org.intellij.plugin.zeppelin.utils
 
-import java.util.concurrent.{Executors, TimeUnit}
+import java.util.concurrent.{Callable, Executors, TimeUnit}
 
 import com.intellij.openapi.application.{Application, ApplicationManager}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
+import com.intellij.util.Processor
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
@@ -13,6 +14,19 @@ import scala.util.{Failure, Success, Try}
 
 object ThreadRun {
   private val DEFAULT_MAX_EXECUTION_TIME = 120
+
+  import scala.language.implicitConversions
+
+  implicit def toIdeaFunction[A, B](f: Function[A, B]): com.intellij.util.Function[A, B] = (param: A) => f(param)
+
+  implicit def toProcessor[T](action: T => Boolean): Processor[T] = (t: T) => action(t)
+
+  implicit def toRunnable(action: => Any): Runnable = () => action
+
+  implicit def toComputable[T](action: => T): Computable[T] = () => action
+
+  implicit def toCallable[T](action: => T): Callable[T] = () => action
+
 
   def inWriteAction[T](body: => T): T = {
     val application: Application = ApplicationManager.getApplication
@@ -26,6 +40,11 @@ object ThreadRun {
         }
       )
     }
+  }
+
+  def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {
+    case application if application.isReadAccessAllowed => body
+    case application => application.runReadAction(body)
   }
 
   def invokeLater[T](body: => T): Unit = {

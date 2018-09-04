@@ -1,5 +1,6 @@
 package org.intellij.plugin.zeppelin.dependency
 
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.roots.libraries.LibraryTable
 import com.intellij.openapi.roots.{ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFileManager}
@@ -15,15 +16,21 @@ object ZeppelinDependenciesManager {
   /**
     * Get default Zeppelin dependencies
     *
-    * @param zeppelinVersion - a version of Zeppelin
+    * @param zeppelinVersion   - a version of Zeppelin
+    * @param progressIndicator - an indicator of downloading progress
     * @return a library descriptor with a default Zeppelin dependencies
     */
-  def getZeppelinSdkDescriptor(zeppelinVersion: String, sparkVersion: SparkVersion): LibraryDescriptor = {
+  def getZeppelinSdkDescriptor(zeppelinVersion: String,
+                               sparkVersion: SparkVersion,
+                               progressIndicator: ProgressIndicator): LibraryDescriptor = {
     if (zeppelinVersion != "0.8.0") throw new Exception("This version of Zeppelin is not supported")
 
     val version = ZeppelinDependenciesVersions("2.11", sparkVersion.versionString)
 
+    progressIndicator.setText("Get list of dependencies...")
     val dependencies = DefaultZeppelinDependencies.getDefaultZeppelinDependencies(version)
+
+    progressIndicator.setText("Downloading dependencies...")
     val downloadedJars = Downloader.downloadDependencies(dependencies)
     val urls = downloadedJars.map(it => constructUrlString(it))
     LibraryDescriptor(zeppelinVersion, classes = urls)

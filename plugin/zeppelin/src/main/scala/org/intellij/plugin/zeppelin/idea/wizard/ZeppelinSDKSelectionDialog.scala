@@ -1,5 +1,6 @@
 package org.intellij.plugin.zeppelin.idea.wizard
 
+import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages.showErrorDialog
 import javax.swing.JComponent
@@ -15,8 +16,9 @@ class ZeppelinSDKSelectionDialog(parent: JComponent, project: Project) extends Z
     val sparkVersion = ZeppelinComponent.connectionFor(project).sparkVersion
 
     val result: Try[LibraryDescriptor] = ThreadRun
-      .withProgressSynchronouslyTry(s"Downloading Zeppelin Dependencies...") { _ => {
-        ZeppelinDependenciesManager.getZeppelinSdkDescriptor(selectedZeppelinVersion, sparkVersion)
+      .withProgressSynchronouslyTry(s"Downloading Zeppelin Dependencies...") { it => {
+        val indicator: ProgressIndicator = it.getProgressIndicator
+        ZeppelinDependenciesManager.getZeppelinSdkDescriptor(selectedZeppelinVersion, sparkVersion,indicator)
       }
       }
     result match {

@@ -5,7 +5,7 @@ import java.util.concurrent.Executors
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiFile, PsiManager}
 import org.intellij.plugin.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
@@ -327,7 +327,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     */
   private def linkedNotebook: Notebook = {
     val file = FileEditorManager.getInstance(project).getSelectedEditor.getFile
-    val psiFile = PsiManager.getInstance(project).findFile(file)
+    val psiFile: PsiFile = ThreadRun.inReadAction(PsiManager.getInstance(project).findFile(file))
     val maybeHolder = FileNotebookHolder.getAll.find(_.contains(psiFile))
     if (maybeHolder.isDefined) {
       val noteId = maybeHolder.get.notebookId(psiFile)
