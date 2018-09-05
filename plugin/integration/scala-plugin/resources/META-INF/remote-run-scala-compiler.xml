@@ -25,6 +25,8 @@
     <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
         <updateInterpreterHandler
                 implementation="org.intellij.plugin.zeppelin.scala.WorksheetUpdateInterpreterHandler"/>
+        <templateFileCreator
+                implementation="org.intellij.plugin.zeppelin.scala.generator.WorksheetTemplateCreator"/>
         <fileNotebookHolder
                 implementation="org.intellij.plugin.zeppelin.scala.worksheet.extensions.WorksheetNotebookHolder"/>
     </extensions>
