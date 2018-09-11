@@ -25,7 +25,7 @@ object ZeppelinDependenciesManager {
                                progressIndicator: ProgressIndicator): LibraryDescriptor = {
     if (zeppelinVersion != "0.8.0") throw new Exception("This version of Zeppelin is not supported")
 
-    val version = ZeppelinDependenciesVersions("2.11", sparkVersion.versionString)
+    val version = ZeppelinDependenciesVersions("2.11", sparkVersion.versionString,zeppelinVersion)
 
     progressIndicator.setText("Get list of dependencies...")
     val dependencies = DefaultZeppelinDependencies.getDefaultZeppelinDependencies(version)

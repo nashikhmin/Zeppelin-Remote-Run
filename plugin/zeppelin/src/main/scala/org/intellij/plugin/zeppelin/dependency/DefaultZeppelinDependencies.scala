@@ -34,7 +34,8 @@ object DefaultZeppelinDependencies {
     * @return a set with dependencies
     */
   def getDefaultZeppelinDependencies(version: ZeppelinDependenciesVersions): Set[Dependency] = {
-    hadoopDependencies(version) ++
+    zeppelinDependencies(version) ++
+      hadoopDependencies(version) ++
       sparkDependencies(version) ++
       avroDependencies(version) ++
       otherDependencies(version)
@@ -125,11 +126,20 @@ object DefaultZeppelinDependencies {
       ),
     )
   }
+
+  private def zeppelinDependencies(version: ZeppelinDependenciesVersions) = {
+    Set(
+      Dependency(
+        Module("org.apache.zeppelin", "spark-interpreter"), version.zeppelin,
+      ),
+    )
+  }
 }
 
 
 private case class ZeppelinDependenciesVersions(scala: String,
                                                 spark: String,
+                                                zeppelin: String,
                                                 avro: String = "1.7.7",
                                                 jets3: String = "0.7.1",
                                                 hadoop: String = "2.3.0",

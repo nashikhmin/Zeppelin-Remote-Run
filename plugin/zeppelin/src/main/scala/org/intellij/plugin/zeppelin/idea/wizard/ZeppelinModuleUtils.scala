@@ -1,5 +1,7 @@
 package org.intellij.plugin.zeppelin.idea.wizard
 
+import java.security.cert.PKIXRevocationChecker.Option
+
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.FileIndexFacade
 import com.intellij.openapi.vfs.VirtualFile
@@ -17,7 +19,7 @@ object ZeppelinModuleUtils {
     * @return is Zeppelin module
     */
   def isZeppelinModule(project: Project, virtualFile: VirtualFile): Boolean = {
-    val module = Some(FileIndexFacade.getInstance(project).getModuleForFile(virtualFile))
+    val module = Option(FileIndexFacade.getInstance(project).getModuleForFile(virtualFile))
     if (module.isEmpty) return false
     module.get.getModuleTypeName == ZeppelinConstants.MODULE_ID
   }
