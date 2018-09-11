@@ -91,7 +91,7 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   def defaultInterpreter(noteId: String): Option[Interpreter] = {
     val defaultInterpreterId = zeppelinWebSocketAPI.getBindingInterpreters(noteId, credentials).headOption
       .getOrElse(throw new Exception)
-      .name
+      .id
     this.allInterpreters.find(_.id == defaultInterpreterId)
   }
 
@@ -147,10 +147,11 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
       .getOrElse(createNotebook(notebookName))
 
     var fullInfoNote = zeppelinWebSocketAPI.getNote(note.id, credentials)
-    if (fullInfoNote.paragraphs.length > MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE) {
-      deleteAllParagraphs(fullInfoNote.id)
-      fullInfoNote = zeppelinWebSocketAPI.getNote(note.id, credentials)
-    }
+    //TODO: REMOVE
+//    if (fullInfoNote.paragraphs.length > MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE) {
+//      deleteAllParagraphs(fullInfoNote.id)
+//      fullInfoNote = zeppelinWebSocketAPI.getNote(note.id, credentials)
+//    }
     fullInfoNote
   }
 
