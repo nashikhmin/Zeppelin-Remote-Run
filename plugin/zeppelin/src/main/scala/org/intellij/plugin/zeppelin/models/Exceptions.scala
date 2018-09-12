@@ -27,3 +27,10 @@ case class NotebookNotFoundException(id: String) extends ZeppelinException {
     s"Notebook with $id id is not found."
   }
 }
+
+
+case class ParagraphNotFoundException(executeContext: ExecuteContext) extends ZeppelinException {
+  override def getMessage: String = {
+    s"Paragraph with is not found. Data: $executeContext"
+  }
+}

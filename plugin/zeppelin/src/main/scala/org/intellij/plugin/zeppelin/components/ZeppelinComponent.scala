@@ -21,7 +21,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
   val interpretersView: InterpretersView = new InterpretersView(project)
   var sparkVersion: SparkVersion = SparkVersion.ZEPPELIN_DEFAULT_VERSION
   var defaultNotebook: String = ""
-  private var zeppelinActionService: Option[ZeppelinActionService] = None
+  private var actions: Option[ZeppelinActionService] = None
 
   /**
     * Open the LogTab
@@ -54,14 +54,14 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     */
   def resetApi(): ZeppelinActionService = {
     ZeppelinLogger.printMessage(ZeppelinConstants.RESTART_CONNECTION)
-    zeppelinActionService.foreach(_.destroy())
+    actions.foreach(_.destroy())
 
     val zeppelinSettings = getZeppelinSettings
     sparkVersion = SparkVersion(zeppelinSettings.sparkVersion)
     defaultNotebook = zeppelinSettings.defaultNotebookName
     val user = zeppelinSettings.user
-    zeppelinActionService = Some(ZeppelinActionService(project, zeppelinSettings))
-    zeppelinActionService.get
+    actions = Some(ZeppelinActionService(project, zeppelinSettings))
+    actions.get
   }
 
   /**
@@ -70,7 +70,7 @@ class ZeppelinComponent(val project: Project) extends ProjectComponent {
     * @return
     */
   def service: ZeppelinActionService = {
-    zeppelinActionService.getOrElse(resetApi())
+    actions.getOrElse(resetApi())
   }
 
   /**

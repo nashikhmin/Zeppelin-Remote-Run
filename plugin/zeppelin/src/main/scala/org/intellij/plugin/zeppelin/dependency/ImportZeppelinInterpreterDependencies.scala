@@ -31,7 +31,7 @@ class ImportZeppelinInterpreterDependencies(project: Project) {
       }
     }
     manager.runProcessWithProgressAsynchronously(
-      task, ImportZeppelinInterpreterDependencies.createBackgroundIndicator(project, "Zeppelin")
+      task, ThreadRun.createBgIndicator(project, "Zeppelin")
     )
   }
 
@@ -47,13 +47,4 @@ class ImportZeppelinInterpreterDependencies(project: Project) {
 
 object ImportZeppelinInterpreterDependencies {
   def apply(project: Project): ImportZeppelinInterpreterDependencies = new ImportZeppelinInterpreterDependencies(project)
-
-
-  private def createBackgroundIndicator(project: Project, name: String): ProgressIndicator = {
-    Option(ProgressIndicatorProvider.getGlobalProgressIndicator).getOrElse(
-      new BackgroundableProcessIndicator(
-        project, name, PerformInBackgroundOption.ALWAYS_BACKGROUND, null, null, false
-      )
-    )
-  }
 }

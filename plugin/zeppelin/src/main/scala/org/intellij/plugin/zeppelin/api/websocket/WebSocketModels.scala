@@ -1,30 +1,18 @@
 package org.intellij.plugin.zeppelin.api.websocket
 
-import org.intellij.plugin.zeppelin.models.{Credentials, ExecutionResults}
+import org.intellij.plugin.zeppelin.models.Credentials
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsObject, JsString, JsValue, RootJsonFormat}
 
 
-private case class RunParagraphData(id: String,
-                                    paragraph: Option[String],
-                                    title: Option[String],
-                                    settings: Map[String, String] = Map(),
-                                    params: Map[String, String] = Map(),
-                                    config: Map[String, String] = Map())
+case class RunParagraphData(id: String,
+                            paragraph: Option[String],
+                            title: Option[String],
+                            settings: Map[String, String] = Map(),
+                            params: Map[String, String] = Map(),
+                            config: Map[String, String] = Map())
 
-case class OutputResult(data: String, index: Int, noteId: String, paragraphId: String)
-
-
-private object ZeppelinWebSocketProtocol extends DefaultJsonProtocol {
+object ZeppelinWebSocketProtocol extends DefaultJsonProtocol {
   implicit val RunParagraphFormat: RootJsonFormat[RunParagraphData] = jsonFormat6(RunParagraphData)
-  implicit val OutputResultFormat: RootJsonFormat[OutputResult] = jsonFormat4(OutputResult)
-}
-
-trait OutputHandler {
-  def handle(data: OutputResult, isAppend: Boolean)
-
-  def onSuccess(msg: ExecutionResults)
-
-  def onError(msg: ExecutionResults)
 }
 
 
@@ -50,6 +38,10 @@ trait MessageHandler {
 object WebSocketApiProtocol extends DefaultJsonProtocol {
 
   implicit object RequestMessageFormat extends RootJsonFormat[RequestMessage] {
+    def read(value: JsValue): RequestMessage = {
+      throw DeserializationException("Non implemented")
+    }
+
     def write(r: RequestMessage): JsObject = {
       JsObject(
         "op" -> JsString(r.op),
@@ -59,23 +51,19 @@ object WebSocketApiProtocol extends DefaultJsonProtocol {
         "roles" -> JsString(r.credentials.roles)
       )
     }
-
-    def read(value: JsValue): RequestMessage = {
-      throw DeserializationException("Non implemented")
-    }
   }
 
 
   implicit object ResponseMessageFormat extends RootJsonFormat[ResponseMessage] {
-    def write(r: ResponseMessage): JsValue = {
-      throw throw DeserializationException("Non implemented")
-    }
-
     def read(value: JsValue): ResponseMessage = {
       value.asJsObject.getFields("op", "data") match {
         case Seq(JsString(op), data) => ResponseMessage(op, data.asJsObject())
         case _ => throw DeserializationException("Response message expected")
       }
+    }
+
+    def write(r: ResponseMessage): JsValue = {
+      throw throw DeserializationException("Non implemented")
     }
   }
 

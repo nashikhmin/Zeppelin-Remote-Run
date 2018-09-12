@@ -85,24 +85,25 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     response.convertTo[Notebook]
   }
 
+  def registerHandler(op: String, handler: MessageHandler) {
+    webSocketAPI.registerHandler(op, handler)
+  }
+
   /**
     * Run the paragraph in the Zeppelin application
     *
-    * @param paragraph     - the paragraph, which must be run
-    * @param outputHandler - the handle to get the result of the run
-    * @param credentials   - the credentials of the user
+    * @param paragraph   - the paragraph, which must be run
+    * @param credentials - the credentials of the user
     */
-  def runParagraph(paragraph: Paragraph, outputHandler: OutputHandler, credentials: Credentials) {
+  def runParagraph(paragraph: Paragraph, credentials: Credentials): Unit = {
     import ZeppelinWebSocketProtocol._
 
     val data = RunParagraphData(paragraph.id, paragraph.text, paragraph.title)
     if (LOG.isTraceEnabled) LOG.trace(s"Start request 'Run paragraph'. Data : $data, crediantials: $credentials.")
-    val handlers = runParagraphHandlers(outputHandler: OutputHandler)
 
     val opRequest = RequestOperations.RUN_PARAGRAPH.toString
-
     val requestMessage = RequestMessage(opRequest, data.toJson, credentials)
-    webSocketAPI.doRequestAsync(requestMessage, handlers.map { case (key, value) => (key.toString, value) })
+    webSocketAPI.doRequestAsync(requestMessage)
   }
 
   /**
@@ -127,57 +128,7 @@ class ZeppelinWebSocketAPI private(webSocketAPI: WebSocketAPI) {
     webSocketAPI.doRequestWithoutWaitingResult(requestMessage)
   }
 
-  /**
-    * Get the run paragraph handlers
-    *
-    * @param outputHandler - handler that got the output of the process
-    * @return the handler which handle the web socket requests
-    */
-  private def runParagraphHandlers(outputHandler: OutputHandler) = {
-    import ZeppelinWebSocketProtocol._
 
-
-    def handleUpdateOutput: MessageHandler = {
-      response: ResponseMessage => {
-        val output = response.data.convertTo[OutputResult]
-        outputHandler.handle(output, isAppend = false)
-      }
-    }
-
-    def handleAppendOutput: MessageHandler = {
-      response: ResponseMessage => {
-        val output = response.data.convertTo[OutputResult]
-        outputHandler.handle(output, isAppend = true)
-      }
-    }
-
-    def handleParagraph: MessageHandler = {
-      result: ResponseMessage => {
-        val status = result.data.fields.getOrElse("paragraph", JsObject()).asJsObject().fields
-          .getOrElse("status", JsString("")).convertTo[String]
-
-        status match {
-          case "FINISHED" => {
-            val results = result.data.fields.getOrElse("paragraph", JsObject()).asJsObject().fields
-              .getOrElse("results", throw new Exception).convertTo[ExecutionResults]
-            outputHandler.onSuccess(results)
-          }
-          case "ERROR" => {
-            val results = result.data.fields.getOrElse("paragraph", JsObject()).asJsObject().fields
-              .getOrElse("results", throw new Exception).convertTo[ExecutionResults]
-            outputHandler.onError(results)
-          }
-          case _ => Unit
-        }
-      }
-    }
-
-    Map[ResponseCode.Value, MessageHandler](
-      ResponseCode.PARAGRAPH_UPDATE_OUTPUT -> handleUpdateOutput,
-      ResponseCode.PARAGRAPH_APPEND_OUTPUT -> handleAppendOutput,
-      ResponseCode.PARAGRAPH -> handleParagraph
-    )
-  }
 
 }
 

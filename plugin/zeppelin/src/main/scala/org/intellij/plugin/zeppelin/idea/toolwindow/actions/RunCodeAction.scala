@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.{AnActionEvent, Presentation}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.intellij.plugin.zeppelin.api.idea.IdeaEditorApi
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
+import org.intellij.plugin.zeppelin.models.ExecuteContext
 
 /**
   * Execute selected code on Zeppelin
@@ -21,6 +22,7 @@ class RunCodeAction(project: Project) extends DumbAwareAction with IdeaEditorApi
 
     val connection = ZeppelinComponent.connectionFor(event.getProject)
     val zeppelinService = connection.service
-    zeppelinService.runCode(selectedText)
+    val executeContext = ExecuteContext(selectedText,"","")
+    zeppelinService.runCode(selectedText, None)
   }
 }

@@ -3,7 +3,9 @@ package org.intellij.plugin.zeppelin.utils
 import java.util.concurrent.{Callable, Executors, TimeUnit}
 
 import com.intellij.openapi.application.{Application, ApplicationManager}
-import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
+import com.intellij.openapi.progress.{PerformInBackgroundOption, ProgressIndicator, ProgressIndicatorProvider, ProgressManager}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.util.Processor
 
@@ -13,9 +15,11 @@ import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}
 
 object ThreadRun {
-  private val DEFAULT_MAX_EXECUTION_TIME = 120
+  implicit def toCallable[T](action: => T): Callable[T] = () => action
 
   import scala.language.implicitConversions
+
+  implicit def toComputable[T](action: => T): Computable[T] = () => action
 
   implicit def toIdeaFunction[A, B](f: Function[A, B]): com.intellij.util.Function[A, B] = (param: A) => f(param)
 
@@ -23,10 +27,22 @@ object ThreadRun {
 
   implicit def toRunnable(action: => Any): Runnable = () => action
 
-  implicit def toComputable[T](action: => T): Computable[T] = () => action
+  private val DEFAULT_MAX_EXECUTION_TIME = 120
 
-  implicit def toCallable[T](action: => T): Callable[T] = () => action
+  def createBgIndicator(project: Project, name: String): ProgressIndicator = {
+    Option(ProgressIndicatorProvider.getGlobalProgressIndicator).getOrElse(
+      new BackgroundableProcessIndicator(
+        project, name, PerformInBackgroundOption.ALWAYS_BACKGROUND, null, null, false
+      )
+    )
+  }
 
+  def inReadAction[T](body: => T): T = {
+    ApplicationManager.getApplication match {
+      case application if application.isReadAccessAllowed => body
+      case application => application.runReadAction(body)
+    }
+  }
 
   def inWriteAction[T](body: => T): T = {
     val application: Application = ApplicationManager.getApplication
@@ -40,11 +56,6 @@ object ThreadRun {
         }
       )
     }
-  }
-
-  def inReadAction[T](body: => T): T = ApplicationManager.getApplication match {
-    case application if application.isReadAccessAllowed => body
-    case application => application.runReadAction(body)
   }
 
   def invokeLater[T](body: => T): Unit = {

@@ -1,9 +1,8 @@
 package org.intellij.plugin.zeppelin.api
 
 import org.intellij.plugin.zeppelin.AbstractScalaTest
-import org.intellij.plugin.zeppelin.api.websocket.{OutputHandler, OutputResult}
 import org.intellij.plugin.zeppelin.models._
-import org.intellij.plugin.zeppelin.service.ZeppelinAPIService
+import org.intellij.plugin.zeppelin.service.execution.{ExecutionHandler, ExecutionResults, OutputResponse}
 
 import scala.util.Random
 
@@ -20,30 +19,30 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   private val adminUser = Some(User(login, password))
 
   test("Zeppelin.RunWihWrongAddress") {
-    val zeppelinService = ZeppelinAPIService(url, port + 666, adminUser)
+    val zeppelinService = ZeppelinApi(url, port + 666, adminUser)
     assertThrows[ZeppelinConnectionException](zeppelinService.connect())
     assert(!zeppelinService.isConnected)
   }
 
   test("Zeppelin.RunWihWrongLogin") {
-    val zeppelinService = ZeppelinAPIService(url, port, Some(User(login + "wrong", password)))
+    val zeppelinService = ZeppelinApi(url, port, Some(User(login + "wrong", password)))
     assertThrows[ZeppelinLoginException](zeppelinService.connect())
     assert(!zeppelinService.isConnected)
   }
 
   test("Zeppelin.CreateNotebookAndRunParagraphWithLogin") {
-    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    val zeppelinService = ZeppelinApi(url, port, adminUser)
     performSimpleExecuteTest(zeppelinService)
   }
 
 
   test("Zeppelin.CreateNotebookAndRunParagraphWithoutLogin") {
-    val zeppelinService = ZeppelinAPIService(url, port, None)
+    val zeppelinService = ZeppelinApi(url, port, None)
     performSimpleExecuteTest(zeppelinService)
   }
 
   test("Zeppelin.CreateAndDeleteParagraphs") {
-    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    val zeppelinService = ZeppelinApi(url, port, adminUser)
     zeppelinService.connect()
     val originalNotebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
     val noteId = originalNotebook.id
@@ -60,7 +59,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.GetNotebooks") {
-    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    val zeppelinService = ZeppelinApi(url, port, adminUser)
     zeppelinService.connect()
 
     val zeppelinRestApi = zeppelinService.zeppelinRestApi
@@ -74,7 +73,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.GetDefaultInterpreter") {
-    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    val zeppelinService = ZeppelinApi(url, port, adminUser)
     zeppelinService.connect()
     val notebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
     val interpreters = zeppelinService.allInterpreters.map(_.id)
@@ -87,7 +86,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.InterpreterInstantiation") {
-    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    val zeppelinService = ZeppelinApi(url, port, adminUser)
     zeppelinService.connect()
     val interpreter = zeppelinService.interpreterById(interpreterIdTest)
     val globalInterpreter = interpreter.copy(option = InterpreterOption())
@@ -102,7 +101,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
   }
 
   test("Zeppelin.UploadJar") {
-    val zeppelinService = ZeppelinAPIService(url, port, adminUser)
+    val zeppelinService = ZeppelinApi(url, port, adminUser)
     zeppelinService.connect()
 
     val interpreterWithoutDependencies = zeppelinService.interpreterById(interpreterSparkId)
@@ -119,14 +118,14 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
     assert(zeppelinService.interpreterById(interpreterSparkId).status == InterpreterStatus.READY)
   }
 
-  def performSimpleExecuteTest(zeppelinService: ZeppelinAPIService): Unit = {
+  def performSimpleExecuteTest(zeppelinService: ZeppelinApi): Unit = {
     zeppelinService.connect()
     val notebook = zeppelinService.getOrCreateNotebook(runCodeTestNotebook)
     zeppelinService.setDefaultInterpreter(notebook.id, interpreterSparkId)
     val code = "println(\"hello world\")"
     var waitResult = true
     var result = "none"
-    val handler = new OutputHandler {
+    val handler = new ExecutionHandler {
       override def onError(exResult: ExecutionResults): Unit = {
         monitor.synchronized {
           waitResult = false
@@ -135,7 +134,7 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
         }
       }
 
-      override def handle(result: OutputResult, isAppend: Boolean): Unit = {
+      override def onOutput(result: OutputResponse, isAppend: Boolean): Unit = {
         assert(result.data.isEmpty || result.data == "hello world\n")
       }
 
@@ -146,13 +145,17 @@ class ZeppelinAPIServiceTest extends AbstractScalaTest {
           monitor.notifyAll()
         }
       }
+
+      override def onProgress(progress: Double): Unit = {}
+
+      override def onUpdateExecutionStatus(status: String): Unit = {}
     }
-    zeppelinService.runCode(code, handler, zeppelinService.getOrCreateNotebook(runCodeTestNotebook))
-    monitor.synchronized {
-      while (waitResult) {
-        monitor.wait(20 * 1000)
-      }
-    }
+    //    zeppelinService.runCode(code, handler, zeppelinService.getOrCreateNotebook(runCodeTestNotebook))
+    //    monitor.synchronized {
+    //      while (waitResult) {
+    //        monitor.wait(20 * 1000)
+    //      }
+    //    }
     assert(result == "success")
   }
 }

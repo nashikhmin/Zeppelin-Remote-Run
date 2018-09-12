@@ -21,7 +21,7 @@ class NotebookBrowserDialog(project: Project, defaultNotebook: Notebook) extends
 
   override def doOKAction(): Unit = {
     val currentNotebooks = myPanel.getNotebooks.asScala.toList
-    val notebooks = actionService.updateNotebooksTo(currentNotebooks)
+    val notebooks = actionService.updateNotebooksTo(currentNotebooks).sortBy(_.name)
     myPanel.setNotebooks(notebooks.asJava)
     super.doOKAction()
   }
@@ -32,7 +32,7 @@ class NotebookBrowserDialog(project: Project, defaultNotebook: Notebook) extends
   }
 
   def initDataModel(): Unit = {
-    val notebooks = getOriginalNotebooks
+    val notebooks = getOriginalNotebooks.sortBy(_.name)
     myPanel.initDataModel(notebooks.asJava)
   }
 

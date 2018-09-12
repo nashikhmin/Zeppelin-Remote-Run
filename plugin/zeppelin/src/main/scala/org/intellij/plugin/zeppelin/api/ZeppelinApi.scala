@@ -1,22 +1,24 @@
-package org.intellij.plugin.zeppelin.service
+package org.intellij.plugin.zeppelin.api
 
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.api.rest.{RestApiException, ZeppelinRestApi}
-import org.intellij.plugin.zeppelin.api.websocket.{OutputHandler, ZeppelinWebSocketAPI}
+import org.intellij.plugin.zeppelin.api.websocket.{MessageHandler, ResponseCode, ZeppelinWebSocketAPI}
 import org.intellij.plugin.zeppelin.models._
+import org.intellij.plugin.zeppelin.service.{InterpreterException, InterpreterNotFoundException}
 import org.intellij.plugin.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 import scala.util.Try
 
 /**
-  * Class which implements the logic of communication with different API
+  * Class which implements the logic of communication with Zeppelin API
   *
   * @param zeppelinWebSocketAPI - service for communication with Zeppelin by WebSockets
   * @param zeppelinRestApi      - service for communication with Zeppelin by REST API
   */
-class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
-                                 val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: Option[User]) {
-
+class ZeppelinApi private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
+                          val zeppelinRestApi: ZeppelinRestApi,
+                          val uri: String,
+                          val user: Option[User]) {
   private val LOG = Logger.getInstance(getClass)
   private val MAXIMUM_COUNT_OF_PARAGRAPHS_PER_NOTE = 15
   private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
@@ -80,6 +82,17 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     */
   def createNotebook(notebookName: String): Notebook = {
     zeppelinRestApi.createNotebook(NewNotebook(notebookName))
+  }
+
+  /**
+    * Create a paragraph in Zeppelin in the end of the notebook
+    *
+    * @param notebookId - an id of a notebook
+    * @param text       - a text in paragraph
+    * @return a model of a created paragraph
+    */
+  def createParagraph(notebookId: String, text: String): Paragraph = {
+    zeppelinRestApi.createParagraph(noteId = notebookId, text)
   }
 
   /**
@@ -180,6 +193,10 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
       (user.isEmpty || zeppelinRestApi.loginStatus == LoginStatus.LOGGED)
   }
 
+  def registerHandler(responseCode: ResponseCode.ResponseCode, handler: MessageHandler): Unit = {
+    zeppelinWebSocketAPI.registerHandler(responseCode.toString, handler)
+  }
+
   /**
     * Restart an interpreter
     *
@@ -194,15 +211,12 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
   /**
     * Run the code on the zeppelin application
     *
-    * @param code     - the code, which must be executed
-    * @param handler  - a handler, that must handle outputs and status
-    * @param notebook - a model of notebook, where the paragraph will be run
+    * @param executeContext - a context of execution
     */
-  def runCode(code: String, handler: OutputHandler, notebook: Notebook): Unit = {
-    val paragraphId = zeppelinRestApi.createParagraph(notebook.id, code).id
-    val notebookWS = zeppelinWebSocketAPI.getNote(notebook.id, credentials)
-    val paragraph = notebookWS.paragraphs.find(_.id == paragraphId).get
-    zeppelinWebSocketAPI.runParagraph(paragraph, handler, credentials)
+  def runCode(executeContext: ExecuteContext): Unit = {
+    val maybeParagraph = getParagraph(executeContext.noteId, executeContext.paragraphId)
+    if (maybeParagraph.isEmpty) throw ParagraphNotFoundException(executeContext)
+    zeppelinWebSocketAPI.runParagraph(maybeParagraph.get, credentials)
   }
 
   /**
@@ -248,11 +262,16 @@ class ZeppelinAPIService private(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     }
     ZeppelinLogger.printMessage(s"The settings of the ${interpreter.name} interpreter have been updated")
   }
+
+  private def getParagraph(notebookId: String, paragraphId: String): Option[Paragraph] = {
+    val notebookWS = zeppelinWebSocketAPI.getNote(notebookId, credentials)
+    notebookWS.paragraphs.find(_.id == paragraphId)
+  }
 }
 
-object ZeppelinAPIService {
-  def apply(address: String, port: Int, user: Option[User]): ZeppelinAPIService = {
-    new ZeppelinAPIService(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port),
+object ZeppelinApi {
+  def apply(address: String, port: Int, user: Option[User]): ZeppelinApi = {
+    new ZeppelinApi(ZeppelinWebSocketAPI(address, port), ZeppelinRestApi(address, port),
       s"$address:$port", user)
   }
 }

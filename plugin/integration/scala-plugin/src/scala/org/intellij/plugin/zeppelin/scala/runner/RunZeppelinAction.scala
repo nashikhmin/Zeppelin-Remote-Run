@@ -2,7 +2,7 @@ package org.intellij.plugin.zeppelin.scala.runner
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.worksheet.cell.{CellDescriptor, RunCellActionBase}
+import org.jetbrains.plugins.scala.worksheet.cell.{CellDescriptor, RunCellActionBase, WorksheetCellExternalIdProvider}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.{RunCustom, WorksheetCompileRunRequest}
 
 /**
@@ -19,6 +19,9 @@ class RunZeppelinAction(cellDescriptor: CellDescriptor) extends RunCellActionBas
   }
 
   override def convertToRunRequest(): WorksheetCompileRunRequest = {
-    RunCustom(ZeppelinCustomRunner.RUNNER_ID,project,cellDescriptor.getCellText)
+    val element = cellDescriptor.getElement.get
+    val id = ZeppelinCustomRunner.RUNNER_ID + "\n" +
+      WorksheetCellExternalIdProvider.getSuitable(element).getOrElse("")
+    RunCustom(id, project, cellDescriptor.getCellText)
   }
 }

@@ -124,8 +124,7 @@ class WebSocketAPI(uri: String) {
     handlersMap += (op -> handler)
   }
 
-  def doRequestAsync(requestMessage: RequestMessage, handlersMap: Map[String, MessageHandler]): Unit = {
-    for (tuple <- handlersMap) registerHandler(tuple._1, tuple._2)
+  def doRequestAsync(requestMessage: RequestMessage): Unit = {
     doRequestWithoutWaitingResult(requestMessage)
   }
 }

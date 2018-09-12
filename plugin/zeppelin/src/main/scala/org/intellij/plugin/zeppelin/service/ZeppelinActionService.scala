@@ -6,11 +6,12 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi.{PsiFile, PsiManager}
-import org.intellij.plugin.zeppelin.api.websocket.{OutputHandler, OutputResult}
+import org.intellij.plugin.zeppelin.api.ZeppelinApi
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.models.{Interpreter, _}
+import org.intellij.plugin.zeppelin.service.execution.{GuiExecutionHandler, GuiExecutionHandlerFactory, ZeppelinExecutionManager}
 import org.intellij.plugin.zeppelin.utils.{ThreadRun, ZeppelinLogger}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
@@ -19,16 +20,18 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
   * Main class that implement logic of the actions for the communication with Zeppelin
   */
 class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings) {
-  var zeppelinService: ZeppelinAPIService = ZeppelinAPIService(zeppelinSettings.address,
+  var api: ZeppelinApi = ZeppelinApi(zeppelinSettings.address,
     zeppelinSettings.port,
     zeppelinSettings.user)
+  var executionManager: ZeppelinExecutionManager = ZeppelinExecutionManager(api, GuiExecutionHandlerFactory(project))
 
   /**
     * Method that close all connections and free resources
     */
   def destroy(): Unit = {
-    zeppelinService.close()
+    api.close()
   }
+
 
   /**
     * Get a default interpreter for the current notebook
@@ -39,7 +42,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     if (!checkPreconditions()) return None
 
     val notebook = linkedNotebook
-    zeppelinService.defaultInterpreter(notebook.id)
+    api.defaultInterpreter(notebook.id)
   }
 
   /**
@@ -50,7 +53,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     * @return an interpreter model
     */
   def getInterpreterById(interpreterId: String, ignoreInterpreterError: Boolean = false): Interpreter = {
-    zeppelinService.interpreterById(interpreterId, ignoreInterpreterError)
+    api.interpreterById(interpreterId, ignoreInterpreterError)
   }
 
   /**
@@ -72,7 +75,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     */
   def getNotebookById(notebookId: String): Option[Notebook] = {
     if (!checkPreconditions()) return None
-    zeppelinService.getNotebookById(notebookId)
+    api.getNotebookById(notebookId)
   }
 
   /**
@@ -82,7 +85,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     */
   def getNotebooksList: List[Notebook] = {
     if (!checkPreconditions()) return List()
-    zeppelinService.allNotebooks
+    api.allNotebooks
   }
 
   /**
@@ -93,7 +96,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
   def interpreterList(): List[Interpreter] = {
     if (!checkPreconditions()) return List()
 
-    val allInterpreters = zeppelinService.allInterpreters
+    val allInterpreters = api.allInterpreters
     val defaultInterpreter = getDefaultInterpreter
 
     if (defaultInterpreter.isEmpty) throw new ZeppelinException()
@@ -121,50 +124,26 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     ThreadRun.withProgressSynchronouslyTry(s"Restart an $interpreterName interpreter")(_ => {
       val interpreter: Interpreter = getInterpreterByName(interpreterName)
       val notebook = linkedNotebook
-      zeppelinService.restartInterpreter(interpreter.id, notebook.id)
+      api.restartInterpreter(interpreter.id, notebook.id)
     })
   }
 
   /**
     * Run code on the Zeppelin server
     *
-    * @param code - code, that be executed
+    * @param text              - a text of an execution code
+    * @param paragraphIdOption - an id of executing paragraph, if it is None, the paragraph will be created
     */
-  def runCode(code: String): Unit = {
+  def runCode(text: String, paragraphIdOption: Option[String]): Unit = {
     if (!checkPreconditions()) return
 
-    if (code.isEmpty) {
+    if (text.isEmpty) {
       ZeppelinLogger.printMessage("The selected text is empty, please select a piece of code")
       return
     }
-
-    ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_RUNNED.format(code))
-    val handler = new OutputHandler {
-      override def onError(result: ExecutionResults = ExecutionResults()): Unit = {
-        ZeppelinLogger.printError(ZeppelinConstants.PARAGRAPH_ERROR)
-        result.msg.foreach(it => ZeppelinLogger.printError(it.data))
-
-      }
-
-      override def handle(result: OutputResult, isAppend: Boolean): Unit = {
-        if (result.data.isEmpty) return
-        ZeppelinLogger.printMessage(result.data)
-      }
-
-      override def onSuccess(executionResults: ExecutionResults = ExecutionResults()): Unit = {
-        executionResults.msg.foreach(it => {
-          it.resultType match {
-            case "TABLE" => {
-              val handler = TableOutputHandler.getAll.headOption.getOrElse(DefaultTableOutputHandler)
-              handler.invoke(project, it.data)
-            }
-            case _ => Unit
-          }
-        })
-        ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_COMPLETED)
-      }
-    }
-    zeppelinService.runCode(code, handler, linkedNotebook)
+    val paragraphId = paragraphIdOption.getOrElse(api.createParagraph(linkedNotebook.id, text).id)
+    val executeContext = ExecuteContext(text, linkedNotebook.id, paragraphId)
+    executionManager.execute(executeContext)
   }
 
   /**
@@ -175,7 +154,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
   def setDefaultInterpreter(interpreterName: String): Unit = {
     val interpreter: Interpreter = getInterpreterByName(interpreterName)
     val notebook = linkedNotebook
-    zeppelinService.setDefaultInterpreter(notebook.id, interpreter.id)
+    api.setDefaultInterpreter(notebook.id, interpreter.id)
   }
 
   /**
@@ -208,7 +187,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     implicit val context: ExecutionContextExecutor = ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())
 
     val f = Future {
-      zeppelinService.updateInterpreterSetting(interpreter)
+      api.updateInterpreterSetting(interpreter)
     }
 
     f.onComplete {
@@ -236,7 +215,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
   def updateNotebooksTo(newNotebookList: List[Notebook]): List[Notebook] = {
     if (!checkPreconditions()) throw ZeppelinConnectionException(zeppelinSettings.fullUrl)
 
-    val originalNotebooks = zeppelinService.allNotebooks.toSet
+    val originalNotebooks = api.allNotebooks.toSet
 
     val notebooksForRemove = originalNotebooks.diff(newNotebookList.toSet)
     val notebooksForAdd = newNotebookList.filter(_.id.isEmpty)
@@ -259,16 +238,17 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     if (exitCode != DialogWrapper.OK_EXIT_CODE) return originalNotebooks.toList
 
     notebooksForRemove.foreach(it => {
-      zeppelinService.deleteNotebook(it)
+      api.deleteNotebook(it)
     })
-    newNotebookList.map(note => {
+    val notebooks = newNotebookList.map(note => {
       if (note.id.nonEmpty) {
         note
       }
       else {
-        zeppelinService.createNotebook(note.name)
+        api.createNotebook(note.name)
       }
     })
+    notebooks.sortBy(_.name)
   }
 
   /**
@@ -277,11 +257,12 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     * @return the server is connected
     */
   private def checkConnection: Boolean = {
-    if (zeppelinService.isConnected) return true
+    if (api.isConnected) return true
     try {
-      zeppelinService.close()
-      zeppelinService = ZeppelinAPIService(zeppelinSettings.address, zeppelinSettings.port, zeppelinSettings.user)
-      zeppelinService.connect(false)
+      api.close()
+      api = ZeppelinApi(zeppelinSettings.address, zeppelinSettings.port, zeppelinSettings.user)
+      api.connect(false)
+      executionManager = ZeppelinExecutionManager(api, GuiExecutionHandlerFactory(project))
     }
     catch {
       case _: ZeppelinConnectionException => {
@@ -290,7 +271,7 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
       }
       case _: ZeppelinLoginException => ZeppelinLogger.printError(s"Authentication error. Check login and password")
     }
-    zeppelinService.isConnected
+    api.isConnected
   }
 
   /**
@@ -326,15 +307,15 @@ class ZeppelinActionService(project: Project, zeppelinSettings: ZeppelinSettings
     */
   private def linkedNotebook: Notebook = {
     val editor = FileEditorManager.getInstance(project).getSelectedEditor
-    if (editor == null) return zeppelinService.getOrCreateNotebook(zeppelinSettings.defaultNotebookName)
+    if (editor == null) return api.getOrCreateNotebook(zeppelinSettings.defaultNotebookName)
     val file = editor.getFile
     val psiFile: PsiFile = ThreadRun.inReadAction(PsiManager.getInstance(project).findFile(file))
     val maybeHolder = FileNotebookHolder.getAll.find(_.contains(psiFile))
     if (maybeHolder.isDefined) {
       val noteId = maybeHolder.get.notebookId(psiFile)
-      zeppelinService.getNotebookById(noteId).getOrElse(throw NotebookNotFoundException(noteId))
+      api.getNotebookById(noteId).getOrElse(throw NotebookNotFoundException(noteId))
     } else {
-      zeppelinService.getOrCreateNotebook(zeppelinSettings.defaultNotebookName)
+      api.getOrCreateNotebook(zeppelinSettings.defaultNotebookName)
     }
   }
 }

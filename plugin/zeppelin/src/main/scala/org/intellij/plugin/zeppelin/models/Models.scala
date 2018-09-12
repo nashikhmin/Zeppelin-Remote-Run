@@ -91,9 +91,7 @@ case class Paragraph(id: String, jobName: String = "",
 
 case class Credentials(principal: String, ticket: String, roles: String)
 
-case class ExecutionResults(code: String = "", msg: List[ExecutionResultsMsg] = List())
 
-case class ExecutionResultsMsg(resultType: String, data: String)
 
 /**
   * Model for new notebook request by REST API
@@ -102,19 +100,6 @@ case class NewNotebook(name: String)
 
 
 object ZeppelinAPIProtocol extends DefaultJsonProtocol {
-
-  implicit object ExecutionResultsMsgFormat extends RootJsonFormat[ExecutionResultsMsg] {
-    def read(value: JsValue): ExecutionResultsMsg = {
-      value.asJsObject.getFields("type", "data") match {
-        case Seq(JsString(resultType), JsString(data)) => ExecutionResultsMsg(resultType, data)
-        case _ => throw DeserializationException("Response message expected")
-      }
-    }
-
-    def write(r: ExecutionResultsMsg): JsValue = {
-      throw throw DeserializationException("Non implemented")
-    }
-  }
 
   implicit def enumFormat[T <: Enumeration](implicit enu: T): RootJsonFormat[T#Value] = {
     new RootJsonFormat[T#Value] {
@@ -140,7 +125,6 @@ object ZeppelinAPIProtocol extends DefaultJsonProtocol {
   implicit val InterpreterFormat: RootJsonFormat[Interpreter] = jsonFormat9(Interpreter)
   implicit val InterpreterBindingFormat: RootJsonFormat[InterpreterBinding] = jsonFormat2(InterpreterBinding)
   implicit val InterpreterBindingsFormat: RootJsonFormat[InterpreterBindings] = jsonFormat3(InterpreterBindings)
-  implicit val ExecutionResultsFormat: RootJsonFormat[ExecutionResults] = jsonFormat2(ExecutionResults)
 }
 
 

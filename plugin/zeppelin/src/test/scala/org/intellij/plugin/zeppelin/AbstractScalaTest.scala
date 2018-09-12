@@ -1,6 +1,7 @@
 package org.intellij.plugin.zeppelin
 
-import java.util.concurrent.Executors
+
+import java.util.concurrent.{Executors, TimeUnit}
 
 import org.scalatest.{FunSuite, Matchers}
 import scala.concurrent.duration.Duration

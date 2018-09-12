@@ -16,6 +16,7 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="org.intellij.scala">
+        <worksheetCellExternalIdProvider implementation="org.intellij.plugin.zeppelin.scala.cell.ZeppelinIdProvider"/>
         <worksheetExternalRunType implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType"/>
         <worksheetCustomRunner implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinCustomRunner"/>
         <fileDeclarationsContributor
