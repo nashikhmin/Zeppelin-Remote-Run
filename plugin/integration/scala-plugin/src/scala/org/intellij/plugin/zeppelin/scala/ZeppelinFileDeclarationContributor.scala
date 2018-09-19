@@ -67,7 +67,7 @@ class ZeppelinFileDeclarationContributor extends FileDeclarationsContributor {
       val list = clazz.getInnerClasses.toList
       list.head.processDeclarations(processor, state, null, zeppelinFile)
       //val fields = clazz.getMethods.filter(_.getName=="sql").head
-      //fields.processDeclarations(processor, state, null, zeppelinFile)
+      //fields.processDeclarations(processor, myState, null, zeppelinFile)
     })
   }
 

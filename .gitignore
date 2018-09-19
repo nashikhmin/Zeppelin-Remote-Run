@@ -15,3 +15,5 @@ gitarget/
 out/
 target/
 /idea/
+build/
+.gradle/
