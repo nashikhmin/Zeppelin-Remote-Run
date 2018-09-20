@@ -19,6 +19,9 @@ class ZeppelinApiTest {
         val notebooks = integration.api.allNotebooks().filter { it.name.startsWith("Zeppelin Tutorial") }
         assertEquals(notebooks.size, 6, "There are not 6 notebooks in Zeppelin")
         notebooks.forEach { assertTrue(it.paragraphs.isNotEmpty(), "There are not paragraphs in ${it.name}") }
+
+        val createdNotebook = integration.api.createNotebook("Test notebook")
+        assertTrue(createdNotebook.id.isNotEmpty(),"The id of the created notebook is empty")
     }
 
     @Test

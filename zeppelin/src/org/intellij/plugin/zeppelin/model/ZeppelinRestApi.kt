@@ -1,6 +1,6 @@
 package org.intellij.plugin.zeppelin.model
 
-import com.beust.klaxon.Klaxon
+import com.github.kittinunf.fuel.core.FuelError
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.utils.JsonParser
@@ -17,86 +17,97 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
 
     fun createNotebook(newNotebook: NewNotebook): Notebook {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Create notebook $newNotebook'")
-        val json = Klaxon().toJsonString(newNotebook)
-        val (_, response, result) = restApi.performPostData("/notebook", json, sessionToken)
-
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Create notebook' $response")
-        if (response.statusCode != 200) {
-            throw RestApiException("Cannot create notebook.", response.statusCode)
+        val json = JsonParser.toObject(newNotebook)
+        val result = try {
+            restApi.performPostData("/notebook", json, sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot create notebook", e.message ?: "")
         }
-        val responseMessage = response.responseMessage
-        val id: String = Klaxon().parse<Notebook>(responseMessage)?.id ?: throw ParseException(responseMessage,
-                Notebook::class.toString())
+
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Create notebook' $result")
+
+        val id: String = JsonParser.fromValueObject(result.body, Notebook::class.java).id
         return Notebook(id, newNotebook.name)
     }
 
     fun createParagraph(noteId: String, paragraphText: String): Paragraph {
         val data = mapOf("title" to "", "text" to paragraphText)
-        val json = Klaxon().toJsonString(data)
-        if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Create paragraph'. Data: $data")
-        val (_, response, result) = restApi.performPostData("/notebook/$noteId/paragraph", json, sessionToken)
-        if (response.statusCode != 200) {
-            throw RestApiException("Cannot create a paragraph", response.statusCode)
-        }
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Create paragraph' $response")
 
-        val responseMessage = response.responseMessage
-        return Klaxon().parse<Paragraph>(responseMessage)
-                ?: throw ParseException(responseMessage, Paragraph::class.toString())
+        if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Create paragraph'. Data: $data")
+        val result = try {
+            restApi.performPostData("/notebook/$noteId/paragraph", data, sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot create a paragraph", e.message ?: "")
+        }
+
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Create paragraph' $result")
+        return JsonParser.fromValueObject(result.body, Paragraph::class.java)
     }
 
     fun deleteNotebook(noteId: String) {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Delete notebook'. NoteId: $noteId")
-        val (_, response, result) = restApi.performDeleteData("/notebook/$noteId", sessionToken)
-        if (response.statusCode != 200) {
-            throw RestApiException("Cannot delete a paragraph", response.statusCode)
+        val result = try {
+            restApi.performDeleteData("/notebook/$noteId", sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot delete a paragraph", e.message ?: "")
         }
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Delete notebook' $response")
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Delete notebook' $result")
     }
 
     fun deleteParagraph(noteId: String, paragraphId: String) {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Delete paragraph'. NoteId: $noteId")
-        val (_, response, result) = restApi.performDeleteData("/notebook/$noteId/paragraph/$paragraphId",
-                sessionToken)
-        if (response.statusCode != 200) throw RestApiException(
-                "Cannot delete a paragraph", response.statusCode)
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Delete paragraph' $response")
+        val result = try {
+            restApi.performDeleteData("/notebook/$noteId/paragraph/$paragraphId",
+                    sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot delete a paragraph", e.message ?: "")
+        }
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Delete paragraph' $result")
     }
 
     fun getInterpreters(): List<Interpreter> {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Get interpreters'")
-        val (_, response, result) = restApi.performGetRequest("/interpreter/setting", sessionToken)
-        if (response.statusCode != 200) throw RestApiException(
-                "Cannot get list of interpreters.", response.statusCode)
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get interpreters' $response")
-        return JsonParser.fromValueList(result.get().body, Interpreter::class.java)
+        val result = try {
+            restApi.performGetRequest("/interpreter/setting", sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot get list of interpreters.", e.message ?: "")
+        }
+
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $result")
+        return JsonParser.fromValueList(result.body, Interpreter::class.java)
     }
 
     fun getNotebooks(): List<Notebook> {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Get notebooks'")
-        val (_, response, result) = restApi.performGetRequest("/notebook", sessionToken)
-        if (response.statusCode != 200) throw RestApiException(
-                "Cannot get list of notebooks", response.statusCode)
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $response")
 
-        return JsonParser.fromValueList(result.get().body, Notebook::class.java)
+        val result = try {
+            restApi.performGetRequest("/notebook", sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot get list of notebooks", e.message ?: "")
+        }
+
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $result")
+
+        return JsonParser.fromValueList(result.body, Notebook::class.java)
     }
 
     fun login(user: User): Credentials {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Login' User:${user.name}")
-        val params = mapOf("userName" to user.name,
-                "password" to user.password)
-        val (_, response, result) = restApi.performPostForm("/login", params)
 
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Login' Response:$response")
+        val params = mapOf("userName" to user.name, "password" to user.password)
 
-        if (response.statusCode != 200) throw RestApiException("Cannot handle login request.", response.statusCode)
+        val (response, result) = try {
+            restApi.performPostForm("/login", params)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot handle login request.", e.message ?: "")
+        }
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Login' Response:$result")
 
         val headers = response.headers["Set-Cookie"] ?: listOf()
         sessionToken = headers.first { it.contains("JSESSIONID") }.split(";")[0]
         loginStatus = LoginStatus.LOGGED
 
-        return JsonParser.fromValueObject(result.get().body, Credentials::class.java)
+        return JsonParser.fromValueObject(result.body, Credentials::class.java)
     }
 
     fun restartInterpreter(interpreter: Interpreter, noteId: String?) {
@@ -104,26 +115,25 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
             LOG.trace("Start perform request 'Restart interpreter' Interpreter:$interpreter, note id: $noteId")
         }
         val data: Map<String, String> = noteId?.let { mapOf("noteId" to noteId) } ?: mapOf()
-        val json = Klaxon().toJsonString(data)
-        val (_, response, result) = restApi.performPutData("/interpreter/setting/restart/${interpreter.id} ",
-                json, sessionToken)
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Restart interpreter' Response:$response")
-        if (response.statusCode != 200) {
-            throw RestApiException("Cannot interpreter settings.",
-                    response.statusCode)
+        val result = try {
+            restApi.performPutData("/interpreter/setting/restart/${interpreter.id} ",
+                    data, sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot restart an interpreter.", e.message ?: "")
         }
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Restart interpreter' Response:$result")
     }
 
     fun updateInterpreterSettings(interpreter: Interpreter) {
         if (LOG.isTraceEnabled) LOG.trace(
                 "Start perform request 'Update interpreter settings' Interpreter:$interpreter")
-        val data: String = Klaxon().toJsonString(interpreter)
-        val (_, response, result) = restApi.performPutData("/interpreter/setting/${interpreter.id} ",
-                data, sessionToken)
-        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Update interpreter settings' Response:$response")
-        if (response.statusCode != 200) {
-            throw RestApiException("Cannot interpreter settings.",
-                    response.statusCode)
+        val data = JsonParser.toObject(interpreter)
+        val result = try {
+            restApi.performPutData("/interpreter/setting/${interpreter.id} ",
+                    data, sessionToken)
+        } catch (e: FuelError) {
+            throw RestApiException("Cannot update interpreter settings.", e.message ?: "")
         }
+        if (LOG.isTraceEnabled) LOG.trace("Performed request 'Update interpreter settings' Response:$result")
     }
 }
