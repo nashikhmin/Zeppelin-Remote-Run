@@ -10,6 +10,7 @@ import org.intellij.plugin.zeppelin.models.ConnectionStatus
 import org.intellij.plugin.zeppelin.models.ParseException
 import org.intellij.plugin.zeppelin.models.SessionIsClosedException
 import org.intellij.plugin.zeppelin.models.ZeppelinException
+import org.intellij.plugin.zeppelin.utils.JsonParser
 import java.net.URI
 
 @WebSocket(maxTextMessageSize = 1024 * 1024)
@@ -20,7 +21,7 @@ class WebSocketAPI(private val address: String) {
     private val handlersMap: MutableMap<String, MessageHandler> = mutableMapOf()
     private val monitor = Object()
     private var defaultHandler: MessageHandler = object : MessageHandler {
-        override fun handle(result: ResponseMessage) {
+        override fun handle(result: WsResponseMessage) {
             println("Default Handler is called. Operation: ${result.op}. Data: ${result.data}")
         }
     }
@@ -53,9 +54,9 @@ class WebSocketAPI(private val address: String) {
 
     @OnWebSocketMessage
     fun onMessage(msg: String) {
-        val response = Klaxon().parse<ResponseMessage>(msg) ?: throw ParseException(msg,
-                ResponseMessage::class.toString())
-        if (LOG.isTraceEnabled) LOG.trace("The message is handled $response.")
+        if (LOG.isTraceEnabled) LOG.trace("The message is handled $msg.")
+        val response = JsonParser.fromStringObject(msg,WsResponseMessage::class.java)
+
         val operationCode = response.op
         handlersMap.getOrDefault(operationCode, defaultHandler).handle(response)
     }
@@ -79,15 +80,15 @@ class WebSocketAPI(private val address: String) {
         client.stop()
     }
 
-    fun doRequestSync(requestMessage: RequestMessage, responseCode: String): String {
+    fun doRequestSync(requestMessage: WsRequestMessage, responseCode: String): Any {
         if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
         var gotResponse = false
-        var response: ResponseMessage? = null
+        var wsResponse: WsResponseMessage? = null
 
         val handleResult = object : MessageHandler {
-            override fun handle(result: ResponseMessage) {
+            override fun handle(result: WsResponseMessage) {
                 synchronized(monitor) {
-                    response = result
+                    wsResponse = result
                     gotResponse = true
                     monitor.notifyAll()
                 }
@@ -102,12 +103,12 @@ class WebSocketAPI(private val address: String) {
                 monitor.wait()
             }
         }
-        return response?.data ?: throw ZeppelinException()
+        return wsResponse?.data ?: throw ZeppelinException()
     }
 
-    fun doRequestWithoutWaitingResult(requestMessage: RequestMessage) {
+    fun doRequestWithoutWaitingResult(requestMessage: WsRequestMessage) {
         if (status != ConnectionStatus.CONNECTED) throw SessionIsClosedException()
-        val msg: String = Klaxon().toJsonString(requestMessage)
+        val msg: String = JsonParser.toJson(requestMessage)
         session?.remote?.sendString(msg)
     }
 
@@ -115,7 +116,7 @@ class WebSocketAPI(private val address: String) {
         handlersMap.putAll(mapOf(op to handler))
     }
 
-    fun doRequestAsync(requestMessage: RequestMessage) {
+    fun doRequestAsync(requestMessage: WsRequestMessage) {
         doRequestWithoutWaitingResult(requestMessage)
     }
 }

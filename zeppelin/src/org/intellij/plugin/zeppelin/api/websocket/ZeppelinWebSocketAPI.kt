@@ -3,6 +3,7 @@ package org.intellij.plugin.zeppelin.api.websocket
 import com.beust.klaxon.Klaxon
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.models.*
+import org.intellij.plugin.zeppelin.utils.JsonParser
 
 /**
  * The service for communication with the Zeppelin application by WebSockets
@@ -19,7 +20,7 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
                 ResponseCode.NOTES_INFO)
                 .forEach { code ->
                     webSocketAPI.registerHandler(code.toString(), object : MessageHandler {
-                        override fun handle(result: ResponseMessage) {
+                        override fun handle(result: WsResponseMessage) {
                             if (logger.isTraceEnabled) logger.trace("Message ${result.op} is ignored")
                         }
                     })
@@ -60,9 +61,9 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
         val opRequest = RequestOperations.GET_INTERPRETER_BINDINGS.toString()
         val opResponse = ResponseCode.INTERPRETER_BINDINGS.toString()
 
-        val requestMessage = RequestMessage(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, json, credentials)
         val responseJson = webSocketAPI.doRequestSync(requestMessage, opResponse)
-        val interpreters = Klaxon().parse<List<InterpreterBindings>>(responseJson) ?: listOf()
+        val interpreters = JsonParser.fromValueList(responseJson,InterpreterBindings::class.java) ?: listOf()
 
         logger.trace("End of request 'Get bindings interpreters'. Response: $responseJson.")
         return interpreters
@@ -77,14 +78,15 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
      */
     fun getNote(noteId: String, credentials: Credentials): Notebook? {
         val data = mapOf("id" to noteId)
-        val json = Klaxon().toJsonString(data)
         if (logger.isTraceEnabled) logger.trace("Start request 'Get note'. Data : $data, credentials: $credentials.")
         val opRequest = RequestOperations.GET_NOTE.toString()
         val opResponse = ResponseCode.NOTE.toString()
-        val requestMessage = RequestMessage(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
         val response = webSocketAPI.doRequestSync(requestMessage, opResponse)
         if (logger.isTraceEnabled) logger.trace("End of request 'Get note'. Response: $response.")
-        return Klaxon().parse<Notebook>(response)
+
+        val notebooks = JsonParser.fromValueMap(response, Notebook::class.java)
+        return notebooks["note"]
     }
 
     fun registerHandler(op: String, handler: MessageHandler) {
@@ -102,7 +104,7 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
         val json = Klaxon().toJsonString(data)
 
         val opRequest = RequestOperations.RUN_PARAGRAPH.toString()
-        val requestMessage = RequestMessage(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, json, credentials)
 
         logger.trace("Start request 'Run paragraph'. Data : $data, credentials: $credentials.")
 
@@ -122,7 +124,7 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
         val data = mapOf("noteId" to noteId, "selectedSettingIds" to newInterpretersBindings)
         val json = Klaxon().toJsonString(data)
         val opRequest = RequestOperations.SAVE_INTERPRETER_BINDINGS.toString()
-        val requestMessage = RequestMessage(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, json, credentials)
 
         logger.trace("Start request 'Save list of binding interpreters'. Data : $data, credentials: $credentials.")
         webSocketAPI.doRequestWithoutWaitingResult(requestMessage)

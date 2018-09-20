@@ -25,12 +25,19 @@ enum class ResponseCode {
     PARAS_INFO
 }
 
-data class RequestMessage(val op: String, val data: String, val credentials: Credentials)
+data class WsRequestMessage(val op: String, val data: Any, val ticket: String, val roles: String,
+                            val principal: String) {
+    companion object {
+        fun create(op: String, data: Any, credentials: Credentials): WsRequestMessage {
+            return WsRequestMessage(op, data, credentials.ticket, credentials.roles, credentials.principal)
+        }
+    }
+}
 
-data class ResponseMessage(val op: String, val data: String)
+data class WsResponseMessage(val op: String, val data: Any)
 
 interface MessageHandler {
-    fun handle(result: ResponseMessage)
+    fun handle(result: WsResponseMessage)
 }
 
 /**

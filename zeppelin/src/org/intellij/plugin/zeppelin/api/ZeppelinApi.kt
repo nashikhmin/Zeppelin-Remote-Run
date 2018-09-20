@@ -42,7 +42,11 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      * @return the list of notebooks
      */
     fun allNotebooks(): List<Notebook> {
-        return zeppelinRestApi.getNotebooks()
+        val notebooksWithoutParagraphs = zeppelinRestApi.getNotebooks()
+        return notebooksWithoutParagraphs.map {
+            zeppelinWebSocketAPI.getNote(it.id, credentials) ?: throw ZeppelinException(
+                    "Cannot get a Notebook by WebSockets which was gotten by REST")
+        }
     }
 
     /**

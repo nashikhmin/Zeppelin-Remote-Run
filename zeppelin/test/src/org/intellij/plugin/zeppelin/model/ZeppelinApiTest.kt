@@ -18,10 +18,11 @@ class ZeppelinApiTest {
     fun notebooksTest() {
         val notebooks = integration.api.allNotebooks().filter { it.name.startsWith("Zeppelin Tutorial") }
         assertEquals(notebooks.size, 6, "There are not 6 notebooks in Zeppelin")
+        notebooks.forEach { assertTrue(it.paragraphs.isNotEmpty(), "There are not paragraphs in ${it.name}") }
     }
 
     @Test
-    fun interpreterTest() {
+    fun interpretersTest() {
         val interpreters = integration.api.allInterpreters()
         assertTrue(interpreters.isNotEmpty(), "There are not 6 notebooks in Zeppelin")
     }

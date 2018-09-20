@@ -3,7 +3,7 @@ package org.intellij.plugin.zeppelin.model
 import com.beust.klaxon.Klaxon
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.models.*
-import org.intellij.plugin.zeppelin.utils.RestParse
+import org.intellij.plugin.zeppelin.utils.JsonParser
 
 /**
  * The service to work with Zeppelin by the RESt API
@@ -69,7 +69,7 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         if (response.statusCode != 200) throw RestApiException(
                 "Cannot get list of interpreters.", response.statusCode)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get interpreters' $response")
-        return RestParse.fromValueList(result.get().body, Interpreter::class.java)
+        return JsonParser.fromValueList(result.get().body, Interpreter::class.java)
     }
 
     fun getNotebooks(): List<Notebook> {
@@ -79,7 +79,7 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
                 "Cannot get list of notebooks", response.statusCode)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $response")
 
-        return RestParse.fromValueList(result.get().body, Notebook::class.java)
+        return JsonParser.fromValueList(result.get().body, Notebook::class.java)
     }
 
     fun login(user: User): Credentials {
@@ -96,7 +96,7 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         sessionToken = headers.first { it.contains("JSESSIONID") }.split(";")[0]
         loginStatus = LoginStatus.LOGGED
 
-        return RestParse.fromValueObject(result.get().body, Credentials::class.java)
+        return JsonParser.fromValueObject(result.get().body, Credentials::class.java)
     }
 
     fun restartInterpreter(interpreter: Interpreter, noteId: String?) {

@@ -33,3 +33,8 @@ class ParseException(private val json: String,
         get() = "Cannot parse json to object.\nJson:\n$json\nClass:\n$parseClass"
 
 }
+
+class ConvertException(private val obj: Any) : ZeppelinException() {
+    override val message: String
+        get() = "Cannot convert object to json.\nObject:\n$obj"
+}

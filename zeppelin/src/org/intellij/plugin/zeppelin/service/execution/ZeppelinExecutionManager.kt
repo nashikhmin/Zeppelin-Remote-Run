@@ -3,7 +3,7 @@ package org.intellij.plugin.zeppelin.service.execution
 import org.intellij.plugin.zeppelin.api.ZeppelinApi
 import org.intellij.plugin.zeppelin.api.websocket.MessageHandler
 import org.intellij.plugin.zeppelin.api.websocket.ResponseCode
-import org.intellij.plugin.zeppelin.api.websocket.ResponseMessage
+import org.intellij.plugin.zeppelin.api.websocket.WsResponseMessage
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.models.ExecuteContext
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
@@ -18,25 +18,25 @@ open class ZeppelinExecutionManager(private val api: ZeppelinApi,
                                     private val executionHandlerFactory: ExecutionHandlerFactory) {
     init {
         api.registerHandler(ResponseCode.PROGRESS, object : MessageHandler {
-            override fun handle(result: ResponseMessage) {
+            override fun handle(result: WsResponseMessage) {
                 handleParagraphProgress(result)
             }
         })
 
         api.registerHandler(ResponseCode.PARAGRAPH, object : MessageHandler {
-            override fun handle(result: ResponseMessage) {
+            override fun handle(result: WsResponseMessage) {
                 handleParagraph(result)
             }
         })
 
         api.registerHandler(ResponseCode.PARAGRAPH_APPEND_OUTPUT, object : MessageHandler {
-            override fun handle(result: ResponseMessage) {
+            override fun handle(result: WsResponseMessage) {
                 handleParagraphAppendOutput(result)
             }
         })
 
         api.registerHandler(ResponseCode.PARAGRAPH_UPDATE_OUTPUT, object : MessageHandler {
-            override fun handle(result: ResponseMessage) {
+            override fun handle(result: WsResponseMessage) {
                 handleParagraphUpdateOutput(result)
             }
         })
@@ -65,25 +65,25 @@ open class ZeppelinExecutionManager(private val api: ZeppelinApi,
         return tasksArray.find { it.id == id }
     }
 
-    private fun handleParagraph(message: ResponseMessage) {
+    private fun handleParagraph(message: WsResponseMessage) {
         val paragraphResponse = ExecutionModelConverter.getParagraphResponse(message.data)
         val taskExecutor: TaskExecutor = getOrCreateTaskExecutor(paragraphResponse.id) ?: return
         taskExecutor.paragraph(paragraphResponse)
     }
 
-    private fun handleParagraphAppendOutput(message: ResponseMessage) {
+    private fun handleParagraphAppendOutput(message: WsResponseMessage) {
         val updateOutput = ExecutionModelConverter.getOutputResult(message.data)
         val taskExecutor: TaskExecutor = getOrCreateTaskExecutor(updateOutput.paragraphId) ?: return
         taskExecutor.appendOutput(updateOutput)
     }
 
-    private fun handleParagraphProgress(message: ResponseMessage) {
+    private fun handleParagraphProgress(message: WsResponseMessage) {
         val progress = ExecutionModelConverter.getProgressResponse(message.data)
         val taskExecutor: TaskExecutor = getOrCreateTaskExecutor(progress.id) ?: return
         taskExecutor.progress(progress)
     }
 
-    private fun handleParagraphUpdateOutput(message: ResponseMessage) {
+    private fun handleParagraphUpdateOutput(message: WsResponseMessage) {
         val updateOutput = ExecutionModelConverter.getOutputResult(message.data)
         val taskExecutor: TaskExecutor = getOrCreateTaskExecutor(updateOutput.paragraphId) ?: return
         taskExecutor.updateOutput(updateOutput)
