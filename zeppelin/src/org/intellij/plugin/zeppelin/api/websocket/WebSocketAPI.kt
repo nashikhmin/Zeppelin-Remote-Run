@@ -13,7 +13,8 @@ import org.intellij.plugin.zeppelin.models.ZeppelinException
 import java.net.URI
 
 @WebSocket(maxTextMessageSize = 1024 * 1024)
-class WebSocketAPI(private val uri: String) {
+class WebSocketAPI(private val address: String) {
+    private val uri = "ws://$address/ws"
     private val LOG: Logger = Logger.getInstance(WebSocketAPI::class.java)
     private val client: WebSocketClient = WebSocketClient()
     private val handlersMap: MutableMap<String, MessageHandler> = mutableMapOf()

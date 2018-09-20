@@ -3,6 +3,7 @@ package org.intellij.plugin.zeppelin.idea.settings.plugin
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.ide.passwordSafe.PasswordSafe
+import org.intellij.plugin.zeppelin.models.User
 
 object ZeppelinCredentialsManager {
     private val passwordSafe: PasswordSafe = PasswordSafe.instance
@@ -13,9 +14,8 @@ object ZeppelinCredentialsManager {
 
     fun getLogin(): String = passwordSafe.get(CredentialAttributes)?.userName ?: DEFAULT_USERNAME
 
-
-    fun setCredentials(login: String, password: String) = passwordSafe.set(CredentialAttributes,
-                                                                           Credentials(login, password))
+    fun setCredentials(user: User?) = passwordSafe.set(CredentialAttributes,
+            Credentials(user?.name ?: "", user?.password ?: ""))
 
     fun getPlainPassword(): String = passwordSafe.get(CredentialAttributes)?.getPasswordAsString() ?: DEFAULT_PASSWORD
 }

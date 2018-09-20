@@ -63,7 +63,7 @@ class ZeppelinComponent(val project: Project) : ProjectComponent {
         ZeppelinLogger.printMessage(ZeppelinConstants.RESTART_CONNECTION)
         actions?.destroy()
         val zeppelinSettings: ZeppelinSettings = getZeppelinSettings()
-        sparkVersion = SparkVersion(zeppelinSettings.sparkVersion)
+        sparkVersion = zeppelinSettings.sparkVersion
         defaultNotebook = zeppelinSettings.defaultNotebookName
         val zeppelinActionService = ZeppelinActionService(project, zeppelinSettings)
         actions = zeppelinActionService

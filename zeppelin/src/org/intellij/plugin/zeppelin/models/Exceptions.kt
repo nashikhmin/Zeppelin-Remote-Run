@@ -12,7 +12,7 @@ data class ZeppelinConnectionException(val uri: String) : ZeppelinException() {
 
 class ZeppelinLoginException : ZeppelinException() {
     override val message: String
-        get() = "Cannot login to the Zeppelin app. The login or the password is wrong."
+        get() = "Cannot name to the Zeppelin app. The name or the password is wrong."
 }
 
 data class NotebookNotFoundException(val id: String) : ZeppelinException() {

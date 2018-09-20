@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.rest
+package org.intellij.plugin.zeppelin.model
 
 import com.beust.klaxon.Klaxon
 import com.github.kittinunf.fuel.core.FuelError
@@ -8,25 +8,27 @@ import com.github.kittinunf.fuel.httpDelete
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
+import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
+import sun.security.krb5.Credentials
 
 open class RestAPI(host: String, port: Int, https: Boolean = false) {
     private val protocol: String = if (https) "https" else "http"
     private val apiUrl: String = "$protocol://$host:$port/api"
 
-    fun performGetRequest(uri: String, credentials: String?): Triple<Request, Response, Result<String, FuelError>> {
-        val headers = mapOf("Charset" to "UTF-8").plus(
-                credentials?.let { mapOf("Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
+    fun performGetRequest(uri: String,
+                          credentials: String?): Triple<Request, Response, Result<RestResponseMessage, FuelError>> {
+        val headers = credentials?.let { mapOf("Cookie" to credentials) } ?: emptyMap()
         return "$apiUrl$uri".httpGet()
                 .header(headers)
                 .timeout(10000)
-                .responseString()
+                .responseObject()
     }
 
     fun performPostData(uri: String, jsonData: String,
                         credentials: String?): Triple<Request, Response, Result<String, FuelError>> {
         val headers = mapOf("Charset" to "UTF-8", "Content-Type" to "application/json").plus(
-                credentials?.let { mapOf("Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
+                credentials?.let { mapOf("Set-Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
 
         val mapData = Klaxon().parse<Map<String, Any>>(jsonData) ?: mapOf()
         return "$apiUrl$uri".httpPost(mapData.toList())
@@ -37,28 +39,28 @@ open class RestAPI(host: String, port: Int, https: Boolean = false) {
 
     fun performDeleteData(uri: String, credentials: String?): Triple<Request, Response, Result<String, FuelError>> {
         val headers = mapOf("Charset" to "UTF-8", "Content-Type" to "application/json").plus(
-                credentials?.let { mapOf("Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
+                credentials?.let { mapOf("Set-Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
         return "$apiUrl$uri".httpDelete()
                 .header(headers)
                 .timeout(10000)
                 .responseString()
     }
 
-    fun performPostForm(uri: String,
-                        params: Map<String, String>): Triple<Request, Response, Result<String, FuelError>> {
+    fun performPostForm(uri: String, params: Map<String, String>)
+            : Triple<Request, Response, Result<RestResponseMessage, FuelError>> {
         val paramString = "?" + params.map { it.key + "=" + it.value }.joinToString("&")
         val headers = mapOf("Charset" to "UTF-8", "Content-Type" to "application/x-www-form-urlencoded")
 
         return "$apiUrl$uri$paramString".httpPost()
                 .header(headers)
                 .timeout(10000)
-                .responseString()
+                .responseObject()
     }
 
     fun performPutData(uri: String, jsonData: String,
                        credentials: String?): Triple<Request, Response, Result<String, FuelError>> {
         val headers = mapOf("Charset" to "UTF-8", "Content-Type" to "application/json").plus(
-                credentials?.let { mapOf("Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
+                credentials?.let { mapOf("Set-Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
         val mapData = Klaxon().parse<Map<String, Any>>(jsonData) ?: mapOf()
 
         return "$apiUrl$uri".httpPut(mapData.toList())

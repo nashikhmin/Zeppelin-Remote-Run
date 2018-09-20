@@ -11,7 +11,6 @@ import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.util.Processor
-import convertedFromScala.lib.MatchError
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 

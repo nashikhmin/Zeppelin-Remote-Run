@@ -11,13 +11,13 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 @com.intellij.openapi.components.State(name = "RemoteRunSettings", storages = [Storage("remoteRunPlugin.xml")])
 class RemoteRunApplicationSettings : PersistentStateComponent<RemoteRunSettingsState>,
                                      ZeppelinHolder {
-    override fun getZeppelinSettings(): ZeppelinSettings = myState.zeppelinSettings
+    override fun getZeppelinSettings(): ZeppelinSettings = myState.zeppelinSettings.data
 
     override fun setZeppelinSettings(settings: ZeppelinSettings) {
         ApplicationManager.getApplication().messageBus.syncPublisher(SettingsChangedListener.TOPIC)
                 .beforeSettingsChanged(this)
-        myState.zeppelinSettings = settings
-        ZeppelinCredentialsManager.setCredentials(settings.login, settings.password)
+        myState.zeppelinSettings.data = settings
+        ZeppelinCredentialsManager.setCredentials(settings.user)
     }
 
     override fun getState(): RemoteRunSettingsState? = myState

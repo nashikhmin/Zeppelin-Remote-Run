@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.rest
+package org.intellij.plugin.zeppelin.model
 
 import org.intellij.plugin.zeppelin.models.ZeppelinException
 

@@ -1,6 +1,8 @@
 package org.intellij.plugin.zeppelin.models
 
 import com.beust.klaxon.JsonObject
+import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 data class Config(val enabled: Boolean? = true)
 
@@ -16,7 +18,12 @@ data class InterpreterBinding(val defaultInterpreter: Boolean, val name: String)
 
 
 enum class InstantiationType(val value: String) {
-    SHARED("shared"), SCOPED("scoped"), ISOLATED("isolated")
+    @Json(name = "shared")
+    SHARED("shared"),
+    @Json(name = "scoped")
+    SCOPED("scoped"),
+    @Json(name = "isolated")
+    ISOLATED("isolated");
 }
 
 data class InterpreterOption(val perNote: InstantiationType = InstantiationType.SHARED,
@@ -29,16 +36,17 @@ data class Interpreter(val id: String,
                        val group: String,
                        val dependencies: List<Dependency>,
                        val status: InterpreterStatus,
-                       val properties: JsonObject,
+                       val properties: Any,
                        val option: InterpreterOption,
-                       val interpreterGroup: List<JsonObject>,
+                       val interpreterGroup: List<Any>,
                        val errorReason: String?)
 
 data class Dependency(val groupArtifactVersion: String,
                       val exclusions: List<String> = emptyList(),
                       val local: Boolean = true)
 
-data class Notebook(val id: String, val name: String = "", val paragraphs: List<Paragraph> = emptyList())
+data class Notebook(val id: String, val name: String = "", val paragraphs: List<Paragraph> = emptyList()) {
+}
 
 data class Paragraph(val id: String,
                      val jobName: String = "",
@@ -73,4 +81,4 @@ enum class LoginStatus {
 }
 
 
-data class User(val login: String, val password: String)
+data class User(val name: String, val password: String)

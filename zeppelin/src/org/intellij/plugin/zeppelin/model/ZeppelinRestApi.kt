@@ -1,10 +1,9 @@
-package org.intellij.plugin.zeppelin.api.rest
+package org.intellij.plugin.zeppelin.model
 
-import com.beust.klaxon.JsonValue
 import com.beust.klaxon.Klaxon
-
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.models.*
+import org.intellij.plugin.zeppelin.utils.RestParse
 
 /**
  * The service to work with Zeppelin by the RESt API
@@ -59,53 +58,45 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Delete paragraph'. NoteId: $noteId")
         val (_, response, result) = restApi.performDeleteData("/notebook/$noteId/paragraph/$paragraphId",
                 sessionToken)
-        if (response.statusCode != 200) throw RestApiException("Cannot delete a paragraph", response.statusCode)
+        if (response.statusCode != 200) throw RestApiException(
+                "Cannot delete a paragraph", response.statusCode)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Delete paragraph' $response")
     }
 
     fun getInterpreters(): List<Interpreter> {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Get interpreters'")
         val (_, response, result) = restApi.performGetRequest("/interpreter/setting", sessionToken)
-        if (response.statusCode != 200) throw RestApiException("Cannot get list of interpreters.", response.statusCode)
+        if (response.statusCode != 200) throw RestApiException(
+                "Cannot get list of interpreters.", response.statusCode)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get interpreters' $response")
-        val responseMessage = response.responseMessage
-        return Klaxon().parse<List<Interpreter>>(responseMessage)
-                ?: throw ParseException(responseMessage, List::class.toString())
+        return RestParse.fromValueList(result.get().body, Interpreter::class.java)
     }
 
-    fun getNotebooks(prefix: String=""): List<Notebook> {
+    fun getNotebooks(): List<Notebook> {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Get notebooks'")
         val (_, response, result) = restApi.performGetRequest("/notebook", sessionToken)
-        if (response.statusCode != 200) throw RestApiException("Cannot get list of notebooks", response.statusCode)
+        if (response.statusCode != 200) throw RestApiException(
+                "Cannot get list of notebooks", response.statusCode)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $response")
-        val responseMessage = response.responseMessage
-        return Klaxon().parse<List<Notebook>>(responseMessage)
-                ?: throw ParseException(responseMessage, Notebook::class.toString())
+
+        return RestParse.fromValueList(result.get().body, Notebook::class.java)
     }
 
-    data class ResponseMessage(val status:String, val message:String,val body: JsonValue)
-
-    fun login(userName: String, password: String): Credentials {
-        if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Login' User:$userName")
-        val params = mapOf("userName" to userName,
-                "password" to password)
+    fun login(user: User): Credentials {
+        if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Login' User:${user.name}")
+        val params = mapOf("userName" to user.name,
+                "password" to user.password)
         val (_, response, result) = restApi.performPostForm("/login", params)
-        val parse = Klaxon().parse<ResponseMessage>(result.get())
-        if (response.statusCode != 200) {
-            throw RestApiException("Cannot login.", response.statusCode)
-        }
 
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Login' Response:$response")
-        val responseMessage = response.responseMessage
 
-        val cookie = response.headers["Set-Cookie"]?.reversed()
-        val sessionString = cookie?.first { it.contains("JSESSIONID") }
-        val sessionPart = sessionString?.split(";")?.first()
-        sessionToken = sessionPart?.split("=")?.get(1)
+        if (response.statusCode != 200) throw RestApiException("Cannot handle login request.", response.statusCode)
+
+        val headers = response.headers["Set-Cookie"] ?: listOf()
+        sessionToken = headers.first { it.contains("JSESSIONID") }.split(";")[0]
         loginStatus = LoginStatus.LOGGED
 
-        return Klaxon().parse<Credentials>(responseMessage)
-                ?: throw ParseException(responseMessage, Notebook::class.toString())
+        return RestParse.fromValueObject(result.get().body, Credentials::class.java)
     }
 
     fun restartInterpreter(interpreter: Interpreter, noteId: String?) {
@@ -118,7 +109,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
                 json, sessionToken)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Restart interpreter' Response:$response")
         if (response.statusCode != 200) {
-            throw RestApiException("Cannot interpreter settings.", response.statusCode)
+            throw RestApiException("Cannot interpreter settings.",
+                    response.statusCode)
         }
     }
 
@@ -130,7 +122,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
                 data, sessionToken)
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Update interpreter settings' Response:$response")
         if (response.statusCode != 200) {
-            throw RestApiException("Cannot interpreter settings.", response.statusCode)
+            throw RestApiException("Cannot interpreter settings.",
+                    response.statusCode)
         }
     }
 }

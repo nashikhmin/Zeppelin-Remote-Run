@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import kotlinx.coroutines.experimental.launch
 import org.intellij.plugin.zeppelin.api.ZeppelinApi
+import org.intellij.plugin.zeppelin.api.ZeppelinIntegration
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.extensionpoints.FileNotebookHolder
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
@@ -19,15 +20,18 @@ import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.service.execution.GuiExecutionHandlerFactory
 import org.intellij.plugin.zeppelin.service.execution.ZeppelinExecutionManager
-import org.intellij.plugin.zeppelin.utils.ThreadRun
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
 
 /**
  * Main class that implement logic of the actions for the communication with Zeppelin
  */
 class ZeppelinActionService(private val project: Project, private val zeppelinSettings: ZeppelinSettings) {
-    var api: ZeppelinApi = ZeppelinApi.apply(zeppelinSettings.address, zeppelinSettings.port, zeppelinSettings.user())
-    var executionManager: ZeppelinExecutionManager = ZeppelinExecutionManager(api, GuiExecutionHandlerFactory(project))
+
+    private var integration = ZeppelinIntegration(zeppelinSettings, GuiExecutionHandlerFactory(project))
+    val api: ZeppelinApi
+        get() = integration.api
+    private val executionManager: ZeppelinExecutionManager
+        get() = integration.executionManager
 
     /**
      * Method that close all connections and free resources
@@ -128,7 +132,8 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
             val notebook: Notebook = linkedNotebook()
             api.restartInterpreter(interpreter.id, notebook.id)
         }
-        ProgressManager.getInstance().runProcessWithProgressSynchronously(restartFunction,"Restart an $interpreterName interpreter",false,project)
+        ProgressManager.getInstance().runProcessWithProgressSynchronously(restartFunction,
+                "Restart an $interpreterName interpreter", false, project)
     }
 
     /**
@@ -172,7 +177,7 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
         if (!checkPreconditions()) return
         val oldInterpreterSettings = getInterpreterById(interpreter.id, true)
 
-        if (oldInterpreterSettings==null) {
+        if (oldInterpreterSettings == null) {
             ZeppelinLogger.printError("Cannot get interpreter settings")
             return
         }
@@ -193,13 +198,13 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
             ZeppelinLogger.printMessage("The next dependencies will be added:")
             addedDependencies.forEach { it -> ZeppelinLogger.printMessage(it.groupArtifactVersion) }
         }
-
-        launch {
-            api.updateInterpreterSetting(interpreter)
-            ZeppelinLogger.printSuccess("Interpreter settings were updated." +
-                    " Removed: ${removedDependencies.size}." +
-                    " Added: ${addedDependencies.size}.")
-        }
+//TODO:
+//        launch {
+//            api.updateInterpreterSetting(interpreter)
+//            ZeppelinLogger.printSuccess("Interpreter settings were updated." +
+//                    " Removed: ${removedDependencies.size}." +
+//                    " Added: ${addedDependencies.size}.")
+//        }
     }
 
     /**
@@ -249,18 +254,16 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
      * @return the server is connected
      */
     private fun checkConnection(): Boolean {
-        if (api.isConnected()) return true
+        if (integration.isConnected()) return true
         try {
-            api.close()
-            api = ZeppelinApi.apply(zeppelinSettings.address, zeppelinSettings.port, zeppelinSettings.user())
-            api.connect()
-            executionManager = ZeppelinExecutionManager(api, GuiExecutionHandlerFactory(project))
+            integration.close()
+            integration = ZeppelinIntegration(zeppelinSettings, GuiExecutionHandlerFactory(project) )
         } catch (_: ZeppelinConnectionException) {
             ZeppelinLogger.printError("Connection error. Check that ${zeppelinSettings.fullUrl} is available")
         } catch (_: ZeppelinLoginException) {
-            ZeppelinLogger.printError("Authentication error. Check login and password")
+            ZeppelinLogger.printError("Authentication error. Check name and password")
         }
-        return api.isConnected()
+        return integration.isConnected()
     }
 
     /**

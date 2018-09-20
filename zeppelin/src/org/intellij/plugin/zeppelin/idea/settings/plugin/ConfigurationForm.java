@@ -6,6 +6,8 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent;
+import org.intellij.plugin.zeppelin.models.SparkVersion;
+import org.intellij.plugin.zeppelin.models.User;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -152,16 +154,18 @@ public class ConfigurationForm implements SearchableConfigurable {
 
     @NotNull
     private ZeppelinSettings getZeppelinSettingsFromForm() {
-        ZeppelinSettings newZeppelinSettings = new ZeppelinSettings();
-        newZeppelinSettings.setAddress(addressField.getText());
-        newZeppelinSettings.setPort(Integer.valueOf(portField.getText()));
-        newZeppelinSettings.setIsAnonymous(anonymousCheckBox.isSelected());
-        newZeppelinSettings.setDefaultNotebookName(String.valueOf(defaultNotebookField.getText()));
-
         String login = usernameField.getText();
         String password = String.valueOf(passwordField.getPassword());
-        newZeppelinSettings.setCredentials(login, password);
-        return newZeppelinSettings;
+        boolean isAnon = anonymousCheckBox.isSelected();
+        User user = !isAnon ? new User(login, password) : null;
+
+        return new ZeppelinSettings(
+                addressField.getText(),
+                Integer.valueOf(portField.getText()),
+                user,
+                new SparkVersion(sparkVersionTextField.getText()),
+                defaultNotebookField.getText()
+        );
     }
 
     private void setDefaultValues(@NotNull Project project) {
@@ -170,9 +174,9 @@ public class ConfigurationForm implements SearchableConfigurable {
         passwordField.setText(zeppelinSettings.getPassword());
         usernameField.setText(zeppelinSettings.getLogin());
         portField.setText(String.valueOf(zeppelinSettings.getPort()));
-        addressField.setText(zeppelinSettings.getAddress());
+        addressField.setText(zeppelinSettings.getHost());
 
-        sparkVersionTextField.setText(zeppelinSettings.getSparkVersion());
+        sparkVersionTextField.setText(zeppelinSettings.getSparkVersion().toString());
         defaultNotebookField.setText(zeppelinSettings.getDefaultNotebookName());
 
         isAnonymous = zeppelinSettings.isAnonymous();

@@ -2,12 +2,11 @@ package org.intellij.plugin.zeppelin.api
 
 import com.intellij.openapi.diagnostic.Logger
 import kotlinx.coroutines.experimental.delay
-import org.intellij.plugin.zeppelin.api.rest.RestAPI
-import org.intellij.plugin.zeppelin.api.rest.RestApiException
-import org.intellij.plugin.zeppelin.api.rest.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.api.websocket.MessageHandler
 import org.intellij.plugin.zeppelin.api.websocket.ResponseCode
 import org.intellij.plugin.zeppelin.api.websocket.ZeppelinWebSocketAPI
+import org.intellij.plugin.zeppelin.model.RestApiException
+import org.intellij.plugin.zeppelin.model.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.service.InterpreterException
 import org.intellij.plugin.zeppelin.service.InterpreterNotFoundException
@@ -18,9 +17,13 @@ import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
  *
  * @param zeppelinWebSocketAPI - service for communication with Zeppelin by WebSockets
  * @param zeppelinRestApi      - service for communication with Zeppelin by REST API
+ * @param user - an user if not anonymous
  */
-class ZeppelinApi(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
-                  val zeppelinRestApi: ZeppelinRestApi, val uri: String, val user: User?) {
+class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
+                  private val zeppelinRestApi: ZeppelinRestApi,
+                  val user: User?,
+                  private val uri: String) {
+
     private val LOG: Logger = Logger.getInstance(this::class.java)
     private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
 
@@ -53,9 +56,8 @@ class ZeppelinApi(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     /**
      * Connection to the Zeppelin server
      *
-     * @param needAuth is needed authentication by login/password
      * @throws ZeppelinConnectionException if the service is unavailable
-     * @throws ZeppelinLoginException      if the login/password is wrong
+     * @throws ZeppelinLoginException      if the name/password is wrong
      */
     fun connect() {
         zeppelinWebSocketAPI.connect()
@@ -67,7 +69,7 @@ class ZeppelinApi(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
         }
 
         try {
-            user?.let { credentials = zeppelinRestApi.login(it.login, it.password) }
+            user?.let { credentials = zeppelinRestApi.login(it) }
         } catch (_: RestApiException) {
             throw ZeppelinLoginException()
         }
@@ -110,7 +112,7 @@ class ZeppelinApi(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      * @param prefix - a name prefix
      */
     fun deleteAllNotebooksByPrefix(prefix: String) {
-        val notebooks: List<Notebook> = zeppelinRestApi.getNotebooks(prefix)
+        val notebooks: List<Notebook> = zeppelinRestApi.getNotebooks().filter { it.name.startsWith(prefix) }
         notebooks.forEach { note -> zeppelinRestApi.deleteNotebook(note.id) }
     }
 
@@ -256,14 +258,5 @@ class ZeppelinApi(val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     private fun getParagraph(notebookId: String, paragraphId: String): Paragraph? {
         val notebookWS: Notebook = zeppelinWebSocketAPI.getNote(notebookId, credentials) ?: return null
         return notebookWS.paragraphs.find { it.id == paragraphId }
-    }
-
-    companion object {
-        fun apply(address: String, port: Int, user: User?): ZeppelinApi {
-            return ZeppelinApi(
-                    ZeppelinWebSocketAPI.apply(address, port),
-                    ZeppelinRestApi(RestAPI(address, port)),
-                    "$address:$port", user)
-        }
     }
 }
