@@ -8,7 +8,7 @@ data class Config(val enabled: Boolean? = true)
 
 
 enum class InterpreterStatus {
-    READY, DOWNLOADING_DEPENDENCIES, ERROR
+    READY, DOWNLOADING_DEPENDENCIES, ERROR, PENDING
 }
 
 

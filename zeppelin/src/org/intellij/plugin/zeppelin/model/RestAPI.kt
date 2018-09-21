@@ -60,14 +60,14 @@ open class RestAPI(host: String, port: Int, https: Boolean = false) {
     fun performPutData(uri: String, data: Map<String, Any>,
                        credentials: String?): RestResponseMessage {
         val headers = mapOf("Charset" to "UTF-8", "Content-Type" to "application/json").plus(
-                credentials?.let { mapOf("Set-Cookie" to "JSESSIONID=$credentials") } ?: emptyMap())
-        val (_, _, result) = "$apiUrl$uri".httpPut(data.toList())
+                credentials?.let { mapOf("Cookie" to credentials) } ?: emptyMap())
+
+        val (_, _, result) = "$apiUrl$uri".httpPut()
                 .header(headers)
+                .body(JsonParser.toJson(data))
                 .timeout(10000)
                 .responseObject<RestResponseMessage>()
-
-        return getResponse(result)
-    }
+        return getResponse(result)    }
 
     private fun getResponse(
             result: Result<RestResponseMessage, FuelError>): RestResponseMessage {
