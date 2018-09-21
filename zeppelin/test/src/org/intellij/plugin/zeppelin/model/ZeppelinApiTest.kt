@@ -1,6 +1,8 @@
 package org.intellij.plugin.zeppelin.model
 
 import org.intellij.plugin.zeppelin.api.ZeppelinIntegration
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -8,6 +10,15 @@ import kotlin.test.assertTrue
 class ZeppelinApiTest {
     private val settings = getMockSettings()
     private val integration = ZeppelinIntegration(settings, MockExecutionHandlerFactory())
+    private val interpreterTestNotebook = "interpreter notebook"
+    private val notebookTestName= "Test notebook"
+
+    @After
+    @Before
+    fun clean() {
+        integration.api.deleteNotebooksByPrefix(interpreterTestNotebook)
+        integration.api.deleteNotebooksByPrefix(notebookTestName)
+    }
 
     @Test
     fun loginTest() {
@@ -20,16 +31,16 @@ class ZeppelinApiTest {
         assertEquals(notebooks.size, 6, "There are not 6 notebooks in Zeppelin")
         notebooks.forEach { assertTrue(it.paragraphs.isNotEmpty(), "There are not paragraphs in ${it.name}") }
 
-        val notebookName = "Test notebook"
-        val createdNotebook = integration.api.createNotebook(notebookName)
+
+        val createdNotebook = integration.api.createNotebook(notebookTestName)
         assertTrue(createdNotebook.id.isNotEmpty(), "The id of the created notebook is empty")
 
 
-        assertTrue(integration.api.notebooksByPrefix(notebookName).isNotEmpty(),
+        assertTrue(integration.api.notebooksByPrefix(notebookTestName).isNotEmpty(),
                 "There are not created notebooks in Zeppelin")
 
-        integration.api.deleteAllNotebooksByPrefix(notebookName)
-        assertTrue(integration.api.notebooksByPrefix(notebookName).isEmpty(), "The notebooks are not deleted")
+        integration.api.deleteNotebooksByPrefix(notebookTestName)
+        assertTrue(integration.api.notebooksByPrefix(notebookTestName).isEmpty(), "The notebooks are not deleted")
     }
 
     @Test
@@ -40,7 +51,6 @@ class ZeppelinApiTest {
 
     @Test
     fun interpreterTest() {
-        val interpreterTestNotebook = "interpreter notebook"
         val createdNotebook = integration.api.createNotebook(interpreterTestNotebook)
         val interpreter = integration.api.defaultInterpreter(createdNotebook.id)
         assertTrue((interpreter.name == "spark"), "The default notebook is not spark")

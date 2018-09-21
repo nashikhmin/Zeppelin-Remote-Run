@@ -127,7 +127,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      *
      * @param prefix - a name prefix
      */
-    fun deleteAllNotebooksByPrefix(prefix: String) {
+    fun deleteNotebooksByPrefix(prefix: String) {
         val notebooks: List<Notebook> = zeppelinRestApi.getNotebooks().filter { it.name.startsWith(prefix) }
         notebooks.forEach { note -> zeppelinRestApi.deleteNotebook(note.id) }
     }
