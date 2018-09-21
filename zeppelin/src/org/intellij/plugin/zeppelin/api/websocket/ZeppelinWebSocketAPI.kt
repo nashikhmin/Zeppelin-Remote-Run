@@ -1,6 +1,5 @@
 package org.intellij.plugin.zeppelin.api.websocket
 
-import com.beust.klaxon.Klaxon
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.utils.JsonParser
@@ -50,20 +49,21 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
      *
      * @param noteId      - id of the notebook
      * @param credentials - an user credentials
-     * @return
+     * @return a list of bindings interpreters for the notebook
      */
     fun getBindingInterpreters(noteId: String, credentials: Credentials): List<InterpreterBindings> {
         val data = mapOf("noteId" to noteId)
-        val json = Klaxon().toJsonString(data)
 
         logger.trace("Start request 'Get bindings interpreters'. Data : $data, credentials: $credentials.")
 
         val opRequest = RequestOperations.GET_INTERPRETER_BINDINGS.toString()
         val opResponse = ResponseCode.INTERPRETER_BINDINGS.toString()
 
-        val requestMessage = WsRequestMessage.create(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
         val responseJson = webSocketAPI.doRequestSync(requestMessage, opResponse)
-        val interpreters = JsonParser.fromValueList(responseJson,InterpreterBindings::class.java) ?: listOf()
+        val jsonList = JsonParser.fromValueMap(responseJson, Any::class.java)["interpreterBindings"]
+                ?: throw ZeppelinException("Expected interpreterBindings field in the response from the server")
+        val interpreters = JsonParser.fromValueList(jsonList, InterpreterBindings::class.java)
 
         logger.trace("End of request 'Get bindings interpreters'. Response: $responseJson.")
         return interpreters
@@ -101,10 +101,9 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
      */
     fun runParagraph(paragraph: Paragraph, credentials: Credentials) {
         val data = RunParagraphData(paragraph.id, paragraph.text, paragraph.title)
-        val json = Klaxon().toJsonString(data)
 
         val opRequest = RequestOperations.RUN_PARAGRAPH.toString()
-        val requestMessage = WsRequestMessage.create(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
 
         logger.trace("Start request 'Run paragraph'. Data : $data, credentials: $credentials.")
 
@@ -122,17 +121,11 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
                                       newInterpretersBindings: List<String>,
                                       credentials: Credentials) {
         val data = mapOf("noteId" to noteId, "selectedSettingIds" to newInterpretersBindings)
-        val json = Klaxon().toJsonString(data)
         val opRequest = RequestOperations.SAVE_INTERPRETER_BINDINGS.toString()
-        val requestMessage = WsRequestMessage.create(opRequest, json, credentials)
+        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
 
         logger.trace("Start request 'Save list of binding interpreters'. Data : $data, credentials: $credentials.")
         webSocketAPI.doRequestWithoutWaitingResult(requestMessage)
-    }
-
-    companion object {
-        fun apply(address: String, port: Int): ZeppelinWebSocketAPI =
-                ZeppelinWebSocketAPI(WebSocketAPI("ws://$address:$port/ws"))
     }
 }
 

@@ -16,7 +16,7 @@ object JsonParser {
     fun toObject(value: Any): Map<String, Any> = moshi.adapter(Any::class.java).toJsonValue(value) as Map<String, Any>? ?: throw  ConvertException(
             value.toString())
 
-    fun <T> fromValueObject(value: Any, clazz: Class<T>): T {
+    fun <T> fromValueObject(value: Any?, clazz: Class<T>): T {
         return moshi.adapter(clazz).fromJsonValue(value) ?: throw ParseException(value.toString(),
                 clazz::class.toString())
     }

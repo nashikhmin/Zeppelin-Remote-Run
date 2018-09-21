@@ -50,6 +50,16 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     }
 
     /**
+     * Get notebooks by prefix name
+     * @param prefix - which is begin of required notebooks names
+     *
+     * @return list with models of notebooks
+     */
+    fun notebooksByPrefix(prefix: String): List<Notebook> {
+        return allNotebooks().filter { it.name.startsWith(prefix) }
+    }
+
+    /**
      * Close the Zeppelin connection if it is opened
      */
     fun close() {
@@ -103,11 +113,13 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      * @param noteId - id of the notebook
      * @return default interpreter
      */
-    fun defaultInterpreter(noteId: String): Interpreter? {
+    fun defaultInterpreter(noteId: String): Interpreter {
         val defaultInterpreterId: String = zeppelinWebSocketAPI.getBindingInterpreters(noteId,
                 credentials).firstOrNull()?.id
                 ?: throw  NotebookNotFoundException(noteId)
         return this.allInterpreters().find { it.id == defaultInterpreterId }
+                ?: throw ZeppelinException(
+                        "Cannot find an interpreter with id $defaultInterpreterId in a global interpreters list")
     }
 
     /**

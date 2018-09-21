@@ -26,7 +26,7 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
 
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Create notebook' $result")
 
-        val id: String = JsonParser.fromValueObject(result.body, Notebook::class.java).id
+        val id: String = result.body as String
         return Notebook(id, newNotebook.name)
     }
 
@@ -49,7 +49,7 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         val result = try {
             restApi.performDeleteData("/notebook/$noteId", sessionToken)
         } catch (e: FuelError) {
-            throw RestApiException("Cannot delete a paragraph", e.message ?: "")
+            throw RestApiException("Cannot delete a notebook", e.message ?: "")
         }
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Delete notebook' $result")
     }

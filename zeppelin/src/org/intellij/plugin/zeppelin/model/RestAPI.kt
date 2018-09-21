@@ -8,6 +8,7 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
+import org.intellij.plugin.zeppelin.utils.JsonParser
 
 open class RestAPI(host: String, port: Int, https: Boolean = false) {
     private val protocol: String = if (https) "https" else "http"
@@ -29,6 +30,7 @@ open class RestAPI(host: String, port: Int, https: Boolean = false) {
 
         val (_, _, result) = "$apiUrl$uri".httpPost()
                 .header(headers)
+                .body(JsonParser.toJson(data))
                 .timeout(10000)
                 .responseObject<RestResponseMessage>()
         return getResponse(result)
