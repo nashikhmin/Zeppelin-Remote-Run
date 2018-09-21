@@ -1,10 +1,10 @@
-package org.intellij.plugin.zeppelin.api
+package org.intellij.plugin.zeppelin.api.remote
 
-import org.intellij.plugin.zeppelin.api.websocket.WebSocketAPI
-import org.intellij.plugin.zeppelin.api.websocket.ZeppelinWebSocketAPI
+import org.intellij.plugin.zeppelin.api.remote.websocket.WebSocketAPI
+import org.intellij.plugin.zeppelin.api.remote.websocket.ZeppelinWebSocketAPI
+import org.intellij.plugin.zeppelin.api.remote.websocket.rest.RestAPI
+import org.intellij.plugin.zeppelin.api.remote.websocket.rest.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
-import org.intellij.plugin.zeppelin.model.RestAPI
-import org.intellij.plugin.zeppelin.model.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.service.execution.ExecutionHandlerFactory
 import org.intellij.plugin.zeppelin.service.execution.ZeppelinExecutionManager
 

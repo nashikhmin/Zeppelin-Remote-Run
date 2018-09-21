@@ -11,8 +11,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import kotlinx.coroutines.experimental.launch
-import org.intellij.plugin.zeppelin.api.ZeppelinApi
-import org.intellij.plugin.zeppelin.api.ZeppelinIntegration
+import org.intellij.plugin.zeppelin.api.remote.ZeppelinApi
+import org.intellij.plugin.zeppelin.api.remote.ZeppelinIntegration
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.extensionpoints.FileNotebookHolder
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
@@ -27,7 +27,8 @@ import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
  */
 class ZeppelinActionService(private val project: Project, private val zeppelinSettings: ZeppelinSettings) {
 
-    private var integration = ZeppelinIntegration(zeppelinSettings, GuiExecutionHandlerFactory(project))
+    private var integration = ZeppelinIntegration(zeppelinSettings,
+            GuiExecutionHandlerFactory(project))
     val api: ZeppelinApi
         get() = integration.api
     private val executionManager: ZeppelinExecutionManager
@@ -198,13 +199,12 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
             ZeppelinLogger.printMessage("The next dependencies will be added:")
             addedDependencies.forEach { it -> ZeppelinLogger.printMessage(it.groupArtifactVersion) }
         }
-//TODO:
-//        launch {
-//            api.updateInterpreterSetting(interpreter)
-//            ZeppelinLogger.printSuccess("Interpreter settings were updated." +
-//                    " Removed: ${removedDependencies.size}." +
-//                    " Added: ${addedDependencies.size}.")
-//        }
+        launch {
+            api.updateInterpreterSetting(interpreter)
+            ZeppelinLogger.printSuccess("Interpreter settings were updated." +
+                    " Removed: ${removedDependencies.size}." +
+                    " Added: ${addedDependencies.size}.")
+        }
     }
 
     /**
@@ -257,7 +257,8 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
         if (integration.isConnected()) return true
         try {
             integration.close()
-            integration = ZeppelinIntegration(zeppelinSettings, GuiExecutionHandlerFactory(project) )
+            integration = ZeppelinIntegration(zeppelinSettings,
+                    GuiExecutionHandlerFactory(project))
         } catch (_: ZeppelinConnectionException) {
             ZeppelinLogger.printError("Connection error. Check that ${zeppelinSettings.fullUrl} is available")
         } catch (_: ZeppelinLoginException) {

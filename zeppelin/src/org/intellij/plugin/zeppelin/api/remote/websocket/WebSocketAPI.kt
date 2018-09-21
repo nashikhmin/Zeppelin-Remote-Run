@@ -1,26 +1,26 @@
-package org.intellij.plugin.zeppelin.api.websocket
+package org.intellij.plugin.zeppelin.api.remote.websocket
 
-import com.beust.klaxon.Klaxon
 import com.intellij.openapi.diagnostic.Logger
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.annotations.*
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest
 import org.eclipse.jetty.websocket.client.WebSocketClient
 import org.intellij.plugin.zeppelin.models.ConnectionStatus
-import org.intellij.plugin.zeppelin.models.ParseException
 import org.intellij.plugin.zeppelin.models.SessionIsClosedException
 import org.intellij.plugin.zeppelin.models.ZeppelinException
 import org.intellij.plugin.zeppelin.utils.JsonParser
 import java.net.URI
 
+@Suppress("unused", "UNUSED_PARAMETER")
 @WebSocket(maxTextMessageSize = 1024 * 1024)
-class WebSocketAPI(private val address: String) {
+class WebSocketAPI(address: String) {
     private val uri = "ws://$address/ws"
-    private val LOG: Logger = Logger.getInstance(WebSocketAPI::class.java)
+    private val logger: Logger = Logger.getInstance(WebSocketAPI::class.java)
     private val client: WebSocketClient = WebSocketClient()
     private val handlersMap: MutableMap<String, MessageHandler> = mutableMapOf()
     private val monitor = Object()
-    private var defaultHandler: MessageHandler = object : MessageHandler {
+    private var defaultHandler: MessageHandler = object :
+            MessageHandler {
         override fun handle(result: WsResponseMessage) {
             println("Default Handler is called. Operation: ${result.op}. Data: ${result.data}")
         }
@@ -54,15 +54,15 @@ class WebSocketAPI(private val address: String) {
 
     @OnWebSocketMessage
     fun onMessage(msg: String) {
-        if (LOG.isTraceEnabled) LOG.trace("The message is handled $msg.")
-        val response = JsonParser.fromStringObject(msg,WsResponseMessage::class.java)
+        if (logger.isTraceEnabled) logger.trace("The message is handled $msg.")
+        val response = JsonParser.fromStringObject(msg, WsResponseMessage::class.java)
 
         val operationCode = response.op
         handlersMap.getOrDefault(operationCode, defaultHandler).handle(response)
     }
 
     fun connect(): ConnectionStatus {
-        val echoUri: URI = URI(uri)
+        val echoUri = URI(uri)
         client.start()
         val request = ClientUpgradeRequest()
         client.connect(this, echoUri, request)

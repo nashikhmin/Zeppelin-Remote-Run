@@ -1,12 +1,12 @@
-package org.intellij.plugin.zeppelin.api
+package org.intellij.plugin.zeppelin.api.remote
 
 import com.intellij.openapi.diagnostic.Logger
 import kotlinx.coroutines.experimental.delay
-import org.intellij.plugin.zeppelin.api.websocket.MessageHandler
-import org.intellij.plugin.zeppelin.api.websocket.ResponseCode
-import org.intellij.plugin.zeppelin.api.websocket.ZeppelinWebSocketAPI
-import org.intellij.plugin.zeppelin.model.RestApiException
-import org.intellij.plugin.zeppelin.model.ZeppelinRestApi
+import org.intellij.plugin.zeppelin.api.remote.websocket.MessageHandler
+import org.intellij.plugin.zeppelin.api.remote.websocket.ResponseCode
+import org.intellij.plugin.zeppelin.api.remote.websocket.ZeppelinWebSocketAPI
+import org.intellij.plugin.zeppelin.api.remote.websocket.rest.RestApiException
+import org.intellij.plugin.zeppelin.api.remote.websocket.rest.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.service.InterpreterException
 import org.intellij.plugin.zeppelin.service.InterpreterNotFoundException

@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.websocket
+package org.intellij.plugin.zeppelin.api.remote.websocket
 
 import com.intellij.openapi.diagnostic.Logger
 import org.intellij.plugin.zeppelin.models.*
@@ -18,7 +18,8 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
                 ResponseCode.SAVE_NOTE_FORMS,
                 ResponseCode.NOTES_INFO)
                 .forEach { code ->
-                    webSocketAPI.registerHandler(code.toString(), object : MessageHandler {
+                    webSocketAPI.registerHandler(code.toString(), object :
+                            MessageHandler {
                         override fun handle(result: WsResponseMessage) {
                             if (logger.isTraceEnabled) logger.trace("Message ${result.op} is ignored")
                         }
@@ -59,7 +60,8 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
         val opRequest = RequestOperations.GET_INTERPRETER_BINDINGS.toString()
         val opResponse = ResponseCode.INTERPRETER_BINDINGS.toString()
 
-        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
+        val requestMessage = WsRequestMessage.create(
+                opRequest, data, credentials)
         val responseJson = webSocketAPI.doRequestSync(requestMessage, opResponse)
         val jsonList = JsonParser.fromValueMap(responseJson, Any::class.java)["interpreterBindings"]
                 ?: throw ZeppelinException("Expected interpreterBindings field in the response from the server")
@@ -81,7 +83,8 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
         if (logger.isTraceEnabled) logger.trace("Start request 'Get note'. Data : $data, credentials: $credentials.")
         val opRequest = RequestOperations.GET_NOTE.toString()
         val opResponse = ResponseCode.NOTE.toString()
-        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
+        val requestMessage = WsRequestMessage.create(
+                opRequest, data, credentials)
         val response = webSocketAPI.doRequestSync(requestMessage, opResponse)
         if (logger.isTraceEnabled) logger.trace("End of request 'Get note'. Response: $response.")
 
@@ -100,10 +103,12 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
      * @param credentials - the credentials of the user
      */
     fun runParagraph(paragraph: Paragraph, credentials: Credentials) {
-        val data = RunParagraphData(paragraph.id, paragraph.text, paragraph.title)
+        val data = RunParagraphData(paragraph.id, paragraph.text,
+                paragraph.title)
 
         val opRequest = RequestOperations.RUN_PARAGRAPH.toString()
-        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
+        val requestMessage = WsRequestMessage.create(
+                opRequest, data, credentials)
 
         logger.trace("Start request 'Run paragraph'. Data : $data, credentials: $credentials.")
 
@@ -122,7 +127,8 @@ class ZeppelinWebSocketAPI(private val webSocketAPI: WebSocketAPI) {
                                       credentials: Credentials) {
         val data = mapOf("noteId" to noteId, "selectedSettingIds" to newInterpretersBindings)
         val opRequest = RequestOperations.SAVE_INTERPRETER_BINDINGS.toString()
-        val requestMessage = WsRequestMessage.create(opRequest, data, credentials)
+        val requestMessage = WsRequestMessage.create(
+                opRequest, data, credentials)
 
         logger.trace("Start request 'Save list of binding interpreters'. Data : $data, credentials: $credentials.")
         webSocketAPI.doRequestWithoutWaitingResult(requestMessage)

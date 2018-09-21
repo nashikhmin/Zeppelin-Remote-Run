@@ -1,9 +1,9 @@
 package org.intellij.plugin.zeppelin.service.execution
 
-import org.intellij.plugin.zeppelin.api.ZeppelinApi
-import org.intellij.plugin.zeppelin.api.websocket.MessageHandler
-import org.intellij.plugin.zeppelin.api.websocket.ResponseCode
-import org.intellij.plugin.zeppelin.api.websocket.WsResponseMessage
+import org.intellij.plugin.zeppelin.api.remote.ZeppelinApi
+import org.intellij.plugin.zeppelin.api.remote.websocket.MessageHandler
+import org.intellij.plugin.zeppelin.api.remote.websocket.ResponseCode
+import org.intellij.plugin.zeppelin.api.remote.websocket.WsResponseMessage
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.models.ExecuteContext
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger

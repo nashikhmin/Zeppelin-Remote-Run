@@ -1,6 +1,6 @@
 package org.intellij.plugin.zeppelin.model
 
-import org.intellij.plugin.zeppelin.api.ZeppelinIntegration
+import org.intellij.plugin.zeppelin.api.remote.ZeppelinIntegration
 import org.intellij.plugin.zeppelin.models.InterpreterStatus
 import org.junit.After
 import org.junit.Before
@@ -13,7 +13,8 @@ import kotlin.test.assertTrue
  */
 class ZeppelinApiTest {
     private val settings = getMockSettings()
-    private val integration = ZeppelinIntegration(settings, MockExecutionHandlerFactory())
+    private val integration = ZeppelinIntegration(settings,
+            MockExecutionHandlerFactory())
     private val interpreterTestNotebook = "interpreter notebook"
     private val notebookTestName = "Test notebook"
 

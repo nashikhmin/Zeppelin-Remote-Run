@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.model
+package org.intellij.plugin.zeppelin.api.remote.websocket.rest
 
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response
@@ -8,6 +8,7 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
+import org.intellij.plugin.zeppelin.model.RestResponseMessage
 import org.intellij.plugin.zeppelin.utils.JsonParser
 
 open class RestAPI(host: String, port: Int, https: Boolean = false) {

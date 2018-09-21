@@ -1,21 +1,16 @@
 package org.intellij.plugin.zeppelin.models
 
-import com.beust.klaxon.JsonObject
-import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 
 data class Config(val enabled: Boolean? = true)
-
 
 enum class InterpreterStatus {
     READY, DOWNLOADING_DEPENDENCIES, ERROR, PENDING
 }
 
-
 data class InterpreterBindings(val id: String, val name: String, val interpreters: List<InterpreterBinding>)
 
 data class InterpreterBinding(val defaultInterpreter: Boolean, val name: String)
-
 
 enum class InstantiationType(val value: String) {
     @Json(name = "shared")
@@ -45,8 +40,7 @@ data class Dependency(val groupArtifactVersion: String,
                       val exclusions: List<String> = emptyList(),
                       val local: Boolean = true)
 
-data class Notebook(val id: String, val name: String = "", val paragraphs: List<Paragraph> = emptyList()) {
-}
+data class Notebook(val id: String, val name: String = "", val paragraphs: List<Paragraph> = emptyList())
 
 data class Paragraph(val id: String,
                      val jobName: String = "",
@@ -56,15 +50,12 @@ data class Paragraph(val id: String,
                      val title: String = "",
                      val text: String = "")
 
-
 data class Credentials(val principal: String, val ticket: String, val roles: String)
-
 
 /**
  * Model for new notebook request by REST API
  */
 data class NewNotebook(val name: String)
-
 
 /**
  * The connection status to the server
@@ -79,6 +70,5 @@ enum class ConnectionStatus {
 enum class LoginStatus {
     LOGGED, NOT_LOGGED
 }
-
 
 data class User(val name: String, val password: String)

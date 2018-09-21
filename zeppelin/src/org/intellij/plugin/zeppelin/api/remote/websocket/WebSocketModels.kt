@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.websocket
+package org.intellij.plugin.zeppelin.api.remote.websocket
 
 import org.intellij.plugin.zeppelin.models.Credentials
 
@@ -29,7 +29,8 @@ data class WsRequestMessage(val op: String, val data: Any, val ticket: String, v
                             val principal: String) {
     companion object {
         fun create(op: String, data: Any, credentials: Credentials): WsRequestMessage {
-            return WsRequestMessage(op, data, credentials.ticket, credentials.roles, credentials.principal)
+            return WsRequestMessage(op, data, credentials.ticket,
+                    credentials.roles, credentials.principal)
         }
     }
 }

@@ -5,6 +5,9 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.intellij.plugin.zeppelin.models.ConvertException
 import org.intellij.plugin.zeppelin.models.ParseException
 
+/**
+ * Object which implements methods for work with Json
+ */
 object JsonParser {
     private val moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
@@ -13,6 +16,7 @@ object JsonParser {
     fun toJson(value: Any): String = moshi.adapter(Any::class.java).toJson(value) ?: throw  ConvertException(
             value.toString())
 
+    @Suppress("UNCHECKED_CAST")
     fun toObject(value: Any): Map<String, Any> = moshi.adapter(Any::class.java).toJsonValue(value) as Map<String, Any>? ?: throw  ConvertException(
             value.toString())
 

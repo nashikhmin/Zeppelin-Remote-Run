@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.model
+package org.intellij.plugin.zeppelin.api.remote.websocket.rest
 
 import com.github.kittinunf.fuel.core.FuelError
 import com.intellij.openapi.diagnostic.Logger
@@ -70,7 +70,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         val result = try {
             restApi.performGetRequest("/interpreter/setting", sessionToken)
         } catch (e: FuelError) {
-            throw RestApiException("Cannot get list of interpreters.", e.message ?: "")
+            throw RestApiException("Cannot get list of interpreters.",
+                    e.message ?: "")
         }
 
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $result")
@@ -83,7 +84,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         val result = try {
             restApi.performGetRequest("/notebook", sessionToken)
         } catch (e: FuelError) {
-            throw RestApiException("Cannot get list of notebooks", e.message ?: "")
+            throw RestApiException("Cannot get list of notebooks",
+                    e.message ?: "")
         }
 
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Get notebooks' $result")
@@ -99,7 +101,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         val (response, result) = try {
             restApi.performPostForm("/login", params)
         } catch (e: FuelError) {
-            throw RestApiException("Cannot handle login request.", e.message ?: "")
+            throw RestApiException("Cannot handle login request.",
+                    e.message ?: "")
         }
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Login' Response:$result")
 
@@ -119,7 +122,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
             restApi.performPutData("/interpreter/setting/restart/${interpreter.id} ",
                     data, sessionToken)
         } catch (e: FuelError) {
-            throw RestApiException("Cannot restart an interpreter.", e.message ?: "")
+            throw RestApiException("Cannot restart an interpreter.",
+                    e.message ?: "")
         }
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Restart interpreter' Response:$result")
     }
@@ -132,7 +136,8 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
             restApi.performPutData("/interpreter/setting/${interpreter.id} ",
                     data, sessionToken)
         } catch (e: FuelError) {
-            throw RestApiException("Cannot update interpreter settings.", e.message ?: "")
+            throw RestApiException("Cannot update interpreter settings.",
+                    e.message ?: "")
         }
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Update interpreter settings' Response:$result")
     }
