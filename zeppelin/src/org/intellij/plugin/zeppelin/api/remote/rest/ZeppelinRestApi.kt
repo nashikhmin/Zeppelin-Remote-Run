@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.remote.websocket.rest
+package org.intellij.plugin.zeppelin.api.remote.rest
 
 import com.github.kittinunf.fuel.core.FuelError
 import com.intellij.openapi.diagnostic.Logger
@@ -15,6 +15,10 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
     private var sessionToken: String? = null
     var loginStatus: LoginStatus = LoginStatus.NOT_LOGGED
 
+    /**
+     * Create a notebook
+     * @param newNotebook - a model of new notebook
+     */
     fun createNotebook(newNotebook: NewNotebook): Notebook {
         if (LOG.isTraceEnabled) LOG.trace("Start perform request 'Create notebook $newNotebook'")
         val json = JsonParser.toObject(newNotebook)
@@ -41,7 +45,7 @@ class ZeppelinRestApi(private val restApi: RestAPI) {
         }
 
         if (LOG.isTraceEnabled) LOG.trace("Performed request 'Create paragraph' $result")
-        return JsonParser.fromValueObject(result.body, Paragraph::class.java)
+        return Paragraph(result.body as String)
     }
 
     fun deleteNotebook(noteId: String) {

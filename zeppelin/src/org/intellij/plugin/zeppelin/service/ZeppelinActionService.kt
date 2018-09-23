@@ -26,7 +26,6 @@ import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
  * Main class that implement logic of the actions for the communication with Zeppelin
  */
 class ZeppelinActionService(private val project: Project, private val zeppelinSettings: ZeppelinSettings) {
-
     private var integration = ZeppelinIntegration(zeppelinSettings,
             GuiExecutionHandlerFactory(project))
     val api: ZeppelinApi
@@ -259,6 +258,7 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
             integration.close()
             integration = ZeppelinIntegration(zeppelinSettings,
                     GuiExecutionHandlerFactory(project))
+            integration.connect()
         } catch (_: ZeppelinConnectionException) {
             ZeppelinLogger.printError("Connection error. Check that ${zeppelinSettings.fullUrl} is available")
         } catch (_: ZeppelinLoginException) {

@@ -1,5 +1,6 @@
 package org.intellij.plugin.zeppelin.service.execution
 
+import org.intellij.plugin.zeppelin.models.ZeppelinException
 import org.intellij.plugin.zeppelin.utils.JsonParser
 
 data class ProgressResponse(val id: String, val progress: Int)
@@ -22,7 +23,8 @@ object ExecutionModelConverter {
     }
 
     fun getParagraphResponse(json: Any): ParagraphResponse {
-        return JsonParser.fromValueObject(json, ParagraphResponse::class.java)
+        val map = JsonParser.fromValueMap(json,ParagraphResponse::class.java)
+        return map["paragraph"]?: throw ZeppelinException("Cannot parse web socket paragraph response")
     }
 
     fun getProgressResponse(json: Any): ProgressResponse {

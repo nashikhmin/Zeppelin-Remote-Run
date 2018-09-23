@@ -2,11 +2,11 @@ package org.intellij.plugin.zeppelin.api.remote
 
 import com.intellij.openapi.diagnostic.Logger
 import kotlinx.coroutines.experimental.delay
+import org.intellij.plugin.zeppelin.api.remote.rest.RestApiException
+import org.intellij.plugin.zeppelin.api.remote.rest.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.api.remote.websocket.MessageHandler
 import org.intellij.plugin.zeppelin.api.remote.websocket.ResponseCode
 import org.intellij.plugin.zeppelin.api.remote.websocket.ZeppelinWebSocketAPI
-import org.intellij.plugin.zeppelin.api.remote.websocket.rest.RestApiException
-import org.intellij.plugin.zeppelin.api.remote.websocket.rest.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.service.InterpreterException
 import org.intellij.plugin.zeppelin.service.InterpreterNotFoundException
@@ -96,7 +96,12 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      * @param notebookName - a name of a notebook
      * @return a created notebook
      */
-    fun createNotebook(notebookName: String): Notebook = zeppelinRestApi.createNotebook(NewNotebook(notebookName))
+    fun createNotebook(notebookName: String): Notebook {
+        val createdNotebook = zeppelinRestApi.createNotebook(NewNotebook(notebookName))
+        val notebook = getNotebookById(createdNotebook.id) ?: throw ZeppelinException("Cannot get the created notebook")
+        notebook.paragraphs.forEach { zeppelinRestApi.deleteParagraph(createdNotebook.id,it.id) }
+        return notebook
+    }
 
     /**
      * Create a paragraph in Zeppelin in the end of the notebook

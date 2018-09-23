@@ -55,7 +55,7 @@ data class Credentials(val principal: String, val ticket: String, val roles: Str
 /**
  * Model for new notebook request by REST API
  */
-data class NewNotebook(val name: String)
+data class NewNotebook(val name: String, val paragraphs: List<Paragraph> = listOf())
 
 /**
  * The connection status to the server

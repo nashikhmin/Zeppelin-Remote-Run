@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.remote.websocket.rest
+package org.intellij.plugin.zeppelin.api.remote.rest
 
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Response

@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.api.remote.websocket.rest
+package org.intellij.plugin.zeppelin.api.remote.rest
 
 import org.intellij.plugin.zeppelin.models.ZeppelinException
 

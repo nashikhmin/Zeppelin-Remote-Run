@@ -21,6 +21,7 @@ class ZeppelinApiTest {
     @After
     @Before
     fun clean() {
+        integration.connect()
         integration.api.deleteNotebooksByPrefix(interpreterTestNotebook)
         integration.api.deleteNotebooksByPrefix(notebookTestName)
     }
@@ -47,6 +48,15 @@ class ZeppelinApiTest {
         assertTrue(integration.api.notebooksByPrefix(notebookTestName).isEmpty(), "The notebooks are not deleted")
     }
 
+    @Test
+    fun notebookTest() {
+        val notebook = integration.api.createNotebook(notebookTestName)
+        val paragraphText = "Example"
+        integration.api.createParagraph(notebook.id, paragraphText)
+        val paragraphs = integration.api.getNotebookById(notebook.id)?.paragraphs?: listOf()
+        assertEquals(paragraphs.size, 1, "There is not one of paragraph in the notebook")
+        assertEquals(paragraphs.last().text, paragraphText, "The paragraph test is not the same")
+    }
     @Test
     fun interpretersTest() {
         val interpreters = integration.api.allInterpreters()

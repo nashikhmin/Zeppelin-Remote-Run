@@ -10,14 +10,23 @@ import org.intellij.plugin.zeppelin.models.Interpreter
 import org.intellij.plugin.zeppelin.models.InterpreterOption
 import org.intellij.plugin.zeppelin.service.ZeppelinActionService
 import javax.swing.JComponent
+import javax.swing.SwingConstants
 
-open class InterpreterSettingsDialog(private val project: Project,
-                                     var interpreter: Interpreter) : DialogWrapper(project) {
+class InterpreterSettingsDialog(private val project: Project,
+                                var interpreter: Interpreter) : DialogWrapper(project) {
+
+    private val myPanel: InterpreterSettingsForm = InterpreterSettingsForm()
 
     override fun getTitle(): String = "${interpreter.name} interpreter settings"
 
-    private val myPanel: InterpreterSettingsForm = InterpreterSettingsForm()
     override fun createCenterPanel(): JComponent = myPanel.contentPane
+
+    init {
+        title = title
+        setButtonsAlignment(SwingConstants.CENTER)
+        init()
+    }
+
     override fun doOKAction() {
         val newDependencies: List<Dependency> = getNewDependencies()
         val newOptions: InterpreterOption = getNewOptions()
@@ -36,7 +45,7 @@ open class InterpreterSettingsDialog(private val project: Project,
     }
 
     private fun updateDependencyList() {
-        val dependencies = interpreter.dependencies.map {it.groupArtifactVersion}
+        val dependencies = interpreter.dependencies.map { it.groupArtifactVersion }
         myPanel.initDataModel(dependencies)
     }
 
@@ -49,8 +58,10 @@ open class InterpreterSettingsDialog(private val project: Project,
     private fun getNewDependencies(): List<Dependency> {
         val dependenciesNames: List<String?> = myPanel.modelList.toList()
         val originalDependencies: List<Dependency> = interpreter.dependencies
-        return dependenciesNames.filter { it != null }
-            .map { it -> originalDependencies.find { origIt -> origIt.groupArtifactVersion == it } ?: Dependency(it!!) }
+        return dependenciesNames.asSequence().filter { it != null }
+                .map { it ->
+                    originalDependencies.find { origIt -> origIt.groupArtifactVersion == it } ?: Dependency(it!!)
+                }.toList()
     }
 
     private fun getNewOptions(): InterpreterOption {
@@ -58,7 +69,7 @@ open class InterpreterSettingsDialog(private val project: Project,
             InterpreterOption()
         } else {
             InterpreterOption(InstantiationType.valueOf(myPanel.perNoteValue),
-                              InstantiationType.valueOf(myPanel.perUserValue))
+                    InstantiationType.valueOf(myPanel.perUserValue))
         }
     }
 }
