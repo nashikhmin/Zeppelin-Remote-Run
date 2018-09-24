@@ -14,10 +14,10 @@ allprojects {
     apply plugin: 'org.jetbrains.intellij'
 
     intellij {
-        version = '183.2635.13'
+        version = '182.3684.40'
         type = 'IU'
         downloadSources = true
-        plugins += ['DatabaseTools','org.intellij.scala:2018.3.97@nightly']
+        plugins += ['DatabaseTools','org.intellij.scala:2018.2.804@nightly']
     }
 }
 
@@ -71,7 +71,7 @@ subprojects {
 
 
 dependencies {
-    compileOnly project(":zeppelin"), project(":zeppelin:dependencies-downloader"),project(':zeppelin:scala-integration')
+    compileOnly project(":zeppelin"), project(":zeppelin:dependencies-downloader")//,project(':zeppelin:scala-plugin')
 
 }
 
