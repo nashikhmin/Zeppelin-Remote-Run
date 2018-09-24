@@ -102,9 +102,9 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
     fun interpreterList(): List<Interpreter> {
         if (!checkPreconditions()) return listOf()
         val allInterpreters: List<Interpreter> = api.allInterpreters()
-        val defaultInterpreter: Interpreter? = getDefaultInterpreter() ?: return listOf()
+        val defaultInterpreter: Interpreter = getDefaultInterpreter() ?: return listOf()
 
-        return allInterpreters + defaultInterpreter!!
+        return listOf(defaultInterpreter) + allInterpreters.filter { it != defaultInterpreter }
     }
 
     /**

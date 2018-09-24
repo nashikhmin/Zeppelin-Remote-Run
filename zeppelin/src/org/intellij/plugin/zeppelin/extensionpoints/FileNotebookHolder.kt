@@ -1,6 +1,7 @@
 package org.intellij.plugin.zeppelin.extensionpoints
 
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 

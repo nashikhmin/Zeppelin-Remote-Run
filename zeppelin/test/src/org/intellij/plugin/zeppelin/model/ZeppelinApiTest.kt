@@ -67,9 +67,15 @@ class ZeppelinApiTest {
     fun interpreterTest() {
         val createdNotebook = integration.api.createNotebook(interpreterTestNotebook)
         val interpreter = integration.api.defaultInterpreter(createdNotebook.id)
-        assertTrue((interpreter.name == "spark"), "The default notebook is not spark")
+        val defaultInterpreter = "spark"
+        assertTrue((interpreter.id == defaultInterpreter), "The default notebook is not spark")
         assertEquals(interpreter.name, integration.api.interpreterById(interpreter.id)?.name,
                 "The interpreters is not the same")
+
+        val newDefaultInterpreter = "md"
+        integration.api.setDefaultInterpreter(createdNotebook.id, newDefaultInterpreter)
+        assertEquals(newDefaultInterpreter, integration.api.defaultInterpreter(createdNotebook.id).id,
+                "The new default interpreter is not correct")
 
         integration.api.restartInterpreter(interpreter.id, createdNotebook.id)
         val restartedInterpreter = integration.api.interpreterById(interpreter.id)

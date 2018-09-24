@@ -6,6 +6,7 @@ import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler
+import org.intellij.plugin.zeppelin.models.ZeppelinException
 import java.awt.event.ActionEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -50,7 +51,7 @@ class InterpretersView(val project: Project) : JBScrollPane(), Disposable {
     private fun initPopupItemMenu() {
         val popupMenu = JPopupMenu()
         PopupItem.values().forEach {
-            val item = JMenuItem(it.toString())
+            val item = JMenuItem(it.value)
             item.addActionListener { action -> popupElementAction(action) }
             popupMenu.add(item)
         }
@@ -71,7 +72,8 @@ class InterpretersView(val project: Project) : JBScrollPane(), Disposable {
     }
 
     private fun popupElementAction(e: ActionEvent) {
-        val item = PopupItem.valueOf(e.actionCommand)
+        val item = PopupItem.values().find { it.value == e.actionCommand } ?: throw ZeppelinException(
+                "Cannot parse an interpreter view menu element")
 
         when (item) {
             PopupItem.RESTART_INTERPRETER -> restartInterpreter()
