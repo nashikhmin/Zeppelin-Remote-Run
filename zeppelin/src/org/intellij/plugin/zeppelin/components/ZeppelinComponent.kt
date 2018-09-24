@@ -67,6 +67,7 @@ class ZeppelinComponent(val project: Project) : ProjectComponent {
         defaultNotebook = zeppelinSettings.defaultNotebookName
         val zeppelinActionService = ZeppelinActionService(project, zeppelinSettings)
         actions = zeppelinActionService
+        updateInterpreterList(true)
         return zeppelinActionService
     }
 

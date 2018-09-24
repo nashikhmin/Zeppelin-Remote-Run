@@ -37,7 +37,7 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
      * Method that close all connections and free resources
      */
     fun destroy() {
-        api.close()
+        integration.close()
     }
 
     /**

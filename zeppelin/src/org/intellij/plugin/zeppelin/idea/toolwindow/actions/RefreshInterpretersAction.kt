@@ -19,6 +19,6 @@ class RefreshInterpretersAction :
             ZeppelinLogger.printError(ZeppelinConstants.ERROR_PROJECT_IS_NOT_SPECIFIED)
             return
         }
-        ZeppelinComponent.connectionFor(project).updateInterpreterList(true)
+        ZeppelinComponent.connectionFor(project).resetApi()
     }
 }
