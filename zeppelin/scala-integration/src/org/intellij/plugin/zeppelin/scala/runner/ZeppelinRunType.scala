@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import org.intellij.plugin.zeppelin.dependency.ImportZeppelinInterpreterDependencies
+import org.intellij.plugin.zeppelin.dependency.dependency.ZeppelinInterpreterDependencies
 import org.intellij.plugin.zeppelin.scala.worksheet.WorksheetSynchronizer
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetSettingsDialog
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -28,7 +29,7 @@ class ZeppelinRunType extends WorksheetExternalRunType {
   override def isUsesCell: Boolean = true
 
   override def onSettingsConfirmed(file: PsiFile): Unit = {
-    ImportZeppelinInterpreterDependencies(file.getProject).invoke()
+    ZeppelinInterpreterDependencies(file.getProject).
     WorksheetSynchronizer.synchronize(file)
   }
 

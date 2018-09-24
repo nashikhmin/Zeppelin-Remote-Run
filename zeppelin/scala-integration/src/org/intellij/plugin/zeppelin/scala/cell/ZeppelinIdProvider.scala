@@ -2,7 +2,6 @@ package org.intellij.plugin.zeppelin.scala.cell
 
 import com.intellij.psi.PsiElement
 import org.intellij.plugin.zeppelin.scala.constants.ZeppelinScalaConstants
-import org.jetbrains.plugins.scala.worksheet.cell.WorksheetCellExternalIdProvider
 
 class ZeppelinIdProvider extends WorksheetCellExternalIdProvider {
   override def canHandle(startElement: PsiElement): Boolean = {

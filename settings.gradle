@@ -1,2 +1,2 @@
 rootProject.name = 'Zeppelin-Remote-Run'
-include 'zeppelin','zeppelin:dep'
+include 'zeppelin','zeppelin:dependencies-downloader','zeppelin:scala-integration'
