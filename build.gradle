@@ -17,7 +17,7 @@ allprojects {
         version = '182.3684.40'
         type = 'IU'
         downloadSources = true
-        plugins += ['DatabaseTools','org.intellij.scala:2018.2.804@nightly']
+        plugins += ['DatabaseTools', 'Scala']
     }
 }
 
@@ -71,8 +71,8 @@ subprojects {
 
 
 dependencies {
-    compileOnly project(":zeppelin"), project(":zeppelin:dependencies-downloader")//,project(':zeppelin:scala-plugin')
-
+    compileOnly project(":zeppelin"), project(":zeppelin:dependencies-downloader"), 
+            project(':zeppelin:scala-plugin'), project(':zeppelin:scala-plugin:scala')
 }
 
 intellij {
