@@ -9,8 +9,8 @@ import com.intellij.psi.PsiManager
 import org.intellij.plugin.zeppelin.extensionpoints.TemplateFileCreator
 import org.intellij.plugin.zeppelin.scala.constants.ZeppelinScalaConstants
 import org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType
-import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
-import org.jetbrains.plugins.scala.worksheet.cell.CellManager
+import org.jetbrains.plugins.scala.worksheet.cell.`CellManager$`
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import java.io.File
 import java.io.PrintWriter
 
@@ -30,12 +30,11 @@ open class WorksheetTemplateCreator : TemplateFileCreator {
 
     private fun initAsZeppelinWorksheet(project: Project, virtualFile: VirtualFile): Unit {
         val psiFile: PsiFile = PsiManager.getInstance(project).findFile(virtualFile)!!
-        val settings = ZeppelinWorksheetFileSettings(psiFile)
+        val settings = WorksheetFileSettings(psiFile)
         val runType = ZeppelinRunType()
         settings.runType = runType
 
-        //TODO: fix me!
-        // CellManager.installCells(psiFile)
+        `CellManager$`.`MODULE$`.installCells(psiFile)
         runType.onSettingsConfirmed(psiFile)
     }
 

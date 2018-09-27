@@ -10,33 +10,33 @@ import com.intellij.psi.PsiManager
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.dependency.dependency.ZeppelinInterpreterDependencies
 import org.intellij.plugin.zeppelin.models.Interpreter
-import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
+import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinFileSettings
 
 @Suppress("ComponentNotRegistered")
 class ZeppelinWorksheetWrappersHolder(private val project: Project) : AbstractProjectComponent(project) {
     var currentInterpreter: Interpreter? = null
     override fun projectOpened(): Unit {
         project.messageBus.connect(project)
-      .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER,  object:FileEditorManagerListener {
-        override fun selectionChanged(event: FileEditorManagerEvent) {
-            val virtualFile = event.newFile?:return
-            updateDependencies(virtualFile)
-        }
-      })
+                .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
+                    override fun selectionChanged(event: FileEditorManagerEvent) {
+                        val virtualFile = event.newFile ?: return
+                        updateDependencies(virtualFile)
+                    }
+                })
     }
 
     fun updateDependencies(virtualFile: VirtualFile) {
         if (!isZeppelinWorksheet(virtualFile)) return
         val service = ZeppelinComponent.connectionFor(project).service
         val newInterpreter = service.getDefaultInterpreter()
-                if (currentInterpreter == newInterpreter) return
+        if (currentInterpreter == newInterpreter) return
         ZeppelinInterpreterDependencies(project).invokeImportUserDependencies()
         currentInterpreter = newInterpreter
     }
 
     private fun isZeppelinWorksheet(virtualFile: VirtualFile): Boolean {
         val psiFile: PsiFile = PsiManager.getInstance(project).findFile(virtualFile)!!
-        return ZeppelinWorksheetFileSettings.isZeppelinWorksheet(psiFile)
+        return ZeppelinFileSettings.isZeppelinWorksheet(psiFile)
     }
 
     companion object {

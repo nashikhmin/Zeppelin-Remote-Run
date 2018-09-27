@@ -1,5 +1,6 @@
 rootProject.name = 'Zeppelin-Remote-Run'
-include 'zeppelin','zeppelin:dependencies-downloader'//,'zeppelin:scala-plugin'
+include 'zeppelin','zeppelin:dependencies-downloader','zeppelin:scala-plugin','zeppelin:scala-plugin:scala'
 
-//project(":zeppelin:scala-plugin").projectDir = file('zeppelin/integration/scala-plugin')
+project(":zeppelin:scala-plugin").projectDir = file('zeppelin/integration/scala-plugin')
+project(":zeppelin:scala-plugin:scala").projectDir = file('zeppelin/integration/scala-plugin/integration/scala')
 project(":zeppelin:dependencies-downloader").projectDir = file('zeppelin/integration/dependencies-downloader')

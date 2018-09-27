@@ -4,11 +4,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import kotlin.Pair;
 import org.intellij.plugin.zeppelin.idea.settings.notebook.NotebookBrowserDialog;
 import org.intellij.plugin.zeppelin.models.Notebook;
 import scala.Option;
 import scala.Tuple2;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 
@@ -30,13 +32,11 @@ public class ZeppelinWorksheetSettingsForm extends JDialog {
         });
         browseNotebooksButton.addActionListener(e -> {
             NotebookBrowserDialog notebookBrowserDialog = new NotebookBrowserDialog(project, notebook);
-            Tuple2<Object, Option<Notebook>> result = notebookBrowserDialog.openAndGetResult();
-            Boolean isSelected = (Boolean) result._1;
+            Pair<Boolean, Notebook> result = notebookBrowserDialog.openAndGetResult();
+            Boolean isSelected = result.component1();
             if (!isSelected) return;
-            Option<Notebook> notebookOption = result._2;
-
-            Notebook notebook = notebookOption.isDefined() ? notebookOption.get() : null;
-            setNotebook(notebook);
+            Notebook notebookOption = result.component2();
+            setNotebook(notebookOption);
         });
     }
 
@@ -45,13 +45,14 @@ public class ZeppelinWorksheetSettingsForm extends JDialog {
         return contentPane;
     }
 
+    @Nullable
     public Notebook getNotebook() {
         return notebook;
     }
 
     public void setNotebook(Notebook notebook) {
         this.notebook = notebook;
-        selectedNotebookField.setText(notebook != null ? notebook.name() : "");
+        selectedNotebookField.setText(notebook != null ? notebook.getName() : "");
     }
 
     public void setSyncNotebook(boolean value) {

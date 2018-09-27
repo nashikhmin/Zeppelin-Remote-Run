@@ -6,7 +6,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.models.SparkVersion
-import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetFileSettings
+import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinFileSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.worksheet.FileDeclarationsContributor
 class ZeppelinFileDeclarationContributor : FileDeclarationsContributor() {
     override fun accept(holder: PsiElement): Boolean {
         val originalFile: PsiFile = holder.firstChild.containingFile.originalFile
-        return ZeppelinWorksheetFileSettings.isZeppelinWorksheet(originalFile)
+        return ZeppelinFileSettings.isZeppelinWorksheet(originalFile)
     }
 
     override fun processAdditionalDeclarations(processor: PsiScopeProcessor, holder: PsiElement,

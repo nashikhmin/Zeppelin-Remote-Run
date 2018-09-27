@@ -32,6 +32,11 @@
                 implementation="org.intellij.plugin.zeppelin.scala.worksheet.extensions.WorksheetNotebookHolder"/>
     </extensions>
 
+    <extensionPoints>
+        <extensionPoint name="worksheetSettingsFile"
+                        interface="org.intellij.plugin.zeppelin.scala.worksheet.settings.WorksheetSettingsFile"/>
+    </extensionPoints>
+
     <project-components>
         <component>
             <implementation-class>org.intellij.plugin.zeppelin.scala.ZeppelinWorksheetWrappersHolder
