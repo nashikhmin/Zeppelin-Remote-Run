@@ -4,8 +4,8 @@ apply plugin: 'scala'
 def scalaVersion = "2.12.6"
 
 dependencies {
-    runtime "org.scala-lang:scala-library:$scalaVersion"
-    compile "org.scala-lang:scala-compiler:$scalaVersion"
+    compileOnly "org.scala-lang:scala-library:$scalaVersion"
+    compileOnly "org.scala-lang:scala-compiler:$scalaVersion"
 }
 
 // Workaround for Gradle 3.+ and IDEA (https://discuss.gradle.org/t/idea-integration-with-scala-plugin-broken-since-gradle-3-0-no-such-property-daemonserver/19159/2)

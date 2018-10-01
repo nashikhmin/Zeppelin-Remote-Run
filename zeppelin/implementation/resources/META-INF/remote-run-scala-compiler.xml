@@ -15,8 +15,5 @@
   -->
 
 <idea-plugin>
-    <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
-        <worksheetSettingsFile
-                implementation="org.intellij.plugin.zeppelin.scala.worksheet.settings.ScalaWorksheetSettingsFile"/>
-    </extensions>
+
 </idea-plugin>

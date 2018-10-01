@@ -1,0 +1,103 @@
+<!--suppress PluginXmlValidity -->
+<idea-plugin>
+    <id>org.intellij.plugin.zeppelin</id>
+    <name>Zeppelin Remote Run</name>
+    <version>0.1</version>
+    <vendor email="veoring@gmail.com" url="https://github.com/veor12">Nikita Ashikhmin</vendor>
+
+    <description><![CDATA[
+      It is an Spring Jetbrains Internship 2018 project.<br>
+      It was started in snow Lappenranta.
+      <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Started.
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+    <depends optional="false" config-file="remote-run-scala-compiler.xml">org.intellij.scala</depends>
+    <depends optional="true" config-file="remote-run-dataviz-compiler.xml">org.intellij.datavis</depends>
+
+    <extensionPoints>
+        <extensionPoint name="updateInterpreterHandler"
+                        interface="org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler"/>
+        <extensionPoint name="tableOutputHandler"
+                        interface="org.intellij.plugin.zeppelin.extensionpoints.TableOutputHandler"/>
+        <extensionPoint name="fileNotebookHolder"
+                        interface="org.intellij.plugin.zeppelin.extensionpoints.FileNotebookHolder"/>
+        <extensionPoint name="templateFileCreator"
+                        interface="org.intellij.plugin.zeppelin.extensionpoints.TemplateFileCreator"/>
+        <extensionPoint name="dependencyDownloader"
+                        interface="org.intellij.plugin.zeppelin.extensionpoints.DependencyDownloader"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleType id="ZEPPELIN_MODULE"
+                    implementationClass="org.intellij.plugin.zeppelin.idea.wizard.ZeppelinModuleType"/>
+        <projectTemplatesFactory
+                implementation="org.intellij.plugin.zeppelin.idea.wizard.ZeppelinProjectTemplatesFactory"/>
+        <projectConfigurable groupId="language"
+                             instance="org.intellij.plugin.zeppelin.idea.settings.plugin.ConfigurationForm"
+                             id="ZeppelinRunConfigurable" displayName="Zeppelin Remote Run"
+                             nonDefaultProject="true"/>
+        <toolWindow id="zeppelin-shell-toolwindow" anchor="bottom"
+                    icon="/images/ZeppelinLogo.png"
+                    factoryClass="org.intellij.plugin.zeppelin.idea.toolwindow.ZeppelinToolWindowFactory"/>
+
+        <projectService serviceImplementation="org.intellij.plugin.zeppelin.idea.settings.plugin.RemoteRunApplicationSettings"/>
+    </extensions>
+
+    <actions>
+    </actions>
+    <project-components>
+        <component>
+            <implementation-class>org.intellij.plugin.zeppelin.components.ZeppelinComponent</implementation-class>
+        </component>
+    </project-components>
+
+
+
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <worksheetCellExternalIdProvider implementation="org.intellij.plugin.zeppelin.scala.cell.ZeppelinIdProvider"/>
+        <worksheetExternalRunType implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType"/>
+        <worksheetCustomRunner implementation="org.intellij.plugin.zeppelin.scala.runner.ZeppelinCustomRunner"/>
+        <fileDeclarationsContributor
+                implementation="org.intellij.plugin.zeppelin.scala.ZeppelinFileDeclarationContributor"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
+        <updateInterpreterHandler
+                implementation="org.intellij.plugin.zeppelin.scala.WorksheetUpdateInterpreterHandler"/>
+        <templateFileCreator
+                implementation="org.intellij.plugin.zeppelin.scala.generator.WorksheetTemplateCreator"/>
+        <fileNotebookHolder
+                implementation="org.intellij.plugin.zeppelin.scala.worksheet.extensions.WorksheetNotebookHolder"/>
+    </extensions>
+
+    <extensionPoints>
+        <extensionPoint name="worksheetSettingsFile"
+                        interface="org.intellij.plugin.zeppelin.scala.worksheet.settings.WorksheetSettingsFile"/>
+    </extensionPoints>
+
+    <project-components>
+        <component>
+            <implementation-class>org.intellij.plugin.zeppelin.scala.ZeppelinWorksheetWrappersHolder
+            </implementation-class>
+        </component>
+    </project-components>
+
+    <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
+        <worksheetSettingsFile
+                implementation="org.intellij.plugin.zeppelin.scala.worksheet.settings.ScalaWorksheetSettingsFile"/>
+    </extensions>
+</idea-plugin>
