@@ -3,8 +3,6 @@ package org.intellij.plugin.zeppelin.dependency.dependency
 import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.OrderRootType
@@ -15,11 +13,10 @@ import org.intellij.plugin.zeppelin.api.idea.IdeaCommonApi
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
 import org.intellij.plugin.zeppelin.dependency.DefaultZeppelinDependencies
 import org.intellij.plugin.zeppelin.dependency.Dependency
-import org.intellij.plugin.zeppelin.extensionpoints.DependencyDownloader
 import org.intellij.plugin.zeppelin.dependency.ZeppelinDependenciesVersions
+import org.intellij.plugin.zeppelin.extensionpoints.DependencyDownloader
 import org.intellij.plugin.zeppelin.models.SparkVersion
 import org.intellij.plugin.zeppelin.models.ZeppelinException
-import org.intellij.plugin.zeppelin.utils.createBgIndicator
 import org.intellij.plugin.zeppelin.utils.invokeLater
 
 /**
@@ -60,22 +57,13 @@ class ZeppelinInterpreterDependencies(private val project: Project) {
     }
 
     fun invokeImportUserDependencies() {
-        val manager: ProgressManager = ProgressManager.getInstance()
         val module = IdeaCommonApi.getCurrentModule(project) ?: return
-        val task = object : Task.Backgroundable(project, "Adding interpreter dependencies", false) {
-            override fun run(indicator: ProgressIndicator) {
-                indicator.text = "Loading list of user dependencies..."
-                val jars: List<String> = getInterpreterUserDependenciesList()
-
-                indicator.text = "Downloading the dependencies from remote repo..."
-                invokeLater {
-                    runWriteAction {
-                        importUserInterpreterLibrary(module, jars)
-                    }
-                }
+        val jars: List<String> = getInterpreterUserDependenciesList()
+        invokeLater {
+            runWriteAction {
+                importUserInterpreterLibrary(module, jars)
             }
         }
-        manager.runProcessWithProgressAsynchronously(task, createBgIndicator(project, "Zeppelin"))
     }
 
     /**

@@ -98,6 +98,6 @@
 
     <extensions defaultExtensionNs="org.intellij.plugin.zeppelin">
         <worksheetSettingsFile
-                implementation="org.intellij.plugin.zeppelin.scala.worksheet.settings.ScalaWorksheetSettingsFile"/>
+                implementation="org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinWorksheetSettings"/>
     </extensions>
 </idea-plugin>

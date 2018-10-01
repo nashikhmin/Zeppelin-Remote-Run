@@ -1,5 +1,6 @@
 package org.intellij.plugin.zeppelin.idea.settings.interpreter
 
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent

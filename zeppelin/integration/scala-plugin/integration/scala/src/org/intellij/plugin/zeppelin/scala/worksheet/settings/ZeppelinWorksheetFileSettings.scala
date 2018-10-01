@@ -3,8 +3,10 @@ package org.intellij.plugin.zeppelin.scala.worksheet.settings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.psi.PsiFile
+import org.intellij.plugin.zeppelin.scala.runner.ZeppelinRunType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.RunCustom
-import org.jetbrains.plugins.scala.worksheet.settings.{WorksheetExternalRunType, WorksheetFileSettings}
+import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings.SerializableWorksheetAttributes.SerializableInFileAttribute
 
 /**
@@ -12,8 +14,9 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings.Seri
   *
   * @param file - a psi file with worksheet
   */
-class ZeppelinWorksheetFileSettings(file: PsiFile) extends WorksheetFileSettings(file) {
-  private val WORKSHEET_LINKED_NOTEBOOK_ID = new FileAttribute("ZeppelinWorksheetLinkedNotebook", 1, true)
+private class ZeppelinWorksheetFileSettings(file: PsiFile) extends WorksheetFileSettings(file) {
+
+  import ZeppelinWorksheetFileSettings._
 
   def getLinkedNotebookId: String = getSetting(WORKSHEET_LINKED_NOTEBOOK_ID, "")
 
@@ -28,14 +31,33 @@ class ZeppelinWorksheetFileSettings(file: PsiFile) extends WorksheetFileSettings
   }
 }
 
-class ScalaWorksheetSettingsFile extends WorksheetSettingsFile {
+private object ZeppelinWorksheetFileSettings {
+  private val WORKSHEET_LINKED_NOTEBOOK_ID = new FileAttribute("ZeppelinWorksheetLinkedNotebook", 1, true)
 
-  override def getLinkedNotebookId(file: PsiFile): String = new ZeppelinWorksheetFileSettings(file).getLinkedNotebookId
+  def hasNotebookId(file: PsiFile): Boolean = {
+    isZeppelinWorksheet(file) && getLinkedNotebookId(file) != ""
+  }
 
-  override def setLinkedNotebookId(file: PsiFile, notebookId: String): Unit = {
+  def getLinkedNotebookId(file: PsiFile): String = new ZeppelinWorksheetFileSettings(file).getLinkedNotebookId
+
+  def isZeppelinWorksheet(file: PsiFile): Boolean = {
+    file.isInstanceOf[ScalaFile] &&
+      new ZeppelinWorksheetFileSettings(file).getRunType
+        .isInstanceOf[ZeppelinRunType]
+  }
+
+  def setLinkedNotebookId(file: PsiFile, notebookId: String): Unit = {
     new ZeppelinWorksheetFileSettings(file)
       .setLinkedNotebookId(notebookId)
   }
+}
 
-  override def getRunType(id: String, project: Project, data: String): RunCustom = RunCustom(id,project,data)
+class ZeppelinWorksheetSettings extends WorksheetSettingsFile {
+
+  override def getLinkedNotebookId(file: PsiFile): String = ZeppelinWorksheetFileSettings.getLinkedNotebookId(file)
+
+  override def setLinkedNotebookId(file: PsiFile, notebookId: String): Unit = ZeppelinWorksheetFileSettings
+    .setLinkedNotebookId(file, notebookId)
+
+  override def getRunType(id: String, project: Project, data: String): RunCustom = RunCustom(id, project, data)
 }

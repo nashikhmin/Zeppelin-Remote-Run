@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerUtil.Wor
 class RunZeppelinAction(private val cellDescriptor: CellDescriptor) : RunCellActionBase(cellDescriptor) {
     override fun convertToRunRequest(): WorksheetCompileRunRequest {
         val element = cellDescriptor.element.get()
-        val paragraphId: String = WorksheetCellExternalIdProvider.getSuitable(element).get()
+        val paragraphId: String = WorksheetCellExternalIdProvider.getSuitable(element).getOrElse { "" }
         val id: String = ZeppelinCustomRunner.RUNNER_ID + "\n" + paragraphId
 
         return ZeppelinFileSettings.getRunType(id, project!!, cellDescriptor.cellText)
