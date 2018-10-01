@@ -4,11 +4,13 @@ apply plugin: 'scala'
 def scalaVersion = "2.12.6"
 
 dependencies {
-    compile "org.scala-lang:scala-library:$scalaVersion"
+    runtime "org.scala-lang:scala-library:$scalaVersion"
     compile "org.scala-lang:scala-compiler:$scalaVersion"
 
     compile 'io.get-coursier:coursier_2.12:1.0.2'
     compile 'io.get-coursier:coursier-cache_2.12:1.0.2'
+
+    compile project(':zeppelin:impl')
 }
 
 // Workaround for Gradle 3.+ and IDEA (https://discuss.gradle.org/t/idea-integration-with-scala-plugin-broken-since-gradle-3-0-no-such-property-daemonserver/19159/2)

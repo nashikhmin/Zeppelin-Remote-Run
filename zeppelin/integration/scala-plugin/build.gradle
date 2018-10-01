@@ -2,5 +2,10 @@ subprojects {
     dependencies {
         compile project(':zeppelin:scala-plugin')
     }
+}
 
+allprojects {
+    dependencies {
+        compile project(':zeppelin:impl')
+    }    
 }

@@ -1,36 +1,26 @@
-//Versions
-def fuelVersion = "1.15.0"
-def moshiVersion = '1.6.0'
-def webSocketClientVersion = '9.4.8.v20171121'
-
 dependencies {
-    compile 'org.eclipse.jetty.websocket:websocket-client:' + webSocketClientVersion
-    
-    compile "com.github.kittinunf.fuel:fuel:$fuelVersion" //for JVM
-    compile "com.github.kittinunf.fuel:fuel-moshi:$fuelVersion"
-    
-    compile group: 'com.squareup.moshi', name: 'moshi-kotlin', version: moshiVersion
-    compile group: 'com.squareup.moshi', name: 'moshi', version: moshiVersion
-    compile group: 'com.squareup.moshi', name: 'moshi-adapters', version: moshiVersion
-    
-    testCompile (group: 'junit', name: 'junit', version: '4.12')
+    compile project(":zeppelin:impl")
+    compile project(":zeppelin:dependencies-downloader")
+    compile project(':zeppelin:scala-plugin')
+    compile project(':zeppelin:scala-plugin:scala')
 }
 
-subprojects {
-    dependencies {
-        compile project(':zeppelin')
-    }
 
-}
 intellij {
     pluginName = "Zeppelin"
 }
 
-
 group 'com.intellij'
 version '1.0-SNAPSHOT'
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
+
+
+//do not create unused src folders
+sourceSets {
+    main.kotlin.srcDirs = []
+    main.java.srcDirs = []
+    main.resources.srcDirs = []
+
+    test.kotlin.srcDirs = []
+    test.java.srcDirs = []
+    test.resources.srcDirs = []
 }

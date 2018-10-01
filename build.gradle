@@ -71,8 +71,7 @@ subprojects {
 
 
 dependencies {
-    compileOnly project(":zeppelin"), project(":zeppelin:dependencies-downloader"), 
-            project(':zeppelin:scala-plugin'), project(':zeppelin:scala-plugin:scala')
+    compileOnly project(":zeppelin")
 }
 
 intellij {
