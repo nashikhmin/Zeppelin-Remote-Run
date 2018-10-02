@@ -31,7 +31,7 @@ public class ZeppelinWorksheetSettingsForm extends JDialog {
             setSyncNotebook(linkToNotebookCheckBox.isSelected());
         });
         browseNotebooksButton.addActionListener(e -> {
-            NotebookBrowserDialog notebookBrowserDialog = new NotebookBrowserDialog(project, notebook);
+            NotebookBrowserDialog notebookBrowserDialog = new NotebookBrowserDialog(project);
             Pair<Boolean, Notebook> result = notebookBrowserDialog.openAndGetResult();
             Boolean isSelected = result.component1();
             if (!isSelected) return;

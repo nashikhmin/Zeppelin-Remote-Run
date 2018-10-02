@@ -33,7 +33,7 @@ object ZeppelinConstants {
     @JvmField
     val NOTEBOOK_BROWSER_CHANGE_CONFIRMATION_TITLE: String = "Change notebooks confirmations"
     @JvmField
-    val PARAGRAPH_RUNNED: String = "--------RUN PARAGRAPH--------\n" + "Code:%s\nOutput:\n"
+    val PARAGRAPH_RUNNED: String = "--------RUN PARAGRAPH--------\n" + "Code:\n%s\nOutput:\n"
     @JvmField
     val PARAGRAPH_COMPLETED: String = "-----PARAGRAPH COMPLETED-----\n"
     @JvmField

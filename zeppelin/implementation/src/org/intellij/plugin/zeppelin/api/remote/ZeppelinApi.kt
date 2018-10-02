@@ -99,7 +99,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
     fun createNotebook(notebookName: String): Notebook {
         val createdNotebook = zeppelinRestApi.createNotebook(NewNotebook(notebookName))
         val notebook = getNotebookById(createdNotebook.id) ?: throw ZeppelinException("Cannot get the created notebook")
-        notebook.paragraphs.forEach { zeppelinRestApi.deleteParagraph(createdNotebook.id,it.id) }
+        notebook.paragraphs.forEach { zeppelinRestApi.deleteParagraph(createdNotebook.id, it.id) }
         return notebook
     }
 
@@ -230,7 +230,8 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      * @param executeContext - a context of execution
      */
     fun runCode(executeContext: ExecuteContext) {
-        val paragraph: Paragraph? = getParagraph(executeContext.noteId, executeContext.paragraphId)
+        val paragraph: Paragraph? = getParagraph(executeContext.noteId, executeContext.paragraphId)?.copy(
+                text = executeContext.text)
         paragraph?.let { zeppelinWebSocketAPI.runParagraph(paragraph, credentials) }
                 ?: throw ParagraphNotFoundException(executeContext)
     }

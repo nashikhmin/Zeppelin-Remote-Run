@@ -7,7 +7,7 @@ import org.intellij.plugin.zeppelin.models.Notebook
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-class NotebookBrowserDialog(val project: Project, defaultNotebook: Notebook) : DialogWrapper(project) {
+class NotebookBrowserDialog(val project: Project) : DialogWrapper(project) {
     private val myPanel = NotebookBrowserForm()
     private val actionService = ZeppelinComponent.connectionFor(project).service
 

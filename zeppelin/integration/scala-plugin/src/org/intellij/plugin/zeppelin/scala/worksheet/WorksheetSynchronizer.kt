@@ -26,7 +26,7 @@ object WorksheetSynchronizer {
         val service = ZeppelinComponent.connectionFor(project).service
         val notebook = service.getNotebookById(notebookId) ?: throw NotebookNotFoundException(notebookId)
         val paragraphId: String = ZeppelinScalaConstants.PARAGRAPH_WITH_EXTERNAL_ID
-        val paragraphs = notebook.paragraphs.map { paragraphId + it.id + it.text }.joinToString("\n")
+        val paragraphs = notebook.paragraphs.joinToString("\n") { paragraphId + it.id + "\n" + it.text }
         WorksheetCellExternalIdProvider.getSuitable(psiFile)
 
         `CellManager$`.`MODULE$`.replaceAll(psiFile, paragraphs)

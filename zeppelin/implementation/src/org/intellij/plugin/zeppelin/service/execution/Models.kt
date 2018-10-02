@@ -13,7 +13,7 @@ data class ParagraphUpdateOutputResponse(val data: String, val noteId: String, v
 
 data class ExecutionResults(val code: String, val msg: List<ExecutionResultsMsg>)
 
-data class ExecutionResultsMsg(val resultType: String, val data: String)
+data class ExecutionResultsMsg(val resultType: String="", val data: String)
 
 data class OutputResponse(val data: String, val index: Int, val noteId: String, val paragraphId: String)
 
