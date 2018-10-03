@@ -257,7 +257,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      *
      * @param  interpreter - settings of the new interpreter
      */
-    suspend fun updateInterpreterSetting(interpreter: Interpreter) {
+    fun updateInterpreterSetting(interpreter: Interpreter) {
 
         zeppelinRestApi.updateInterpreterSettings(interpreter)
         ZeppelinLogger.printMessage("Start updating the ${interpreter.name} interpreter settings...")
@@ -270,7 +270,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
             }
             val waitTime = 200
             count += waitTime
-            delay(waitTime.toLong())
+            Thread.sleep(waitTime.toLong())
         }
 
 

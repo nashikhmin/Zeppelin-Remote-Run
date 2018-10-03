@@ -35,7 +35,6 @@ class InterpreterSettingsDialog(private val project: Project,
         val connection: ZeppelinComponent = ZeppelinComponent.connectionFor(project)
         val actionService: ZeppelinActionService = connection.service
         actionService.updateInterpreterSettings(interpreter)
-        UpdateInterpreterHandler.getAll().forEach { it.updateInterpreter(project) }
         super.doOKAction()
     }
 

@@ -8,7 +8,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
-import org.intellij.plugin.zeppelin.dependency.dependency.ZeppelinInterpreterDependencies
+import org.intellij.plugin.zeppelin.dependency.ZeppelinInterpreterDependencies
 import org.intellij.plugin.zeppelin.models.Interpreter
 import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinFileSettings
 
@@ -25,13 +25,13 @@ class ZeppelinWorksheetWrappersHolder(private val project: Project) : AbstractPr
                 })
     }
 
-    fun updateDependencies(virtualFile: VirtualFile) {
+    fun updateDependencies(virtualFile: VirtualFile, force: Boolean = false) {
         if (!isZeppelinWorksheet(virtualFile)) return
         val service = ZeppelinComponent.connectionFor(project).service
         val newInterpreter = service.getDefaultInterpreter()
-        if (currentInterpreter == newInterpreter) return
-        ZeppelinInterpreterDependencies(project).invokeImportUserDependencies()
+        if (!force && currentInterpreter == newInterpreter) return
         currentInterpreter = newInterpreter
+        ZeppelinInterpreterDependencies(project).invokeImportUserDependencies()
     }
 
     private fun isZeppelinWorksheet(virtualFile: VirtualFile): Boolean {

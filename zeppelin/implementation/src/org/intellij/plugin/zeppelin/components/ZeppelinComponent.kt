@@ -81,7 +81,7 @@ class ZeppelinComponent(val project: Project) : ProjectComponent {
         if (force || interpretersView.isShowing) {
             val interpretersNames = service.interpreterList().map { it.name }
             interpretersView.updateInterpretersList(interpretersNames)
-            UpdateInterpreterHandler.getAll().forEach { it.updateInterpreter(project) }
+            service.synchronizeInterpreter()
         }
     }
 

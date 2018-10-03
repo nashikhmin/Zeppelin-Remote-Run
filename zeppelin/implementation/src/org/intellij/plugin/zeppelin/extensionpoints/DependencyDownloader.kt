@@ -20,8 +20,11 @@ interface DependencyDownloader {
 
     /**
      * Download a dependency to local machine
-     * @param dependency - a dependency for downloading
+     * @param dependencies - a dependency for downloading
      */
-    fun resolveDependency(dependency: Dependency): String
+    fun resolveDependency(dependencies: List<Dependency>,logger: DependencyResolverLogger): List<String>
 }
 
+interface DependencyResolverLogger {
+    fun printMessage(msg: String)
+}

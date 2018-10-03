@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
-import org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.models.ZeppelinException
 import java.awt.event.ActionEvent
 import java.awt.event.MouseAdapter
@@ -79,7 +78,7 @@ class InterpretersView(val project: Project) : JBScrollPane(), Disposable {
             PopupItem.RESTART_INTERPRETER -> restartInterpreter()
             PopupItem.SETTINGS -> openSettingsForm()
             PopupItem.SET_DEFAULT -> setDefaultInterpreter()
-            PopupItem.SYNCHRONIZE -> synchronizeInterpreter()
+            PopupItem.SYNCHRONIZE -> ZeppelinComponent.connectionFor(project).service.synchronizeInterpreter()
         }
     }
 
@@ -92,9 +91,5 @@ class InterpretersView(val project: Project) : JBScrollPane(), Disposable {
         val connection = ZeppelinComponent.connectionFor(project)
         connection.service.setDefaultInterpreter(interpreterName)
         connection.updateInterpreterList(true)
-    }
-
-    private fun synchronizeInterpreter() {
-        UpdateInterpreterHandler.getAll().forEach { it.updateInterpreter(project) }
     }
 }

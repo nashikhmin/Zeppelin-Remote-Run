@@ -3,7 +3,7 @@ package org.intellij.plugin.zeppelin.idea.wizard
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.Messages.showErrorDialog
-import org.intellij.plugin.zeppelin.dependency.dependency.ZeppelinInterpreterDependencies
+import org.intellij.plugin.zeppelin.dependency.ZeppelinInterpreterDependencies
 import org.intellij.plugin.zeppelin.models.SparkVersion
 import org.intellij.plugin.zeppelin.utils.withProgressSynchronously
 import javax.swing.JComponent
@@ -24,7 +24,7 @@ class ZeppelinSDKSelectionDialog(parent: JComponent) : ZeppelinSDKSelectionDialo
         return selectedSdk
     }
 
-    override fun onOK(): Unit {
+    override fun onOK() {
         dispose()
     }
 }

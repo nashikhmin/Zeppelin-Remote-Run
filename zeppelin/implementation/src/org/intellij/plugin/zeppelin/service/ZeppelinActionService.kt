@@ -10,11 +10,11 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
-import kotlinx.coroutines.experimental.launch
 import org.intellij.plugin.zeppelin.api.remote.ZeppelinApi
 import org.intellij.plugin.zeppelin.api.remote.ZeppelinIntegration
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
 import org.intellij.plugin.zeppelin.extensionpoints.FileNotebookHolder
+import org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.models.*
@@ -198,12 +198,18 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
             ZeppelinLogger.printMessage("The next dependencies will be added:")
             addedDependencies.forEach { it -> ZeppelinLogger.printMessage(it.groupArtifactVersion) }
         }
-        launch {
-            api.updateInterpreterSetting(interpreter)
-            ZeppelinLogger.printSuccess("Interpreter settings were updated." +
-                    " Removed: ${removedDependencies.size}." +
-                    " Added: ${addedDependencies.size}.")
-        }
+        api.updateInterpreterSetting(interpreter)
+        ZeppelinLogger.printSuccess("Interpreter settings were updated." +
+                " Removed: ${removedDependencies.size}." +
+                " Added: ${addedDependencies.size}.")
+        synchronizeInterpreter()
+    }
+
+    /**
+     * Synchronize interpreter settings with IDEA, if needed
+     */
+    fun synchronizeInterpreter() {
+        UpdateInterpreterHandler.getAll().forEach { it.updateInterpreter(project) }
     }
 
     /**

@@ -35,7 +35,7 @@ class ZeppelinToolWindowFactory : ToolWindowFactory {
     }
 
     private fun addAutoUpdate(project: Project) {
-        ZeppelinComponent.connectionFor(project).updateInterpreterList(true)
+        ZeppelinComponent.connectionFor(project).updateInterpreterList(false)
         val connection: MessageBusConnection = project.messageBus.connect(project)
         connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
             override fun selectionChanged(event: FileEditorManagerEvent) = ZeppelinComponent.connectionFor(project).updateInterpreterList(true)

@@ -12,6 +12,6 @@ open class WorksheetUpdateInterpreterHandler : UpdateInterpreterHandler {
             FileEditorManagerEx.getInstanceEx(project).currentFile
         } ?: return
         val holder = ZeppelinWorksheetWrappersHolder.connectionFor(project)
-        holder.updateDependencies(currentFile)
+        holder.updateDependencies(currentFile,force = true)
     }
 }

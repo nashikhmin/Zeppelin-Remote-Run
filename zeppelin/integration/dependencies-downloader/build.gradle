@@ -15,10 +15,11 @@ dependencies {
     compileOnly('io.get-coursier:coursier-cache_2.12:1.0.2')
 
     compile('io.get-coursier:coursier_2.12:1.0.2') {
-        transitive = false
+        exclude group: 'org.scala-lang'
+        
     }
     compile('io.get-coursier:coursier-cache_2.12:1.0.2') {
-        transitive = false
+        exclude group: 'org.scala-lang'
     }
 
 //    compile 'io.get-coursier:coursier_2.12:1.0.2', withoutX

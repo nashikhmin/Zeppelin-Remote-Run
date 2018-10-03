@@ -14,7 +14,7 @@ open class ZeppelinCustomRunner : WorksheetCustomRunner() {
     }
 
     override fun handle(request: RunCustom) {
-        val executeCode: String = request.data().drop(1).dropLast(1) //remove first '\n'
+        val executeCode: String = request.data().drop(1) //remove first '\n'
         val id: String? = parseId(request.id())
         val connection: ZeppelinComponent = ZeppelinComponent.connectionFor(request.project())
         connection.focusToLog()

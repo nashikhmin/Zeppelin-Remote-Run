@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import java.io.File
 import java.io.PrintWriter
 
-open class WorksheetTemplateCreator : TemplateFileCreator {
+class WorksheetTemplateCreator : TemplateFileCreator {
     /**
      * Create a Zeppelin Worksheet
      * @param sourceFolder - a path to source Path

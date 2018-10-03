@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.worksheet.cell.WorksheetCellExternalIdProvide
 import scala.Option
 import scala.Some
 
-open class ZeppelinIdProvider : WorksheetCellExternalIdProvider() {
+class ZeppelinIdProvider : WorksheetCellExternalIdProvider() {
   override fun canHandle(startElement: PsiElement): Boolean {
     return startElement.text.contains(ZeppelinScalaConstants.EXTERNAL_ID)
   }
