@@ -98,13 +98,12 @@ class ZeppelinFileDeclarationContributor : FileDeclarationsContributor() {
             } else {
                 DEFAULT_BUILTINS
             }
-            val builtins: List<PsiElement> = builtinsNames.map { it ->
+            return builtinsNames.map { it ->
                 val name: String = it.first
                 val txt: String = it.second
                 ScalaPsiElementFactory.createElementFromText(
                         "class A { val $name:$txt = ??? }", project)
             }
-            return builtins
         }
 
         private fun getInnerGlobalImports(version: SparkVersion, project: Project): List<PsiElement> {

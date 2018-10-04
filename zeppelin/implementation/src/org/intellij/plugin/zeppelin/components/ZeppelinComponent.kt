@@ -6,7 +6,6 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.Content
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
-import org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.idea.settings.plugin.RemoteRunApplicationSettings
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.idea.toolwindow.InterpretersView

@@ -17,13 +17,12 @@ open class ZeppelinWorksheetSettingsDialog(private val psiFile: PsiFile) : Dialo
     private val myPanel: ZeppelinWorksheetSettingsForm = ZeppelinWorksheetSettingsForm(project)
 
     init {
-        setTitle(title)
         setButtonsAlignment(SwingConstants.CENTER)
         init()
     }
 
     override fun createCenterPanel(): JComponent = myPanel.contentPane
-    override fun doOKAction(): Unit {
+    override fun doOKAction() {
         val notebook = myPanel.notebook
         if (notebook != null) {
             ZeppelinFileSettings.setLinkedNotebookId(psiFile, notebook.id)
@@ -33,7 +32,7 @@ open class ZeppelinWorksheetSettingsDialog(private val psiFile: PsiFile) : Dialo
         super.doOKAction()
     }
 
-    override fun init(): Unit {
+    final override fun init() {
         super.init()
         val isSync = ZeppelinFileSettings.hasNotebookId(psiFile)
         myPanel.setSyncNotebook(isSync)

@@ -27,7 +27,7 @@ class ZeppelinRunType : WorksheetExternalRunType() {
     override fun getName(): String = "Zeppelin"
     override fun isReplRunType(): Boolean = false
     override fun isUsesCell(): Boolean = true
-    override fun onSettingsConfirmed(file: PsiFile): Unit {
+    override fun onSettingsConfirmed(file: PsiFile) {
         ZeppelinInterpreterDependencies(file.project).invokeImportUserDependencies()
         WorksheetSynchronizer.synchronize(file)
     }

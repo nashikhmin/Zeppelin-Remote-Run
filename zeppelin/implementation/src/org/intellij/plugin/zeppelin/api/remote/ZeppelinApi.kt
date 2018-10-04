@@ -1,7 +1,6 @@
 package org.intellij.plugin.zeppelin.api.remote
 
 import com.intellij.openapi.diagnostic.Logger
-import kotlinx.coroutines.experimental.delay
 import org.intellij.plugin.zeppelin.api.remote.rest.RestApiException
 import org.intellij.plugin.zeppelin.api.remote.rest.ZeppelinRestApi
 import org.intellij.plugin.zeppelin.api.remote.websocket.MessageHandler
@@ -24,7 +23,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
                   val user: User?,
                   private val uri: String) {
 
-    private val LOG: Logger = Logger.getInstance(this::class.java)
+    private val logger: Logger = Logger.getInstance(this::class.java)
     private var credentials: Credentials = Credentials("anonymous", "anonymous", "")
 
     /**
@@ -64,7 +63,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      */
     fun close() {
         zeppelinWebSocketAPI.close()
-        LOG.info("Zeppelin connection is closed")
+        logger.info("Zeppelin connection is closed")
     }
 
     /**

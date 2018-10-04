@@ -11,7 +11,6 @@ import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.intellij.plugin.zeppelin.api.idea.IdeaCommonApi
 import org.intellij.plugin.zeppelin.components.ZeppelinComponent
-import org.intellij.plugin.zeppelin.dependency.dependency.LibraryDescriptor
 import org.intellij.plugin.zeppelin.extensionpoints.DependencyDownloader
 import org.intellij.plugin.zeppelin.extensionpoints.DependencyResolverLogger
 import org.intellij.plugin.zeppelin.models.SparkVersion

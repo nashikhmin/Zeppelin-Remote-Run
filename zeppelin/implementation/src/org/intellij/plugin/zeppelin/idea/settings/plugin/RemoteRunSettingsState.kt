@@ -35,10 +35,6 @@ class ZeppelinSettingsStorage {
         this.password = password
     }
 
-    fun setIsAnonymous(value: Boolean) {
-        isAnonymous = value
-    }
-
     val user: User?
         get() {
             if (isAnonymous) return null

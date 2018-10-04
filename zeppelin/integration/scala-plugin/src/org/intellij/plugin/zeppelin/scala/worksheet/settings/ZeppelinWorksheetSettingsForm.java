@@ -7,8 +7,6 @@ import com.intellij.uiDesigner.core.Spacer;
 import kotlin.Pair;
 import org.intellij.plugin.zeppelin.idea.settings.notebook.NotebookBrowserDialog;
 import org.intellij.plugin.zeppelin.models.Notebook;
-import scala.Option;
-import scala.Tuple2;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
@@ -27,9 +25,7 @@ public class ZeppelinWorksheetSettingsForm extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         selectedNotebookField.setEditable(false);
-        linkToNotebookCheckBox.addActionListener(e -> {
-            setSyncNotebook(linkToNotebookCheckBox.isSelected());
-        });
+        linkToNotebookCheckBox.addActionListener(e -> setSyncNotebook(linkToNotebookCheckBox.isSelected()));
         browseNotebooksButton.addActionListener(e -> {
             NotebookBrowserDialog notebookBrowserDialog = new NotebookBrowserDialog(project);
             Pair<Boolean, Notebook> result = notebookBrowserDialog.openAndGetResult();

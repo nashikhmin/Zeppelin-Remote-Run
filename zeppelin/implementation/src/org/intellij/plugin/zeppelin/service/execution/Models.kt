@@ -7,10 +7,6 @@ data class ProgressResponse(val id: String, val progress: Int)
 
 data class ParagraphResponse(val id: String, val status: String, val results: ExecutionResults?)
 
-data class ParagraphAppendResponse(val id: String)
-
-data class ParagraphUpdateOutputResponse(val data: String, val noteId: String, val paragraphId: String, val index: Int)
-
 data class ExecutionResults(val code: String, val msg: List<ExecutionResultsMsg>)
 
 data class ExecutionResultsMsg(val type: String="", val data: String)

@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.dependency.dependency
+package org.intellij.plugin.zeppelin.dependency
 
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.NewLibraryConfiguration

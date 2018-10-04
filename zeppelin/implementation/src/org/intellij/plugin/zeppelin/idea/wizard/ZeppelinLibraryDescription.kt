@@ -6,7 +6,7 @@ import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescri
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer.LibraryLevel
 import com.intellij.openapi.vfs.VirtualFile
-import org.intellij.plugin.zeppelin.dependency.dependency.LibraryDescriptor
+import org.intellij.plugin.zeppelin.dependency.LibraryDescriptor
 import javax.swing.JComponent
 
 /**
@@ -33,9 +33,6 @@ class ZeppelinLibraryDescription : CustomLibraryDescription() {
 
     companion object {
         val ZEPPELIN_LIBRARY_KIND: LibraryKind = LibraryKind.create("zeppelin-library")
-        val LIBRARY_NAME: String = "ZeppelinLibrary"
-        val JAVA_RUNTIME_LIBRARY_CREATION: String = "Zeppelin Library Creation"
-        val DIALOG_TITLE: String = "Create Zeppelin Library"
-        val LIBRARY_CAPTION: String = "ZeppelinSDK"
+        const val LIBRARY_CAPTION: String = "ZeppelinSDK"
     }
 }

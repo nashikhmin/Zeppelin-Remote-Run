@@ -2,7 +2,7 @@ package org.intellij.plugin.zeppelin.models
 
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
 
-class SparkVersion(public val versionString: String) {
+class SparkVersion(val versionString: String) {
     private val version: Int = parseVersion()
 
     fun getProgress1_0(): Boolean = this.olderThan(SparkVersion.SPARK_1_1_0)

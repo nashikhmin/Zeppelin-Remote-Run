@@ -28,7 +28,7 @@ class WorksheetTemplateCreator : TemplateFileCreator {
         initAsZeppelinWorksheet(project, virtualFile)
     }
 
-    private fun initAsZeppelinWorksheet(project: Project, virtualFile: VirtualFile): Unit {
+    private fun initAsZeppelinWorksheet(project: Project, virtualFile: VirtualFile) {
         val psiFile: PsiFile = PsiManager.getInstance(project).findFile(virtualFile)!!
         val settings = WorksheetFileSettings(psiFile)
         val runType = ZeppelinRunType()

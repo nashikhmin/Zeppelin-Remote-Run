@@ -16,7 +16,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.intellij.ui.components.JBList.createDefaultListModel;
@@ -54,7 +53,7 @@ public class NotebookBrowserForm extends JDialog {
     @Nullable
     public Notebook getSelectedValue() {
         int index = notebookList.getSelectedIndex();
-        if (index<0) return null;
+        if (index < 0) return null;
         return notebooks.get(index);
     }
 

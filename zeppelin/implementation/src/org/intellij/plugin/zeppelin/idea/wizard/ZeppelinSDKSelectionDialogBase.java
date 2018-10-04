@@ -4,7 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.intellij.plugin.zeppelin.dependency.DefaultZeppelinDependencies;
-import org.intellij.plugin.zeppelin.dependency.dependency.LibraryDescriptor;
+import org.intellij.plugin.zeppelin.dependency.LibraryDescriptor;
 
 import javax.swing.*;
 import java.awt.*;

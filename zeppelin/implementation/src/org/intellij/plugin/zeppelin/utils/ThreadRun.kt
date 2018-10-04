@@ -5,7 +5,7 @@ import com.intellij.openapi.progress.*
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
 import com.intellij.openapi.project.Project
 
-fun <T> invokeLater(body: () -> T): Unit {
+fun <T> invokeLater(body: () -> T) {
     ApplicationManager.getApplication().invokeLater { body() }
 }
 

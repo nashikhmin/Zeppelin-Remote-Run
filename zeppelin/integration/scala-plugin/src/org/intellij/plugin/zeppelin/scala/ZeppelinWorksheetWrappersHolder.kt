@@ -15,7 +15,7 @@ import org.intellij.plugin.zeppelin.scala.worksheet.settings.ZeppelinFileSetting
 @Suppress("ComponentNotRegistered")
 class ZeppelinWorksheetWrappersHolder(private val project: Project) : AbstractProjectComponent(project) {
     var currentInterpreter: Interpreter? = null
-    override fun projectOpened(): Unit {
+    override fun projectOpened() {
         project.messageBus.connect(project)
                 .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
                     override fun selectionChanged(event: FileEditorManagerEvent) {
