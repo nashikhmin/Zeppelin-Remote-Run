@@ -1,6 +1,8 @@
 package org.intellij.plugin.zeppelin.model
 
 import org.intellij.plugin.zeppelin.api.remote.ZeppelinIntegration
+import org.intellij.plugin.zeppelin.models.InstantiationType
+import org.intellij.plugin.zeppelin.models.InterpreterOption
 import org.intellij.plugin.zeppelin.models.InterpreterStatus
 import org.junit.After
 import org.junit.Before
@@ -80,5 +82,11 @@ class ZeppelinApiTest {
         integration.api.restartInterpreter(interpreter.id, createdNotebook.id)
         val restartedInterpreter = integration.api.interpreterById(interpreter.id)
         assertEquals(InterpreterStatus.READY, restartedInterpreter?.status, "The interpreter is not ready")
+
+        val newOption = InterpreterOption(InstantiationType.ISOLATED, InstantiationType.ISOLATED)
+        integration.api.updateInterpreterSetting(interpreter.copy(option = newOption))
+        val gottenNewSettingsInterpreter = integration.api.interpreterById(interpreter.id)
+        assertEquals(newOption, gottenNewSettingsInterpreter?.option, "The interpreter settings have not changed")
+        integration.api.updateInterpreterSetting(interpreter)
     }
 }

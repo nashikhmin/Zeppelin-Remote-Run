@@ -39,7 +39,7 @@ class GuiExecutionHandler(private val project: Project) : ExecutionHandler {
 
     override fun onSuccess(msg: ExecutionResults) {
         msg.msg.forEach { it ->
-            when (it.resultType) {
+            when (it.type) {
                 "TABLE" -> {
                     val handler: TableOutputHandler = TableOutputHandler.getHandler()
                     handler.handle(project, it.data)
