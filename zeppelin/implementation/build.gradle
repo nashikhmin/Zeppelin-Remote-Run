@@ -4,6 +4,7 @@ def moshiVersion = '1.6.0'
 def webSocketClientVersion = '9.4.8.v20171121'
 
 dependencies {
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
     compile 'org.eclipse.jetty.websocket:websocket-client:' + webSocketClientVersion
 
     compile "com.github.kittinunf.fuel:fuel:$fuelVersion" //for JVM
