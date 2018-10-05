@@ -144,11 +144,15 @@ class ZeppelinActionService(private val project: Project, private val zeppelinSe
      */
     fun runCode(text: String, paragraphIdOption: String?) {
         if (!checkPreconditions()) return
-        if (text.isEmpty()) {
+        if (text.isBlank()) {
             ZeppelinLogger.printMessage("The selected text is empty, please select a piece of code")
             return
         }
         val paragraphId: String = paragraphIdOption ?: api.createParagraph(linkedNotebook().id, text).id
+        if (executionManager.isExecutingNow(paragraphId)) {
+            ZeppelinLogger.printMessage("The paragraph is executing now")
+            return
+        }
         val executeContext = ExecuteContext(text, linkedNotebook().id, paragraphId)
         executionManager.execute(executeContext)
     }

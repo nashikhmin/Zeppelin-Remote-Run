@@ -93,14 +93,12 @@ class TaskExecutor(val id: String, private val outputHandler: ExecutionHandler) 
         when (status) {
             "FINISHED" -> {
                 taskActor.send(SendFinishMsg)
-
-                val results: ExecutionResults = paragraphResponse.results!!
+                val results: ExecutionResults = paragraphResponse.results?:return
                 outputHandler.onSuccess(results)
             }
             "ERROR" -> {
                 taskActor.send(SendFinishMsg)
-
-                val results: ExecutionResults = paragraphResponse.results!!
+                val results: ExecutionResults = paragraphResponse.results?:return
                 outputHandler.onError(results)
             }
         }
