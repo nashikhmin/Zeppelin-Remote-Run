@@ -78,8 +78,8 @@ public class InterpreterSettingsForm extends JDialog {
             }
         });
 
-        initComboBox(perUserBox, values, option.getPerUser().getValue());
-        initComboBox(perNoteBox, values, option.getPerUser().getValue());
+        initComboBox(perUserBox, values, option.getPerUser().toString());
+        initComboBox(perNoteBox, values, option.getPerUser().toString());
     }
 
     public boolean isGlobally() {

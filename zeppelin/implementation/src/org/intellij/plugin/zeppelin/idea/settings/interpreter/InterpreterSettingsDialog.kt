@@ -49,7 +49,7 @@ class InterpreterSettingsDialog(private val project: Project,
 
     private fun updateInstantiationType() {
         val options: InterpreterOption = interpreter.option
-        val values: List<String> = InstantiationType.values().toList().map { it.toString() }
+        val values: List<String> = InstantiationType.values().toList().map { it.toString().toUpperCase() }
         myPanel.initInstantiationTypes(values, options)
     }
 
@@ -66,7 +66,8 @@ class InterpreterSettingsDialog(private val project: Project,
         return if (myPanel.isGlobally) {
             InterpreterOption()
         } else {
-            InterpreterOption(InstantiationType.valueOf(myPanel.perNoteValue),
+            InterpreterOption(
+                    InstantiationType.valueOf(myPanel.perNoteValue),
                     InstantiationType.valueOf(myPanel.perUserValue))
         }
     }
