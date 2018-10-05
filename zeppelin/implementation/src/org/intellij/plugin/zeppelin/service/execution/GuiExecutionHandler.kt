@@ -18,9 +18,12 @@ class GuiExecutionHandler(private val project: Project) : ExecutionHandler {
         init()
     }
 
-    override fun isCompleted(): AtomicBoolean = isCompletedValue
 
     private data class ExecutionProgress(val status: String = "", val percentage: Double = 0.0)
+
+    override fun close() {
+        isCompletedValue.set(true)
+    }
 
     override fun onError(msg: ExecutionResults) {
         ZeppelinLogger.printError(ZeppelinConstants.PARAGRAPH_ERROR)
@@ -46,7 +49,6 @@ class GuiExecutionHandler(private val project: Project) : ExecutionHandler {
                 }
             }
             ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_COMPLETED)
-            isCompletedValue.set(true)
         }
     }
 
@@ -62,11 +64,15 @@ class GuiExecutionHandler(private val project: Project) : ExecutionHandler {
                 while (!isCompletedValue.get()) {
                     progressIndicator.text2 = executionProgress.status
                     progressIndicator.fraction = executionProgress.percentage
-                    Thread.sleep(200)
+                    Thread.sleep(PROGRESS_UPDATE_TIME)
                 }
             }
         }
         manager.runProcessWithProgressAsynchronously(task, createBgIndicator(project, "Zeppelin execution"))
+    }
+
+    companion object {
+        private const val PROGRESS_UPDATE_TIME = 200L
     }
 }
 

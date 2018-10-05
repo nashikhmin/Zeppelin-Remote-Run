@@ -54,7 +54,7 @@ open class ZeppelinExecutionManager(private val api: ZeppelinApi,
 
     private fun clean() {
         var task: TaskExecutor? = tasks.peek()
-        while (task != null && task.isCompleted().get()) {
+        while (task != null && task.isCompleted()) {
             tasks.poll()
             task = tasks.peek()
         }
