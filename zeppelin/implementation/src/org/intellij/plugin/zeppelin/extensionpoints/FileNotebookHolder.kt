@@ -12,9 +12,9 @@ interface FileNotebookHolder {
     fun getNotebookId(psiFile: PsiFile): String
 
     companion object {
-        private val Id: String = ZeppelinConstants.PLUGIN_ID + ".fileNotebookHolder"
+        private const val ID: String = ZeppelinConstants.PLUGIN_ID + ".fileNotebookHolder"
         private val EP_NAME: ExtensionPointName<FileNotebookHolder> = ExtensionPointName.create<FileNotebookHolder>(
-                Id)
+                ID)
 
         fun getAll(): List<FileNotebookHolder> = EP_NAME.extensions.toList()
     }

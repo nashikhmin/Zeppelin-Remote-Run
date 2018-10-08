@@ -13,7 +13,7 @@ interface DependencyDownloader {
         fun getAvailable() :DependencyDownloader = DependencyDownloader.EP_NAME.extensions.firstOrNull() ?: throw ZeppelinException(
                 "Dependency downloader is not implemented")
 
-        private val ID: String = ZeppelinConstants.PLUGIN_ID + ".dependencyDownloader"
+        private const val ID: String = ZeppelinConstants.PLUGIN_ID + ".dependencyDownloader"
         private val EP_NAME: ExtensionPointName<DependencyDownloader> = ExtensionPointName.create<DependencyDownloader>(
                 ID)
     }

@@ -12,9 +12,9 @@ interface TableOutputHandler {
     fun handle(project: Project, msg: String)
 
     companion object {
-        private val Id: String = ZeppelinConstants.PLUGIN_ID + ".tableOutputHandler"
+        private const val ID: String = ZeppelinConstants.PLUGIN_ID + ".tableOutputHandler"
         private val EP_NAME: ExtensionPointName<TableOutputHandler> = ExtensionPointName.create<TableOutputHandler>(
-                Id)
+                ID)
 
         fun getHandler(): TableOutputHandler = EP_NAME.extensions.firstOrNull()?:DefaultTableOutputHandler()
     }

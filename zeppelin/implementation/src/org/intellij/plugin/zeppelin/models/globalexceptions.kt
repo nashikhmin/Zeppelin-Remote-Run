@@ -1,5 +1,7 @@
 package org.intellij.plugin.zeppelin.models
 
+import org.intellij.plugin.zeppelin.service.execution.ExecuteContext
+
 open class ZeppelinException(val msg:String?=null) : Exception() {
     override val message: String
         get() = "Error in Zeppelin plugin. ${msg?:""}"

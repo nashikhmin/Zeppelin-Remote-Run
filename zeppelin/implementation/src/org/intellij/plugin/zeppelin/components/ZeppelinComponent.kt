@@ -25,7 +25,7 @@ class ZeppelinComponent(val project: Project) : ProjectComponent {
     val interpretersView: InterpretersView = InterpretersView(project)
 
     var sparkVersion: SparkVersion = SparkVersion.ZEPPELIN_DEFAULT_VERSION
-    var defaultNotebook: String = ""
+    private var defaultNotebook: String = ""
     private var actions: ZeppelinActionService? = null
 
     /**

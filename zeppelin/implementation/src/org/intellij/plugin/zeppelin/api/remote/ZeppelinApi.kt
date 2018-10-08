@@ -9,6 +9,7 @@ import org.intellij.plugin.zeppelin.api.remote.websocket.ZeppelinWebSocketAPI
 import org.intellij.plugin.zeppelin.models.*
 import org.intellij.plugin.zeppelin.service.InterpreterException
 import org.intellij.plugin.zeppelin.service.InterpreterNotFoundException
+import org.intellij.plugin.zeppelin.service.execution.ExecuteContext
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
 
 /**
@@ -42,7 +43,7 @@ class ZeppelinApi(private val zeppelinWebSocketAPI: ZeppelinWebSocketAPI,
      */
     fun allNotebooks(): List<Notebook> {
         val notebooksWithoutParagraphs = zeppelinRestApi.getNotebooks()
-        return notebooksWithoutParagraphs.map {
+        return notebooksWithoutParagraphs.filter { !it.name.contains("~Trash") }.map {
             zeppelinWebSocketAPI.getNote(it.id, credentials) ?: throw ZeppelinException(
                     "Cannot get a Notebook by WebSockets which was gotten by REST")
         }

@@ -5,7 +5,6 @@ import org.intellij.plugin.zeppelin.api.remote.websocket.MessageHandler
 import org.intellij.plugin.zeppelin.api.remote.websocket.ResponseCode
 import org.intellij.plugin.zeppelin.api.remote.websocket.WsResponseMessage
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants
-import org.intellij.plugin.zeppelin.models.ExecuteContext
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger
 import java.util.concurrent.ConcurrentHashMap
 
@@ -45,7 +44,7 @@ open class ZeppelinExecutionManager(private val api: ZeppelinApi,
     private val tasks: ConcurrentHashMap<String, TaskExecutor> = ConcurrentHashMap()
 
     fun execute(executeContext: ExecuteContext) {
-        ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_RUNNED.format(executeContext.text))
+        ZeppelinLogger.printMessage(ZeppelinConstants.PARAGRAPH_IS_RUN.format(executeContext.text))
         val task = TaskExecutor(executeContext.paragraphId, executionHandlerFactory.create())
         tasks[executeContext.paragraphId] = task
         api.runCode(executeContext)

@@ -1,4 +1,4 @@
-package org.intellij.plugin.zeppelin.model
+package org.intellij.plugin.zeppelin.test.api
 
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.models.SparkVersion

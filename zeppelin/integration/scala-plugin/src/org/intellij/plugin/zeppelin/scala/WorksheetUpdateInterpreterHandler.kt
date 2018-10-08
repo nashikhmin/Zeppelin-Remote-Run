@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler
 
-open class WorksheetUpdateInterpreterHandler : UpdateInterpreterHandler {
+class WorksheetUpdateInterpreterHandler : UpdateInterpreterHandler {
     override fun updateInterpreter(project: Project) {
         val currentFile: VirtualFile = runReadAction {
             FileEditorManagerEx.getInstanceEx(project).currentFile

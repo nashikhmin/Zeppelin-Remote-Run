@@ -3,6 +3,8 @@ package org.intellij.plugin.zeppelin.service.execution
 import org.intellij.plugin.zeppelin.models.ZeppelinException
 import org.intellij.plugin.zeppelin.utils.JsonParser
 
+data class ExecuteContext(val text: String, val noteId: String="", val paragraphId: String="")
+
 
 sealed class ExecutionResponse
 data class ProgressResponse(val id: String, val progress: Int) : ExecutionResponse()

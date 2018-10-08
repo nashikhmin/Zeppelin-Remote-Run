@@ -13,13 +13,6 @@ class InterpreterNotFoundException(private val id: String) : ZeppelinException()
         get() = "An interpreter with id $id is not found"
 }
 
-class NotebookException : ZeppelinException()
-
-class ServiceIsUnavailableException : ZeppelinException() {
-    override val message: String
-        get() = "Service is unavailable, please restart the service"
-}
-
 class NoSelectedFilesException : ZeppelinException() {
     override val message: String
         get() = "Please, select the file for this operation"

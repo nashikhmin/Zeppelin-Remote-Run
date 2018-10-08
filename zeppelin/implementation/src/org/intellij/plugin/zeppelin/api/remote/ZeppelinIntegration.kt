@@ -1,13 +1,16 @@
 package org.intellij.plugin.zeppelin.api.remote
 
-import org.intellij.plugin.zeppelin.api.remote.websocket.WebSocketAPI
-import org.intellij.plugin.zeppelin.api.remote.websocket.ZeppelinWebSocketAPI
 import org.intellij.plugin.zeppelin.api.remote.rest.RestAPI
 import org.intellij.plugin.zeppelin.api.remote.rest.ZeppelinRestApi
+import org.intellij.plugin.zeppelin.api.remote.websocket.WebSocketAPI
+import org.intellij.plugin.zeppelin.api.remote.websocket.ZeppelinWebSocketAPI
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.service.execution.ExecutionHandlerFactory
 import org.intellij.plugin.zeppelin.service.execution.ZeppelinExecutionManager
 
+/**
+ * A main class which aggregates all APIs for communication with a remote Zeppelin server
+ */
 class ZeppelinIntegration(settings: ZeppelinSettings, executionHandlerFactory: ExecutionHandlerFactory) {
     private val restAPI = RestAPI(settings.host, settings.port)
     private val webSocketAPI: WebSocketAPI = WebSocketAPI(settings.fullUrl)

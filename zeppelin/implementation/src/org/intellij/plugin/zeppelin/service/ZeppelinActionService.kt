@@ -18,6 +18,7 @@ import org.intellij.plugin.zeppelin.extensionpoints.UpdateInterpreterHandler
 import org.intellij.plugin.zeppelin.idea.settings.interpreter.InterpreterSettingsDialog
 import org.intellij.plugin.zeppelin.idea.settings.plugin.ZeppelinSettings
 import org.intellij.plugin.zeppelin.models.*
+import org.intellij.plugin.zeppelin.service.execution.ExecuteContext
 import org.intellij.plugin.zeppelin.service.execution.GuiExecutionHandlerFactory
 import org.intellij.plugin.zeppelin.service.execution.ZeppelinExecutionManager
 import org.intellij.plugin.zeppelin.utils.ZeppelinLogger

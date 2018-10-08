@@ -16,7 +16,7 @@ interface TemplateFileCreator {
     fun create(sourceFolder: String, project: Project)
 
     companion object {
-        private val ID: String = ZeppelinConstants.PLUGIN_ID + ".templateFileCreator"
+        private const val ID: String = ZeppelinConstants.PLUGIN_ID + ".templateFileCreator"
         private val EP_NAME: ExtensionPointName<TemplateFileCreator> = ExtensionPointName.create<TemplateFileCreator>(ID)
         fun get() = EP_NAME.extensions.firstOrNull()
     }

@@ -65,7 +65,7 @@ class TaskExecutor(val id: String, private val outputHandler: ExecutionHandler) 
                 taskActor.send(GetResponseMsg(responseChannel))
                 val received = responseChannel.receive()
                 handleResponses(received)
-                delay(Companion.RESPONSE_UPDATE_TIME)
+                delay(RESPONSE_UPDATE_TIME)
             }
             taskActor.close()
             outputHandler.close()
@@ -114,7 +114,7 @@ class TaskExecutor(val id: String, private val outputHandler: ExecutionHandler) 
                 is GetIsFinishedMsg -> msg.response.send(isFinished && responses.isEmpty())
                 is GetResponseMsg -> {
                     val time = System.currentTimeMillis()
-                    val (old, fresh) = responses.partition { time - it.time > Companion.FRESH_RESPONSE_TIME }
+                    val (old, fresh) = responses.partition { time - it.time > FRESH_RESPONSE_TIME }
                     msg.response.send(old.toList())
                     responses.clear()
                     responses.addAll(fresh)

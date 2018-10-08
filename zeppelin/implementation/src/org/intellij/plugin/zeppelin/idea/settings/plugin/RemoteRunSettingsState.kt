@@ -12,8 +12,8 @@ data class RemoteRunSettingsState(
 
 class ZeppelinSettingsStorage {
 
-    var login: String = ZeppelinCredentialsManager.getLogin()
-    var password: String = ZeppelinCredentialsManager.getPlainPassword()
+    private var login: String = ZeppelinCredentialsManager.getLogin()
+    private var password: String = ZeppelinCredentialsManager.getPlainPassword()
 
     @Attribute("defaultName")
     var defaultNotebookName: String = ZeppelinConstants.DEFAULT_NOTEBOOK_NAME
@@ -30,7 +30,7 @@ class ZeppelinSettingsStorage {
     @Attribute("IsAnonymous")
     var isAnonymous: Boolean = false
 
-    fun setCredentials(login: String, password: String) {
+    private fun setCredentials(login: String, password: String) {
         this.login = login
         this.password = password
     }

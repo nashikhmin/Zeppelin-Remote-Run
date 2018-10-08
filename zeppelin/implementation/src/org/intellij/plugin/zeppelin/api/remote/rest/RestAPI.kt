@@ -8,7 +8,6 @@ import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.httpPut
 import com.github.kittinunf.fuel.moshi.responseObject
 import com.github.kittinunf.result.Result
-import org.intellij.plugin.zeppelin.model.RestResponseMessage
 import org.intellij.plugin.zeppelin.utils.JsonParser
 
 open class RestAPI(host: String, port: Int, https: Boolean = false) {
@@ -55,7 +54,7 @@ open class RestAPI(host: String, port: Int, https: Boolean = false) {
                 .header(headers)
                 .timeout(10000)
                 .responseObject<RestResponseMessage>()
-        return Pair(response,getResponse(result))
+        return Pair(response, getResponse(result))
     }
 
     fun performPutData(uri: String, data: Map<String, Any>,
@@ -68,7 +67,8 @@ open class RestAPI(host: String, port: Int, https: Boolean = false) {
                 .body(JsonParser.toJson(data))
                 .timeout(10000)
                 .responseObject<RestResponseMessage>()
-        return getResponse(result)    }
+        return getResponse(result)
+    }
 
     private fun getResponse(
             result: Result<RestResponseMessage, FuelError>): RestResponseMessage {
@@ -79,3 +79,5 @@ open class RestAPI(host: String, port: Int, https: Boolean = false) {
         return obj!!
     }
 }
+
+data class RestResponseMessage(val status: String, val message: String, val body: Any = Any())
