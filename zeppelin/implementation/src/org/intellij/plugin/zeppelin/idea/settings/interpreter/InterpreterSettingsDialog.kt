@@ -29,7 +29,11 @@ class InterpreterSettingsDialog(private val project: Project,
     override fun doOKAction() {
         val newDependencies: List<Dependency> = getNewDependencies()
         val newOptions: InterpreterOption = getNewOptions()
-        interpreter = interpreter.copy(dependencies = newDependencies, option = newOptions)
+        val newProperties = myPanel.propertiesList
+        interpreter = interpreter.copy(
+                dependencies = newDependencies,
+                option = newOptions,
+                properties = newProperties.map { it.name to it }.toMap())
         val connection: ZeppelinComponent = ZeppelinComponent.connectionFor(project)
         val actionService: ZeppelinActionService = connection.service
         actionService.updateInterpreterSettings(interpreter)

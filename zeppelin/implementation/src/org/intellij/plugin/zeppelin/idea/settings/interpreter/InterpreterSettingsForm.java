@@ -6,6 +6,7 @@ import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants;
+import org.intellij.plugin.zeppelin.idea.common.AddInterpreterPropertyDialog;
 import org.intellij.plugin.zeppelin.idea.common.AddStringValueButton;
 import org.intellij.plugin.zeppelin.models.InterpreterOption;
 import org.intellij.plugin.zeppelin.models.InterpreterProperty;
@@ -38,7 +39,7 @@ public class InterpreterSettingsForm extends JDialog {
     private JPanel customInstantiationPanel;
     @SuppressWarnings("unused")
     private JPanel propertiesPanel;
-    private InterpreterPropertiesTableModel parametersModel = new InterpreterPropertiesTableModel();
+    private InterpreterPropertiesTableModel propertiesModel = new InterpreterPropertiesTableModel();
 
 
     public InterpreterSettingsForm() {
@@ -70,7 +71,12 @@ public class InterpreterSettingsForm extends JDialog {
     }
 
     public void initPropertiesList(List<InterpreterProperty> list) {
-        parametersModel.setItems(list);
+        propertiesModel.setItems(list);
+    }
+
+
+    public List<InterpreterProperty> getPropertiesList() {
+        return propertiesModel.getItems();
     }
 
     public void initInstantiationTypes(List<String> values, InterpreterOption option) {
@@ -184,8 +190,13 @@ public class InterpreterSettingsForm extends JDialog {
 
     private void createPropertiesPanel() {
         TableView<InterpreterProperty> myTable = new TableView<>();
-        myTable.setModelAndUpdateColumns(parametersModel);
-        propertiesPanel = ToolbarDecorator.createDecorator(myTable).createPanel();
+        myTable.setModelAndUpdateColumns(propertiesModel);
+        propertiesPanel = ToolbarDecorator.createDecorator(myTable)
+                .setAddAction(anActionButton -> {
+                    InterpreterProperty interpreterProperty = new AddInterpreterPropertyDialog(contentPane)
+                            .getValue();
+                    if (interpreterProperty != null) propertiesModel.addRow(interpreterProperty);
+                }).createPanel();
         dependenciesList.setEmptyText("There aren't properties");
 
     }
