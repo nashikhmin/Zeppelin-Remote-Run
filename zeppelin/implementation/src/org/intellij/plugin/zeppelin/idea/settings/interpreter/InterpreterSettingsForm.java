@@ -2,11 +2,13 @@ package org.intellij.plugin.zeppelin.idea.settings.interpreter;
 
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.intellij.plugin.zeppelin.constants.ZeppelinConstants;
 import org.intellij.plugin.zeppelin.idea.common.AddStringValueButton;
 import org.intellij.plugin.zeppelin.models.InterpreterOption;
+import org.intellij.plugin.zeppelin.models.InterpreterProperty;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +27,7 @@ public class InterpreterSettingsForm extends JDialog {
 
     private JPanel contentPane;
 
-    private CopyOnWriteArrayList<String> modelList;
+    private CopyOnWriteArrayList<String> dependenciesModelList;
     private JBList<String> dependenciesList;
     @SuppressWarnings("unused")
     private JPanel dependenciesPanel;
@@ -34,6 +36,9 @@ public class InterpreterSettingsForm extends JDialog {
     private JComboBox<String> perNoteBox;
     private JComboBox<String> perUserBox;
     private JPanel customInstantiationPanel;
+    @SuppressWarnings("unused")
+    private JPanel propertiesPanel;
+    private InterpreterPropertiesTableModel parametersModel = new InterpreterPropertiesTableModel();
 
 
     public InterpreterSettingsForm() {
@@ -47,8 +52,8 @@ public class InterpreterSettingsForm extends JDialog {
         return contentPane;
     }
 
-    public List<String> getModelList() {
-        return modelList;
+    public List<String> getDependenciesModelList() {
+        return dependenciesModelList;
     }
 
     public String getPerNoteValue() {
@@ -59,9 +64,13 @@ public class InterpreterSettingsForm extends JDialog {
         return (String) perUserBox.getSelectedItem();
     }
 
-    public void initDataModel(List<String> list) {
-        modelList = new CopyOnWriteArrayList<>(list);
-        updateModelList();
+    public void initDependenciesList(List<String> list) {
+        dependenciesModelList = new CopyOnWriteArrayList<>(list);
+        updateDependenciesList();
+    }
+
+    public void initPropertiesList(List<InterpreterProperty> list) {
+        parametersModel.setItems(list);
     }
 
     public void initInstantiationTypes(List<String> values, InterpreterOption option) {
@@ -134,6 +143,11 @@ public class InterpreterSettingsForm extends JDialog {
     }
 
     private void createUIComponents() {
+        createDependenciesPanel();
+        createPropertiesPanel();
+    }
+
+    private void createDependenciesPanel() {
         dependenciesList = new JBList<>();
         dependenciesList.setEmptyText("There aren't dependencies");
 
@@ -144,15 +158,15 @@ public class InterpreterSettingsForm extends JDialog {
                             ZeppelinConstants.ADD_DEPENDENCY_TITLE,
                             ZeppelinConstants.DEPENDENCY_NAME_LABEL
                     ).getValue();
-                    modelList.add(newValue);
-                    updateModelList();
+                    dependenciesModelList.add(newValue);
+                    updateDependenciesList();
                 }).setRemoveAction(anActionButton -> {
                     int selectedIndex = dependenciesList.getSelectedIndex();
-                    modelList.remove(selectedIndex);
-                    updateModelList();
+                    dependenciesModelList.remove(selectedIndex);
+                    updateDependenciesList();
                 }).setEditAction(anActionButton -> {
                     int selectedItemId = dependenciesList.getSelectedIndex();
-                    String oldValue = modelList.get(selectedItemId);
+                    String oldValue = dependenciesModelList.get(selectedItemId);
 
                     String newValue = new AddStringValueButton(
                             contentPane,
@@ -162,10 +176,18 @@ public class InterpreterSettingsForm extends JDialog {
                     ).getValue();
 
                     if (newValue == null) return;
-                    modelList.set(selectedItemId, newValue);
-                    updateModelList();
+                    dependenciesModelList.set(selectedItemId, newValue);
+                    updateDependenciesList();
                 })
                 .createPanel();
+    }
+
+    private void createPropertiesPanel() {
+        TableView<InterpreterProperty> myTable = new TableView<>();
+        myTable.setModelAndUpdateColumns(parametersModel);
+        propertiesPanel = ToolbarDecorator.createDecorator(myTable).createPanel();
+        dependenciesList.setEmptyText("There aren't properties");
+
     }
 
     private void initComboBox(JComboBox<String> comboBox, List<String> values, String defaultValue) {
@@ -175,8 +197,8 @@ public class InterpreterSettingsForm extends JDialog {
         comboBox.setModel(model);
     }
 
-    private void updateModelList() {
-        String[] array = modelList.toArray(new String[0]);
+    private void updateDependenciesList() {
+        String[] array = dependenciesModelList.toArray(new String[0]);
         final DefaultListModel<String> model = createDefaultListModel(array);
         dependenciesList.setModel(model);
     }

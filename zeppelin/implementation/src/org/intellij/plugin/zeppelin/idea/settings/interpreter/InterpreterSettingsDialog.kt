@@ -40,11 +40,16 @@ class InterpreterSettingsDialog(private val project: Project,
         super.init()
         updateDependencyList()
         updateInstantiationType()
+        updateProperties()
     }
 
     private fun updateDependencyList() {
         val dependencies = interpreter.dependencies.map { it.groupArtifactVersion }
-        myPanel.initDataModel(dependencies)
+        myPanel.initDependenciesList(dependencies)
+    }
+
+    private fun updateProperties() {
+        myPanel.initPropertiesList(interpreter.properties.values.toMutableList())
     }
 
     private fun updateInstantiationType() {
@@ -54,7 +59,7 @@ class InterpreterSettingsDialog(private val project: Project,
     }
 
     private fun getNewDependencies(): List<Dependency> {
-        val dependenciesNames: List<String?> = myPanel.modelList.toList()
+        val dependenciesNames: List<String?> = myPanel.dependenciesModelList.toList()
         val originalDependencies: List<Dependency> = interpreter.dependencies
         return dependenciesNames.asSequence().filter { it != null }
                 .map { it ->

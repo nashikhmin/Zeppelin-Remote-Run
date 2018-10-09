@@ -26,12 +26,30 @@ data class InterpreterOption(val perNote: InstantiationType = InstantiationType.
     fun isGlobally(): Boolean = perNote == InstantiationType.SHARED && perUser == InstantiationType.SHARED
 }
 
+enum class InterpreterPropertyType(val value: String) {
+    @Json(name = "textarea")
+    TEXTAREA("textarea"),
+    @Json(name = "string")
+    STRING("string"),
+    @Json(name = "number")
+    NUMBER("number"),
+    @Json(name = "url")
+    URL("url"),
+    @Json(name = "password")
+    PASSWORD("password"),
+    @Json(name = "checkbox")
+    CHECKBOX("checkbox");
+}
+
+
+data class InterpreterProperty(val name:String,var value:Any,val type:InterpreterPropertyType)
+
 data class Interpreter(val id: String,
                        val name: String,
                        val group: String,
                        val dependencies: List<Dependency>,
                        val status: InterpreterStatus,
-                       val properties: Any,
+                       val properties: Map<String,InterpreterProperty>,
                        val option: InterpreterOption,
                        val interpreterGroup: List<Any>,
                        val errorReason: String?)
